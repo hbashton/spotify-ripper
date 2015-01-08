@@ -1,31 +1,77 @@
-spotify-ripper
-=============
+# spotify-ripper
 
-fork of [spotify-ripper](https://github.com/robbeofficial/spotifyripper) that uses [pyspotify](https://github.com/mopidy/pyspotify) v2.x
+A fork of [spotify-ripper](https://github.com/robbeofficial/spotifyripper) that uses [pyspotify](https://github.com/mopidy/pyspotify) v2.x
 
-small ripper script for spotify (rips playlists to mp3 and includes ID3 tags)
+Spotify-ripper is a small ripper script for Spotify that rips playlists and track URIs to MP3 files and includes ID3 tags.
 
-note that stream ripping violates the ToC's of libspotify!
+**Note that stream ripping violates the libspotify's ToS**
 
-usage
------
-    ./ripper.py [username] [password] [spotify_url]
+## Usage
 
-examples
---------
-    "./ripper.py user pass spotify:track:52xaypL0Kjzk0ngwv3oBPR" creates "Beat It.mp3" file
-    "./ripper.py user pass spotify:user:[user]:playlist:7HC9PMdSbwGBBn3EVTaCNx rips entire playlist
+```shell
+usage: ripper.py [-h] [-u USER] [-p PASSWORD] [-l] [-m] uri
 
-features
---------
+rips Spotify URIs to mp3s with ID3 tags and album covers
+
+positional arguments:
+  uri                   Spotify URI (either track or playlist)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -u USER, --user USER  Spotify username
+  -p PASSWORD, --password PASSWORD
+                        Spotify password
+  -l, --last            Use last login credentials
+  -m, --pcm             Saves a .pcm file with the raw PCM data
+```
+
+## Examples
+
+```bash
+./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR # creates "Beat It.mp3" file
+./ripper.py -l spotify:user:[user]:playlist:7HC9PMdSbwGBBn3EVTaCNx # rips entire playlist
+```
+
+## Features
+
 * real-time VBR ripping from spotify PCM stream
 
 * writes id3 tags (including album covers)
 
 * creates files and directories based on the following structure artist/album/song.mp3
 
-prerequisites:
---------------
+## Installation
+
+### Prerequisites
+
+* libspotify
+
+* pyspotify
+
+* a Spotify binary app key (spotify_appkey.key)
+
+* lame
+
+* eyeD3
+
+### Mac OS X
+
+Recommend approach uses [homebrew](http://brew.sh/) and [pyenv](https://github.com/yyuu/pyenv)
+
+```bash
+$ git clone https://github.com/jrnewell/spotify-ripper.git
+$ cd spotify-ripper
+$ brew install homebrew/binary/libspotify
+$ sudo ln -s /usr/local/opt/libspotify/lib/libspotify.12.1.51.dylib \
+    /usr/local/opt/libspotify/lib/libspotify
+$ pip install --pre pyspotify
+$ brew install lame
+$ pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3
+$ pyenv rehash
+```
+
+Download an application key file `spotify_appkey.key` from `https://devaccount.spotify.com/my-account/keys/` (requires a Spotify Premium Account).
+
 * libspotify (download at https://developer.spotify.com/technologies/libspotify/)
 
 * pyspotify (sudo pip install -U pyspotify, requires python-dev)
@@ -36,8 +82,6 @@ prerequisites:
 
 * eyeD3 (sudo pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3)
 
-TODO
-----
-- [ ] skip exisiting track (avoid / completed tracks / completed = successful id3)
-- [ ] detect if other spotify instance is interrupting
-- [ ] add album supprt : spotify:album:1UnRYaeCev9JVKEHWBEgHe
+## License
+
+[MIT License](http://en.wikipedia.org/wiki/MIT_License)

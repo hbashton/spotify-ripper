@@ -31,10 +31,14 @@ class Ripper(threading.Thread):
     pcmfile = None
     pipe = None
     ripping = False
+    finished = False
     end_of_track = threading.Event()
 
     def __init__(self, args):
         threading.Thread.__init__(self)
+
+        # set to a daemon thread
+        self.daemon = True
 
         self.args = args
         self.logged_in = threading.Event()
@@ -56,7 +60,7 @@ class Ripper(threading.Thread):
     def run(self):
 
         # login
-        print("logging in...")
+        print("Logging in...")
         if args.last:
             self.login_as_last()
         else:
@@ -71,7 +75,7 @@ class Ripper(threading.Thread):
             itrack = iter([track])
         elif link.type == spotify.LinkType.PLAYLIST:
             playlist = link.as_playlist()
-            Utils.print_str('loading playlist...')
+            Utils.print_str('Loading playlist...')
             while not playlist.is_loaded():
                 time.sleep(0.1)
             print(' done')
@@ -94,6 +98,7 @@ class Ripper(threading.Thread):
 
         # logout, we are done
         self.logout()
+        self.finished = True
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
@@ -109,7 +114,7 @@ class Ripper(threading.Thread):
 
     def on_end_of_track(self, session):
         self.session.player.play(False)
-        end_of_track.set()
+        self.end_of_track.set()
 
     def login(self, user, password):
         "login into Spotify"
@@ -127,10 +132,9 @@ class Ripper(threading.Thread):
     def logout(self):
         "logout from Spotify"
         if self.logged_in.is_set():
-            Utils.print_str('Logging out...')
+            print('Logging out...')
             self.session.logout()
             self.logged_out.wait()
-            print(' done')
         self.event_loop.stop()
 
     def prepare_rip(self, session, track):
@@ -141,7 +145,7 @@ class Ripper(threading.Thread):
         if not os.path.exists(directory):
             os.makedirs(directory)
         full_path = directory + mp3file
-        print("ripping " + track.link.uri + " to")
+        print("Ripping " + track.link.uri + " to")
         print(full_path)
         p = Popen("lame --silent -V0 -h -r - \"" + full_path + "\"", stdin=PIPE, shell=True)
         self.pipe = p.stdin
@@ -196,6 +200,7 @@ class Ripper(threading.Thread):
         # delete cover
         Utils.shell("rm -f cover.jpg")
 
+# example uri : spotify:track:52xaypL0Kjzk0ngwv3oBPR
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
@@ -211,11 +216,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     ripper = Ripper(args)
-    ripper.daemon = True
     ripper.start()
 
-    while threading.active_count() > 0:
+    # wait for ripping thread to finish
+    while not ripper.finished:
         time.sleep(0.1)
-
-    # example : spotify:track:52xaypL0Kjzk0ngwv3oBPR
 
