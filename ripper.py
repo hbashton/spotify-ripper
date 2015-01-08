@@ -4,13 +4,13 @@
 from __future__ import unicode_literals
 
 from subprocess import call, Popen, PIPE
-from spotify import Link, LinkType
 import os, sys
 import time
 import cmd
 import logging
 import threading
 import spotify
+import argparse
 
 class Utils():
     @staticmethod
@@ -28,17 +28,15 @@ class Ripper(threading.Thread):
 
     logger = logging.getLogger('shell.ripper')
 
-    playback = False # set if you want to listen to the tracks that are currently ripped (start with "padsp ./jbripper.py ..." if using pulse audio)
-    rawpcm = False # also saves a .pcm file with the raw PCM data as delivered by libspotify ()
-
     pcmfile = None
     pipe = None
     ripping = False
     end_of_track = threading.Event()
 
-    def __init__(self):
+    def __init__(self, args):
         threading.Thread.__init__(self)
 
+        self.args = args
         self.logged_in = threading.Event()
         self.logged_out = threading.Event()
         self.logged_out.set()
@@ -49,14 +47,8 @@ class Ripper(threading.Thread):
             self.on_connection_state_changed)
         self.session.on(spotify.SessionEvent.END_OF_TRACK,
             self.on_end_of_track)
-        #self.session.on(spotify.SessionEvent.MUSIC_DELIVERY,
-        #    self.on_music_delivery)
-
-        # try:
-        #     self.audio_driver = spotify.PortAudioSink(self.session)
-        # except ImportError:
-        #     self.logger.warning(
-        #         'No audio sink found; audio playback unavailable.')
+        self.session.on(spotify.SessionEvent.MUSIC_DELIVERY,
+            self.on_music_delivery)
 
         self.event_loop = spotify.EventLoop(self.session)
         self.event_loop.start()
@@ -65,20 +57,20 @@ class Ripper(threading.Thread):
 
         # login
         print("logging in")
-        self.do_login("jrnewell luve4LAN")
+        if args.last:
+            self.do_relogin()
+        else:
+            self.do_login(args.user, args.password)
 
         # ripping loop
         session = self.session
 
-        session.on(spotify.SessionEvent.MUSIC_DELIVERY,
-            self.on_music_delivery)
-
         # create track iterator
-        link = session.get_link(sys.argv[3])
-        if link.type == LinkType.TRACK:
+        link = session.get_link(args.uri)
+        if link.type == spotify.LinkType.TRACK:
             track = link.as_track()
             itrack = iter([track])
-        elif link.type == LinkType.PLAYLIST:
+        elif link.type == spotify.LinkType.PLAYLIST:
             playlist = link.as_playlist()
             print('loading playlist ...')
             while not playlist.is_loaded():
@@ -93,10 +85,10 @@ class Ripper(threading.Thread):
 
             self.rip_init(session, track)
 
-            #session.player.play()
+            session.player.play()
 
-            #self.end_of_track.wait()
-            #self.end_of_track.clear() # TODO check if necessary
+            self.end_of_track.wait()
+            self.end_of_track.clear() # TODO check if necessary
 
             self.rip_terminate(session, track)
             self.rip_id3(session, track)
@@ -106,10 +98,6 @@ class Ripper(threading.Thread):
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
-        # if playback:
-        #     return Jukebox.music_delivery_safe(self, session, frames, frame_size, num_frames, sample_type, sample_rate, channels)
-        # else:
-        #     return num_frames
         return num_frames
 
     def on_connection_state_changed(self, session):
@@ -124,9 +112,7 @@ class Ripper(threading.Thread):
         self.session.player.play(False)
         end_of_track.set()
 
-    def do_login(self, line):
-        "login <username> <password>"
-        username, password = line.split(' ', 1)
+    def do_login(self, user, password):
         self.session.login(username, password, remember_me=True)
         self.logged_in.wait()
 
@@ -159,7 +145,7 @@ class Ripper(threading.Thread):
         Utils.print_str("ripping " + mp3file + " ...")
         p = Popen("lame --silent -V0 -h -r - \""+ directory + mp3file+"\"", stdin=PIPE, shell=True)
         self.pipe = p.stdin
-        if self.rawpcm:
+        if args.pcm:
           self.pcmfile = open(directory + pcmfile, 'w')
         self.ripping = True
 
@@ -168,7 +154,7 @@ class Ripper(threading.Thread):
         if self.pipe is not None:
             print(' done!')
             self.pipe.close()
-        if self.rawpcm:
+        if args.pcm:
             self.pcmfile.close()
         self.ripping = False
 
@@ -176,7 +162,7 @@ class Ripper(threading.Thread):
         if self.ripping:
             Utils.print_str('.')
             pipe.write(frame_bytes);
-            if self.rawpcm:
+            if args.pcm:
               self.pcmfile.write(frame_bytes)
 
     def rip_id3(self, session, track): # write ID3 data
@@ -214,12 +200,19 @@ class Ripper(threading.Thread):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    if len(sys.argv) >= 3:
-        ripper = Ripper()
-        ripper.start()
-    else:
-        print "usage : \n"
-        print "   ./ripper.py [username] [password] [spotify_url]"
-        print "example : \n"
-        print "   ./ripper.py user pass spotify:track:52xaypL0Kjzk0ngwv3oBPR - for a single file"
-        print "   ./ripper.py user pass spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4 - rips entire playlist"
+    parser = argparse.ArgumentParser(description='rips Spotify URIs to mp3s with ID3 tags and album covers')
+
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('-u', '--user', nargs=1, help='Spotify username')
+    parser.add_argument('-p', '--password', nargs=1, help='Spotify password')
+    group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
+    parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
+    parser.add_argument('uri', help='Spotify URI (either track or playlist)')
+    args = parser.parse_args()
+
+    ripper = Ripper(args)
+    ripper.start()
+
+    # example : spotify:track:52xaypL0Kjzk0ngwv3oBPR
+
