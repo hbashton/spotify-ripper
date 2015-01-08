@@ -56,13 +56,12 @@ class Ripper(threading.Thread):
     def run(self):
 
         # login
-        print("logging in")
+        print("logging in...")
         if args.last:
-            self.do_relogin()
+            self.login_as_last()
         else:
-            self.do_login(args.user, args.password)
+            self.login(args.user, args.password)
 
-        # ripping loop
         session = self.session
 
         # create track iterator
@@ -72,29 +71,29 @@ class Ripper(threading.Thread):
             itrack = iter([track])
         elif link.type == spotify.LinkType.PLAYLIST:
             playlist = link.as_playlist()
-            print('loading playlist ...')
+            Utils.print_str('loading playlist...')
             while not playlist.is_loaded():
                 time.sleep(0.1)
-            print('done')
+            print(' done')
             itrack = iter(playlist)
 
+        # ripping loop
         for track in itrack:
-            print "ripping track %s" % (track)
             track.load() # try/catch
             session.player.load(track)
 
-            self.rip_init(session, track)
+            self.prepare_rip(session, track)
 
             session.player.play()
 
             self.end_of_track.wait()
             self.end_of_track.clear() # TODO check if necessary
 
-            self.rip_terminate(session, track)
-            self.rip_id3(session, track)
+            self.finish_rip(session, track)
+            self.set_id3_and_cover(session, track)
 
-        print("logging out")
-        self.do_disconnect()
+        # logout, we are done
+        self.logout()
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
@@ -112,47 +111,47 @@ class Ripper(threading.Thread):
         self.session.player.play(False)
         end_of_track.set()
 
-    def do_login(self, user, password):
+    def login(self, user, password):
+        "login into Spotify"
         self.session.login(username, password, remember_me=True)
         self.logged_in.wait()
 
-    def do_relogin(self):
-        "relogin -- login as the previous logged in user"
+    def login_as_last(self):
+        "login as the previous logged in user"
         try:
             self.session.relogin()
             self.logged_in.wait()
         except spotify.Error as e:
             self.logger.error(e)
 
-    def do_disconnect(self):
-        "Exit"
+    def logout(self):
+        "logout from Spotify"
         if self.logged_in.is_set():
-            print('Logging out...')
+            Utils.print_str('Logging out...')
             self.session.logout()
             self.logged_out.wait()
+            print(' done')
         self.event_loop.stop()
-        print('')
-        return True
 
-    def rip_init(self, session, track):
+    def prepare_rip(self, session, track):
         num_track = "%02d" % (track.index)
-        print "rip_init: %s %s" % (track.name, num_track)
-        mp3file = track.name+".mp3"
-        pcmfile = track.name+".pcm"
+        mp3file = track.name + ".mp3"
+        pcmfile = track.name + ".pcm"
         directory = os.getcwd() + "/" + track.artists[0].name + "/" + track.album.name + "/"
         if not os.path.exists(directory):
             os.makedirs(directory)
-        Utils.print_str("ripping " + mp3file + " ...")
-        p = Popen("lame --silent -V0 -h -r - \""+ directory + mp3file+"\"", stdin=PIPE, shell=True)
+        full_path = directory + mp3file
+        print("ripping " + track.link.uri + " to")
+        print(full_path)
+        p = Popen("lame --silent -V0 -h -r - \"" + full_path + "\"", stdin=PIPE, shell=True)
         self.pipe = p.stdin
         if args.pcm:
           self.pcmfile = open(directory + pcmfile, 'w')
         self.ripping = True
 
-
-    def rip_terminate(self, session, track):
+    def finish_rip(self, session, track):
         if self.pipe is not None:
-            print(' done!')
+            print(' done')
             self.pipe.close()
         if args.pcm:
             self.pcmfile.close()
@@ -161,11 +160,11 @@ class Ripper(threading.Thread):
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:
             Utils.print_str('.')
-            pipe.write(frame_bytes);
+            self.pipe.write(frame_bytes);
             if args.pcm:
               self.pcmfile.write(frame_bytes)
 
-    def rip_id3(self, session, track): # write ID3 data
+    def set_id3_and_cover(self, session, track):
         num_track = "%02d" % (track.index)
         mp3file = track.name+".mp3"
         artist = track.artists[0].name
@@ -212,7 +211,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     ripper = Ripper(args)
+    ripper.daemon = True
     ripper.start()
+
+    while threading.active_count() > 0:
+        time.sleep(0.1)
 
     # example : spotify:track:52xaypL0Kjzk0ngwv3oBPR
 
