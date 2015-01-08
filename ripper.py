@@ -64,7 +64,7 @@ class Ripper(threading.Thread):
         if args.last:
             self.login_as_last()
         else:
-            self.login(args.user, args.password)
+            self.login(args.user[0], args.password[0])
 
         session = self.session
 
@@ -118,7 +118,7 @@ class Ripper(threading.Thread):
 
     def login(self, user, password):
         "login into Spotify"
-        self.session.login(username, password, remember_me=True)
+        self.session.login(user, password, remember_me=True)
         self.logged_in.wait()
 
     def login_as_last(self):
