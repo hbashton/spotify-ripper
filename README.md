@@ -70,17 +70,26 @@ $ pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3
 $ pyenv rehash
 ```
 
-Download an application key file `spotify_appkey.key` from `https://devaccount.spotify.com/my-account/keys/` (requires a Spotify Premium Account).
+Download an application key file `spotify_appkey.key` from `https://devaccount.spotify.com/my-account/keys/` (requires a Spotify Premium Account) and copy to `spotify-ripper` directory.
 
-* libspotify (download at https://developer.spotify.com/technologies/libspotify/)
+### Ubuntu/Debian
 
-* pyspotify (sudo pip install -U pyspotify, requires python-dev)
+Recommend approach uses [pyenv](https://github.com/yyuu/pyenv)
 
-* spotify binary appkey (download at developer.spotify.com and copy to wd, requires premium!)
+```bash
+$ git clone https://github.com/jrnewell/spotify-ripper.git
+$ cd spotify-ripper
+$ sudo apt-get install lame build-essential libffi-dev
+$ wget https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz # (assuming 64-bit)
+$ cd libspotify-12.1.51-Linux-x86_64-release/
+$ sudo make install prefix=/usr/local
+$ cd ..
+$ pip install --pre pyspotify
+$ pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3
+$ pyenv rehash
+```
 
-* lame (sudo apt-get install lame)
-
-* eyeD3 (sudo pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3)
+Download an application key file `spotify_appkey.key` from `https://devaccount.spotify.com/my-account/keys/` (requires a Spotify Premium Account) and copy to `spotify-ripper` directory.
 
 ## License
 
