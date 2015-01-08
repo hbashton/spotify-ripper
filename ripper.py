@@ -19,16 +19,12 @@ class Utils():
         sys.stdout.write(str)
         sys.stdout.flush()
 
-    @staticmethod
-    def shell(cmdline):
-        """execute shell commands (unicode support)"""
-        call(cmdline, shell=True)
-
 class Ripper(threading.Thread):
 
     logger = logging.getLogger('shell.ripper')
 
-    pcmfile = None
+    mp3_file = None
+    pcm_file = None
     pipe = None
     ripping = False
     finished = False
@@ -139,18 +135,19 @@ class Ripper(threading.Thread):
 
     def prepare_rip(self, session, track):
         num_track = "%02d" % (track.index)
-        mp3file = track.name + ".mp3"
-        pcmfile = track.name + ".pcm"
-        directory = os.getcwd() + "/" + track.artists[0].name + "/" + track.album.name + "/"
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        full_path = directory + mp3file
+        file_prefix = os.getcwd() + "/" + track.artists[0].name + "/" + track.album.name + "/" + track.name
+        file_prefix = file_prefix.replace('*', '_')
+        self.mp3_file = file_prefix + ".mp3"
+        mp3_path = os.path.dirname(file_prefix)
+
+        if not os.path.exists(mp3_path):
+            os.makedirs(mp3_path)
         print("Ripping " + track.link.uri + " to")
-        print(full_path)
-        p = Popen("lame --silent -V0 -h -r - \"" + full_path + "\"", stdin=PIPE, shell=True)
+        print(self.mp3_file )
+        p = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         self.pipe = p.stdin
         if args.pcm:
-          self.pcmfile = open(directory + pcmfile, 'w')
+          self.pcm_file = open(file_prefix + ".pcm", 'w')
         self.ripping = True
 
     def finish_rip(self, session, track):
@@ -158,7 +155,7 @@ class Ripper(threading.Thread):
             print(' done')
             self.pipe.close()
         if args.pcm:
-            self.pcmfile.close()
+            self.pcm_file.close()
         self.ripping = False
 
     def rip(self, session, audio_format, frame_bytes, num_frames):
@@ -166,16 +163,14 @@ class Ripper(threading.Thread):
             Utils.print_str('.')
             self.pipe.write(frame_bytes);
             if args.pcm:
-              self.pcmfile.write(frame_bytes)
+              self.pcm_file.write(frame_bytes)
 
     def set_id3_and_cover(self, session, track):
         num_track = "%02d" % (track.index)
-        mp3file = track.name+".mp3"
         artist = track.artists[0].name
         album = track.album.name
         title = track.name
         year = track.album.year
-        directory = os.getcwd() + "/" + track.artists[0].name + "/" + track.album.name + "/"
 
         # download cover
         image = track.album.cover()
@@ -186,25 +181,25 @@ class Ripper(threading.Thread):
         fh_cover.close()
 
         # write id3 data
-        cmd = "eyeD3" + \
-              " --add-image cover.jpg:FRONT_COVER" + \
-              " -t \"" + title + "\"" + \
-              " -a \"" + artist + "\"" + \
-              " -A \"" + album + "\"" + \
-              " -n " + str(num_track) + \
-              " -Y " + str(year) + \
-              " -Q " + \
-              " \"" + directory + mp3file + "\""
-        Utils.shell(cmd)
+        call(["eyeD3",
+              "--add-image", "cover.jpg:FRONT_COVER",
+              "-t", title,
+              "-a", artist,
+              "-A", album,
+              "-n", str(num_track),
+              "-Y", str(year),
+              "-Q",
+              self.mp3_file
+        ])
 
         # delete cover
-        Utils.shell("rm -f cover.jpg")
+        call(["rm", "-f", "cover.jpg"])
 
 # example uri : spotify:track:52xaypL0Kjzk0ngwv3oBPR
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser(description='rips Spotify URIs to mp3s with ID3 tags and album covers')
+    parser = argparse.ArgumentParser(description='Rips Spotify URIs to mp3s with ID3 tags and album covers')
 
     group = parser.add_mutually_exclusive_group(required=True)
 
@@ -212,6 +207,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
+    parser.add_argument('-V', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
     parser.add_argument('uri', help='Spotify URI (either track or playlist)')
     args = parser.parse_args()
 
