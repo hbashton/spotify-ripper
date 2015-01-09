@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 
 from subprocess import call, Popen, PIPE
+from colorama import init, Fore
 import os, sys
 import time
 import cmd
@@ -69,13 +70,24 @@ class Ripper(threading.Thread):
         if link.type == spotify.LinkType.TRACK:
             track = link.as_track()
             itrack = iter([track])
-        elif link.type == spotify.LinkType.PLAYLIST:
+        elif link.type == spotify.LinkType.PLAYLIST or link.type == spotify.LinkType.STARRED:
             playlist = link.as_playlist()
             Utils.print_str('Loading playlist...')
-            while not playlist.is_loaded():
-                time.sleep(0.1)
+            playlist.load()
             print(' done')
             itrack = iter(playlist)
+        elif link.type() == spotify.LinkType.ALBUM:
+            album = spotify.AlbumBrowser(link.as_album())
+            print('Loading album...')
+            album.load()
+            print(' done')
+            itrack = iter(album)
+        elif link.type() == spotify.LinkType.ARTIST:
+            artist = spotify.ArtistBrowser(link.as_artist())
+            print('Loading artist...')
+            artist.load()
+            print(' done')
+            itrack = iter(artist)
 
         # ripping loop
         for track in itrack:
@@ -142,8 +154,8 @@ class Ripper(threading.Thread):
 
         if not os.path.exists(mp3_path):
             os.makedirs(mp3_path)
-        print("Ripping " + track.link.uri + " to")
-        print(self.mp3_file )
+        print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
+        print(Fore.CYAN + self.mp3_file + Fore.RESET)
         p = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         self.pipe = p.stdin
         if args.pcm:
@@ -210,6 +222,8 @@ if __name__ == '__main__':
     parser.add_argument('-V', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
     parser.add_argument('uri', help='Spotify URI (either track or playlist)')
     args = parser.parse_args()
+
+    init()
 
     ripper = Ripper(args)
     ripper.start()
