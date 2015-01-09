@@ -20,6 +20,11 @@ class Utils():
         sys.stdout.write(str)
         sys.stdout.flush()
 
+    @staticmethod
+    def norm_path(path):
+        """normalize path"""
+        return os.path.normpath(os.path.realpath(path))
+
 class Ripper(threading.Thread):
 
     logger = logging.getLogger('shell.ripper')
@@ -91,18 +96,26 @@ class Ripper(threading.Thread):
 
         # ripping loop
         for track in itrack:
-            track.load() # try/catch
-            session.player.load(track)
+            try:
+                track.load()
+                if track.availability != 1:
+                    print(Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
+                    continue
+                session.player.load(track)
 
-            self.prepare_rip(session, track)
+                self.prepare_rip(session, track)
 
-            session.player.play()
+                session.player.play()
 
-            self.end_of_track.wait()
-            self.end_of_track.clear() # TODO check if necessary
+                self.end_of_track.wait()
+                self.end_of_track.clear()
 
-            self.finish_rip(session, track)
-            self.set_id3_and_cover(session, track)
+                self.finish_rip(session, track)
+                self.set_id3_and_cover(session, track)
+            except spotify.Error as e:
+                print(Fore.RED + "Spotify error detected" + Fore.RESET)
+                self.logger.error(e)
+                print("Skipping to next track...")
 
         # logout, we are done
         self.logout()
@@ -147,7 +160,10 @@ class Ripper(threading.Thread):
 
     def prepare_rip(self, session, track):
         num_track = "%02d" % (track.index)
-        file_prefix = os.getcwd() + "/" + track.artists[0].name + "/" + track.album.name + "/" + track.name
+
+        # set base directory
+        base_dir = Utils.norm_path(args.outputdir[0]) if args.directory != None else os.getcwd()
+        file_prefix = base_dir + "/" + track.artists[0].name + "/" + track.album.name + "/" + track.name
         file_prefix = file_prefix.replace('*', '_')
         self.mp3_file = file_prefix + ".mp3"
         mp3_path = os.path.dirname(file_prefix)
@@ -207,19 +223,25 @@ class Ripper(threading.Thread):
         # delete cover
         call(["rm", "-f", "cover.jpg"])
 
-# example uri : spotify:track:52xaypL0Kjzk0ngwv3oBPR
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser(description='Rips Spotify URIs to mp3s with ID3 tags and album covers')
+    parser = argparse.ArgumentParser(prog='ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog='''Example usage:
+    rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
+    rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+    ''')
 
     group = parser.add_mutually_exclusive_group(required=True)
 
+    parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
-    parser.add_argument('-V', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
+    parser.add_argument('-v', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
     parser.add_argument('uri', help='Spotify URI (either track or playlist)')
     args = parser.parse_args()
 
