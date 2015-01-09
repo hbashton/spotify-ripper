@@ -13,6 +13,7 @@ import logging
 import threading
 import spotify
 import argparse
+import getpass
 
 class Utils():
     @staticmethod
@@ -76,6 +77,9 @@ class Ripper(threading.Thread):
         print("Logging in...")
         if args.last:
             self.login_as_last()
+        elif args.user != None and args.password == None:
+            password = getpass.getpass()
+            self.login(args.user[0], password)
         else:
             self.login(args.user[0], args.password[0])
 
@@ -224,6 +228,12 @@ class Ripper(threading.Thread):
             if args.pcm:
               self.pcm_file.write(frame_bytes)
 
+    def abort(self):
+        self.session.player.play(False)
+        if os.path.exists(self.mp3_file):
+            print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
+            call(["rm", "-f", self.mp3_file])
+
     def set_id3_and_cover(self, track):
         num_track = "%02d" % (track.index)
         artist = track.artists[0].name
@@ -269,7 +279,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
-    parser.add_argument('-p', '--password', nargs=1, help='Spotify password')
+    parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
@@ -283,6 +293,12 @@ if __name__ == '__main__':
     ripper.start()
 
     # wait for ripping thread to finish
-    while not ripper.finished:
-        time.sleep(0.1)
+    try:
+        while not ripper.finished:
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
+        ripper.abort()
+        sys.exit(1)
+
 
