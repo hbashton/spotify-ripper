@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 from subprocess import call, Popen, PIPE
 from colorama import init, Fore
 import os, sys
+import re
 import time
 import cmd
 import logging
@@ -24,6 +25,16 @@ class Utils():
     def norm_path(path):
         """normalize path"""
         return os.path.normpath(os.path.realpath(path))
+
+    # borrowed from AndersTornkvist's fork
+    @staticmethod
+    def escape_filename_part(part):
+        """escape possible offending characters"""
+        part = re.sub(r"\s*/\s*", r' & ', part)
+        part = re.sub(r"""\s*[\\/:"*?<>|]+\s*""", r' ', part)
+        part = part.strip()
+        part = re.sub(r"(^\.+\s*|(?<=\.)\.+|\s*\.+$)", r'', part)
+        return part
 
 class Ripper(threading.Thread):
 
@@ -101,17 +112,23 @@ class Ripper(threading.Thread):
                 if track.availability != 1:
                     print(Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
                     continue
+
+                self.prepare_path(track)
+
+                if not args.overwrite and os.path.exists(self.mp3_file):
+                    print(Fore.YELLOW + "Skipping " + track.link.uri + Fore.RESET)
+                    print(Fore.CYAN + self.mp3_file + Fore.RESET)
+                    continue
+
                 session.player.load(track)
-
-                self.prepare_rip(session, track)
-
+                self.prepare_rip(track)
                 session.player.play()
 
                 self.end_of_track.wait()
                 self.end_of_track.clear()
 
-                self.finish_rip(session, track)
-                self.set_id3_and_cover(session, track)
+                self.finish_rip(track)
+                self.set_id3_and_cover(track)
             except spotify.Error as e:
                 print(Fore.RED + "Spotify error detected" + Fore.RESET)
                 self.logger.error(e)
@@ -158,18 +175,18 @@ class Ripper(threading.Thread):
             self.logged_out.wait()
         self.event_loop.stop()
 
-    def prepare_rip(self, session, track):
-        num_track = "%02d" % (track.index)
-
-        # set base directory
+    def prepare_path(self, track):
         base_dir = Utils.norm_path(args.outputdir[0]) if args.directory != None else os.getcwd()
-        file_prefix = base_dir + "/" + track.artists[0].name + "/" + track.album.name + "/" + track.name
-        file_prefix = file_prefix.replace('*', '_')
+        file_prefix = base_dir + "/" + Utils.escape_filename_part(track.artists[0].name) + "/" +  \
+            Utils.escape_filename_part(track.album.name) + "/" +  Utils.escape_filename_part(track.name)
         self.mp3_file = file_prefix + ".mp3"
-        mp3_path = os.path.dirname(file_prefix)
 
+        # create directory if it doesn't exist
+        mp3_path = os.path.dirname(self.mp3_file)
         if not os.path.exists(mp3_path):
             os.makedirs(mp3_path)
+
+    def prepare_rip(self, track):
         print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
         p = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
@@ -178,7 +195,7 @@ class Ripper(threading.Thread):
           self.pcm_file = open(file_prefix + ".pcm", 'w')
         self.ripping = True
 
-    def finish_rip(self, session, track):
+    def finish_rip(self, track):
         if self.pipe is not None:
             print(' done')
             self.pipe.close()
@@ -193,7 +210,7 @@ class Ripper(threading.Thread):
             if args.pcm:
               self.pcm_file.write(frame_bytes)
 
-    def set_id3_and_cover(self, session, track):
+    def set_id3_and_cover(self, track):
         num_track = "%02d" % (track.index)
         artist = track.artists[0].name
         album = track.album.name
@@ -241,6 +258,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
+    parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
     parser.add_argument('uri', help='Spotify URI (either track or playlist)')
     args = parser.parse_args()
