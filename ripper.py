@@ -122,11 +122,14 @@ class Ripper(threading.Thread):
 
                 session.player.load(track)
                 self.prepare_rip(track)
+                self.duration = track.duration
+                self.position = 0
                 session.player.play()
 
                 self.end_of_track.wait()
                 self.end_of_track.clear()
 
+                self.end_progress()
                 self.finish_rip(track)
                 self.set_id3_and_cover(track)
             except spotify.Error as e:
@@ -203,9 +206,20 @@ class Ripper(threading.Thread):
             self.pcm_file.close()
         self.ripping = False
 
+    def update_progress(self):
+        pos_seconds = self.position // 1000
+        dur_seconds = self.duration // 1000
+        pct = int(self.position * 100 // self.duration)
+        x = int(pct * 40 // 100)
+        Utils.print_str(("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
+
+    def end_progress(self):
+        Utils.print_str("\n")
+
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:
-            Utils.print_str('.')
+            self.position += (num_frames * 1000) / audio_format.sample_rate
+            self.update_progress()
             self.pipe.write(frame_bytes);
             if args.pcm:
               self.pcm_file.write(frame_bytes)
