@@ -2,34 +2,37 @@
 
 A fork of [spotify-ripper](https://github.com/robbeofficial/spotifyripper) that uses [pyspotify](https://github.com/mopidy/pyspotify) v2.x
 
-Spotify-ripper is a small ripper script for Spotify that rips playlists and track URIs to MP3 files and includes ID3 tags.
+Spotify-ripper is a small ripper script for Spotify that rips Spotify URIs to MP3 files and includes ID3 tags and cover art.
 
 **Note that stream ripping violates the libspotify's ToS**
 
 ## Usage
 
 ```shell
-usage: ripper.py [-h] [-u USER] [-p PASSWORD] [-l] [-m] uri
+usage: ripper [-h] [-d DIRECTORY] [-u USER] [-p PASSWORD] [-l] [-m] [-o]
+              [-v VBR]
+              uri
 
-rips Spotify URIs to mp3s with ID3 tags and album covers
+Rips Spotify URIs to MP3s with ID3 tags and album covers
 
 positional arguments:
   uri                   Spotify URI (either track or playlist)
 
 optional arguments:
   -h, --help            show this help message and exit
+  -d DIRECTORY, --directory DIRECTORY
+                        Base directory where ripped MP3s are saved [Default=cwd]
   -u USER, --user USER  Spotify username
   -p PASSWORD, --password PASSWORD
                         Spotify password
   -l, --last            Use last login credentials
   -m, --pcm             Saves a .pcm file with the raw PCM data
-```
+  -o, --overwrite       Overwrite existing MP3 files [Default=skip]
+  -v VBR, --vbr VBR     Lame VBR quality setting [Default=0]
 
-## Examples
-
-```bash
-./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR # creates "Beat It.mp3" file
-./ripper.py -l spotify:user:[user]:playlist:7HC9PMdSbwGBBn3EVTaCNx # rips entire playlist
+Example usage:
+    rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
+    rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
 ```
 
 ## Features
@@ -39,6 +42,10 @@ optional arguments:
 * writes id3 tags (including album covers)
 
 * creates files and directories based on the following structure artist/album/song.mp3
+
+* skips existing files
+
+* accepts tracks, playlists, albums, and artist URIs
 
 ## Installation
 

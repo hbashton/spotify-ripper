@@ -200,7 +200,7 @@ class Ripper(threading.Thread):
 
     def finish_rip(self, track):
         if self.pipe is not None:
-            print(' done')
+            print(Fore.GREEN + 'Rip complete' + Fore.RESET)
             self.pipe.close()
         if args.pcm:
             self.pcm_file.close()
