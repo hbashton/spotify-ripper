@@ -14,6 +14,7 @@ import threading
 import spotify
 import argparse
 import getpass
+import itertools
 
 class Utils():
     @staticmethod
@@ -83,31 +84,11 @@ class Ripper(threading.Thread):
         else:
             self.login(args.user[0], args.password[0])
 
-        session = self.session
-
         # create track iterator
         if os.path.exists(args.uri):
-            itrack = iter([session.get_link(line.strip()).as_track() for line in open(args.uri)])
+            itrack = itertools.chain(*[self.load_link(line.strip()) for line in open(args.uri)])
         else:
-            link = session.get_link(args.uri)
-            if link.type == spotify.LinkType.TRACK:
-                track = link.as_track()
-                itrack = iter([track])
-            elif link.type == spotify.LinkType.PLAYLIST or link.type == spotify.LinkType.STARRED:
-                playlist = link.as_playlist()
-                print('Loading playlist...')
-                playlist.load()
-                itrack = iter(playlist)
-            elif link.type() == spotify.LinkType.ALBUM:
-                album = spotify.AlbumBrowser(link.as_album())
-                print('Loading album...')
-                album.load()
-                itrack = iter(album)
-            elif link.type() == spotify.LinkType.ARTIST:
-                artist = spotify.ArtistBrowser(link.as_artist())
-                print('Loading artist...')
-                artist.load()
-                itrack = iter(artist)
+            itrack = self.load_link(args.uri)
 
         # ripping loop
         for track in itrack:
@@ -125,11 +106,11 @@ class Ripper(threading.Thread):
                     print(Fore.CYAN + self.mp3_file + Fore.RESET)
                     continue
 
-                session.player.load(track)
+                self.session.player.load(track)
                 self.prepare_rip(track)
                 self.duration = track.duration
                 self.position = 0
-                session.player.play()
+                self.session.player.play()
 
                 self.end_of_track.wait()
                 self.end_of_track.clear()
@@ -145,6 +126,28 @@ class Ripper(threading.Thread):
         # logout, we are done
         self.logout()
         self.finished = True
+
+    def load_link(self, uri):
+        link = self.session.get_link(uri)
+        if link.type == spotify.LinkType.TRACK:
+            track = link.as_track()
+            itrack = iter([track])
+        elif link.type == spotify.LinkType.PLAYLIST or link.type == spotify.LinkType.STARRED:
+            playlist = link.as_playlist()
+            print('Loading playlist...')
+            playlist.load()
+            itrack = iter(playlist)
+        elif link.type() == spotify.LinkType.ALBUM:
+            album = spotify.AlbumBrowser(link.as_album())
+            print('Loading album...')
+            album.load()
+            itrack = iter(album)
+        elif link.type() == spotify.LinkType.ARTIST:
+            artist = spotify.ArtistBrowser(link.as_artist())
+            print('Loading artist...')
+            artist.load()
+            itrack = iter(artist)
+        return itrack
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
