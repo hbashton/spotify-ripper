@@ -16,7 +16,7 @@ usage: ripper [-h] [-d DIRECTORY] [-u USER] [-p PASSWORD] [-l] [-m] [-o]
 Rips Spotify URIs to MP3s with ID3 tags and album covers
 
 positional arguments:
-  uri                   Spotify URI (either track or playlist)
+  uri                   Spotify URI (either URI or a file of URIs)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -24,7 +24,7 @@ optional arguments:
                         Base directory where ripped MP3s are saved [Default=cwd]
   -u USER, --user USER  Spotify username
   -p PASSWORD, --password PASSWORD
-                        Spotify password
+                        Spotify password [Default=ask interactively]
   -l, --last            Use last login credentials
   -m, --pcm             Saves a .pcm file with the raw PCM data
   -o, --overwrite       Overwrite existing MP3 files [Default=skip]

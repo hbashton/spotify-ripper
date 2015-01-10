@@ -86,32 +86,33 @@ class Ripper(threading.Thread):
         session = self.session
 
         # create track iterator
-        link = session.get_link(args.uri)
-        if link.type == spotify.LinkType.TRACK:
-            track = link.as_track()
-            itrack = iter([track])
-        elif link.type == spotify.LinkType.PLAYLIST or link.type == spotify.LinkType.STARRED:
-            playlist = link.as_playlist()
-            Utils.print_str('Loading playlist...')
-            playlist.load()
-            print(' done')
-            itrack = iter(playlist)
-        elif link.type() == spotify.LinkType.ALBUM:
-            album = spotify.AlbumBrowser(link.as_album())
-            print('Loading album...')
-            album.load()
-            print(' done')
-            itrack = iter(album)
-        elif link.type() == spotify.LinkType.ARTIST:
-            artist = spotify.ArtistBrowser(link.as_artist())
-            print('Loading artist...')
-            artist.load()
-            print(' done')
-            itrack = iter(artist)
+        if os.path.exists(args.uri):
+            itrack = iter([session.get_link(line.strip()).as_track() for line in open(args.uri)])
+        else:
+            link = session.get_link(args.uri)
+            if link.type == spotify.LinkType.TRACK:
+                track = link.as_track()
+                itrack = iter([track])
+            elif link.type == spotify.LinkType.PLAYLIST or link.type == spotify.LinkType.STARRED:
+                playlist = link.as_playlist()
+                print('Loading playlist...')
+                playlist.load()
+                itrack = iter(playlist)
+            elif link.type() == spotify.LinkType.ALBUM:
+                album = spotify.AlbumBrowser(link.as_album())
+                print('Loading album...')
+                album.load()
+                itrack = iter(album)
+            elif link.type() == spotify.LinkType.ARTIST:
+                artist = spotify.ArtistBrowser(link.as_artist())
+                print('Loading artist...')
+                artist.load()
+                itrack = iter(artist)
 
         # ripping loop
         for track in itrack:
             try:
+                print('Loading track...')
                 track.load()
                 if track.availability != 1:
                     print(Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
@@ -284,7 +285,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
-    parser.add_argument('uri', help='Spotify URI (either track or playlist)')
+    parser.add_argument('uri', help='Spotify URI (either URI or a file of URIs)')
     args = parser.parse_args()
 
     init()
