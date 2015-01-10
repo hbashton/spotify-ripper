@@ -188,9 +188,11 @@ class Ripper(threading.Thread):
 
     def prepare_path(self, track):
         base_dir = Utils.norm_path(args.outputdir[0]) if args.directory != None else os.getcwd()
-        file_prefix = base_dir + "/" + Utils.escape_filename_part(track.artists[0].name) + "/" +  \
-            Utils.escape_filename_part(track.album.name) + "/" +  Utils.escape_filename_part(track.name)
-        self.mp3_file = file_prefix + ".mp3"
+
+        artist = Utils.escape_filename_part(track.artists[0].name)
+        album = Utils.escape_filename_part(track.album.name)
+        track_name = Utils.escape_filename_part(track.name)
+        self.mp3_file = os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3")
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
@@ -203,7 +205,7 @@ class Ripper(threading.Thread):
         p = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         self.pipe = p.stdin
         if args.pcm:
-          self.pcm_file = open(file_prefix + ".pcm", 'w')
+          self.pcm_file = open(self.mp3_file[:-4] + ".pcm", 'w')
         self.ripping = True
 
     def finish_rip(self, track):
@@ -239,11 +241,17 @@ class Ripper(threading.Thread):
             call(["rm", "-f", self.mp3_file])
 
     def set_id3_and_cover(self, track):
-        num_track = "%02d" % (track.index)
-        artist = track.artists[0].name
-        album = track.album.name
-        title = track.name
-        year = track.album.year
+        album_browser = track.album.browse()
+        album_browser.load()
+
+        # calculate num of tracks on disc and num of dics
+        num_discs = 0
+        num_tracks = 0
+        for track_browse in album_browser.tracks:
+            if track_browse.disc == track.disc and track_browse.index > track.index:
+                num_tracks = track_browse.index
+            if track_browse.disc > num_discs:
+                num_discs = track_browse.disc
 
         # download cover
         image = track.album.cover()
@@ -256,11 +264,14 @@ class Ripper(threading.Thread):
         # write id3 data
         call(["eyeD3",
               "--add-image", "cover.jpg:FRONT_COVER",
-              "-t", title,
-              "-a", artist,
-              "-A", album,
-              "-n", str(num_track),
-              "-Y", str(year),
+              "-t", track.name,
+              "-a", track.artists[0].name,
+              "-A", track.album.name,
+              "-n", str(track.index),
+              "-N", str(num_tracks),
+              "-d", str(track.disc),
+              "-D", str(num_discs),
+              "-Y", str(track.album.year),
               "-Q",
               self.mp3_file
         ])
