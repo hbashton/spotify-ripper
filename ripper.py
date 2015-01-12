@@ -86,12 +86,12 @@ class Ripper(threading.Thread):
 
         # create track iterator
         if os.path.exists(args.uri):
-            itrack = itertools.chain(*[self.load_link(line.strip()) for line in open(args.uri)])
+            tracks = itertools.chain(*[self.load_link(line.strip()) for line in open(args.uri)])
         else:
-            itrack = self.load_link(args.uri)
+            tracks = self.load_link(args.uri)
 
         # ripping loop
-        for track in itrack:
+        for track in tracks:
             try:
                 print('Loading track...')
                 track.load()
@@ -131,23 +131,27 @@ class Ripper(threading.Thread):
         link = self.session.get_link(uri)
         if link.type == spotify.LinkType.TRACK:
             track = link.as_track()
-            itrack = iter([track])
+            return iter([track])
         elif link.type == spotify.LinkType.PLAYLIST or link.type == spotify.LinkType.STARRED:
             playlist = link.as_playlist()
             print('Loading playlist...')
             playlist.load()
-            itrack = iter(playlist)
-        elif link.type() == spotify.LinkType.ALBUM:
-            album = spotify.AlbumBrowser(link.as_album())
+            return iter(playlist.tracks)
+        elif link.type == spotify.LinkType.ALBUM:
+            album = link.as_album()
             print('Loading album...')
             album.load()
-            itrack = iter(album)
-        elif link.type() == spotify.LinkType.ARTIST:
-            artist = spotify.ArtistBrowser(link.as_artist())
+            album_browser = album.browse()
+            album_browser.load()
+            return iter(album_browser.tracks)
+        elif link.type == spotify.LinkType.ARTIST:
+            artist = link.as_artist()
             print('Loading artist...')
             artist.load()
-            itrack = iter(artist)
-        return itrack
+            artist_browser = artist.browse()
+            artist_browser.load()
+            return iter(artist_browser.tracks)
+        return iter([])
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
