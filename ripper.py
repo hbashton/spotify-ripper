@@ -16,6 +16,11 @@ import argparse
 import getpass
 import itertools
 
+class BitRate(spotify.utils.IntEnum):
+    BITRATE_160K = 0
+    BITRATE_320K = 1
+    BITRATE_96K  = 2
+
 class Utils():
     @staticmethod
     def print_str(str):
@@ -61,7 +66,11 @@ class Ripper(threading.Thread):
         self.logged_out.set()
 
         self.session = spotify.Session()
-        self.session.preferred_bitrate(1) # 320 bps
+        bit_rates = dict([
+            ('160', BitRate.BITRATE_160K),
+            ('320', BitRate.BITRATE_320K),
+            ('96', BitRate.BITRATE_96K)])
+        self.session.preferred_bitrate(bit_rates[args.bitrate])
         self.session.on(spotify.SessionEvent.CONNECTION_STATE_UPDATED,
             self.on_connection_state_changed)
         self.session.on(spotify.SessionEvent.END_OF_TRACK,
@@ -296,6 +305,7 @@ if __name__ == '__main__':
 
     group = parser.add_mutually_exclusive_group(required=True)
 
+    parser.add_argument('-b', '--bitrate', default='320', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
