@@ -9,17 +9,19 @@ Spotify-ripper is a small ripper script for Spotify that rips Spotify URIs to MP
 ## Usage
 
 ```shell
-usage: ripper [-h] [-d DIRECTORY] [-u USER] [-p PASSWORD] [-l] [-m] [-o]
-              [-v VBR]
+usage: ripper [-h] [-b {160,320,96}] [-d DIRECTORY] [-u USER] [-p PASSWORD]
+              [-l] [-m] [-o] [-v VBR]
               uri
 
 Rips Spotify URIs to MP3s with ID3 tags and album covers
 
 positional arguments:
-  uri                   Spotify URI (either URI or a file of URIs)
+  uri                   Spotify URI (either URI, a file of URIs or a search query)
 
 optional arguments:
   -h, --help            show this help message and exit
+  -b {160,320,96}, --bitrate {160,320,96}
+                        Bitrate rip quality [Default=320]
   -d DIRECTORY, --directory DIRECTORY
                         Base directory where ripped MP3s are saved [Default=cwd]
   -u USER, --user USER  Spotify username
@@ -33,6 +35,7 @@ optional arguments:
 Example usage:
     rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
     rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+    search for tracks to rip: /ripper.py -l -b 160 -o "album:Rumours track:'the chain'"
 ```
 
 ## Features

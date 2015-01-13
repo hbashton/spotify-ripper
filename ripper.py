@@ -96,8 +96,10 @@ class Ripper(threading.Thread):
         # create track iterator
         if os.path.exists(args.uri):
             tracks = itertools.chain(*[self.load_link(line.strip()) for line in open(args.uri)])
-        else:
+        elif args.uri.startswith("spotify:"):
             tracks = self.load_link(args.uri)
+        else:
+            tracks = self.search_query(args.uri)
 
         # ripping loop
         for track in tracks:
@@ -160,6 +162,46 @@ class Ripper(threading.Thread):
             artist_browser = artist.browse()
             artist_browser.load()
             return iter(artist_browser.tracks)
+        return iter([])
+
+    def search_query(self, query):
+        print("Searching for query: " + query)
+        try:
+            result = self.session.search(query)
+            result.load()
+        except spotify.Error as e:
+            self.logger.warning(e)
+            return iter([])
+
+        # list tracks
+        print(Fore.GREEN + "Results" + Fore.RESET)
+        for track_idx, track in enumerate(result.tracks):
+            print "  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + track.album.name + "] " + track.artists[0].name + " - " + track.name + " (" + str(track.popularity) + ")"
+
+        pick = raw_input("Pick track(s) (ex 1-3,5): ")
+
+        def get_track(i):
+            if i >= 0 and i < len(result.tracks):
+                return iter([result.tracks[i]])
+            return iter([])
+
+        pattern = re.compile("^[0-9 ,\-]+$")
+        if pick.isdigit():
+            pick = int(pick) - 1
+            return get_track(pick)
+        elif pick.lower() == "a" or pick.lower() == "all":
+            return iter(result.tracks)
+        elif pattern.match(pick):
+            def range_string(comma_string):
+                def hyphen_range(hyphen_string):
+                    x = [int(x) - 1 for x in hyphen_string.split('-')]
+                    return range(x[0], x[-1]+1)
+                return itertools.chain(*[hyphen_range(r) for r in comma_string.split(',')])
+            picks = sorted(set(list(range_string(pick))))
+            return itertools.chain(*[get_track(p) for p in picks])
+
+        if pick != "":
+            print(Fore.RED + "Invalid selection" + Fore.RESET)
         return iter([])
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
@@ -301,6 +343,7 @@ if __name__ == '__main__':
         epilog='''Example usage:
     rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
     rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+    search for tracks to rip: /ripper.py -l -b 160 -o "album:Rumours track:'the chain'"
     ''')
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -313,7 +356,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
-    parser.add_argument('uri', help='Spotify URI (either URI or a file of URIs)')
+    parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
     args = parser.parse_args()
 
     init()
