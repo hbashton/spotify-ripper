@@ -6,11 +6,27 @@ Spotify-ripper is a small ripper script for Spotify that rips Spotify URIs to MP
 
 **Note that stream ripping violates the libspotify's ToS**
 
+## Features
+
+* real-time VBR or CBR ripping from spotify PCM stream
+
+* writes id3 tags (including album covers)
+
+* creates files and directories based on the following structure artist/album/artist - song.mp3
+
+* optionally skip existing files
+
+* accepts tracks, playlists, albums, and artist URIs
+
+* search for tracks using Spotify queries
+
+* options for interactive login (no password in shell history) and relogin using previous credentials
+
 ## Usage
 
 ```shell
-usage: ripper [-h] [-b {160,320,96}] [-d DIRECTORY] [-u USER] [-p PASSWORD]
-              [-l] [-m] [-o] [-v VBR]
+usage: ripper [-h] [-b {160,320,96}] [-c] [-d DIRECTORY] [-u USER]
+              [-p PASSWORD] [-l] [-m] [-o] [-v VBR]
               uri
 
 Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -22,6 +38,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -b {160,320,96}, --bitrate {160,320,96}
                         Bitrate rip quality [Default=320]
+  -c, --cbr             Lame CBR encoding [Default=VBR]
   -d DIRECTORY, --directory DIRECTORY
                         Base directory where ripped MP3s are saved [Default=cwd]
   -u USER, --user USER  Spotify username
@@ -30,25 +47,13 @@ optional arguments:
   -l, --last            Use last login credentials
   -m, --pcm             Saves a .pcm file with the raw PCM data
   -o, --overwrite       Overwrite existing MP3 files [Default=skip]
-  -v VBR, --vbr VBR     Lame VBR quality setting [Default=0]
+  -v VBR, --vbr VBR     Lame VBR encoding quality setting [Default=0]
 
 Example usage:
     rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
     rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
     search for tracks to rip: /ripper.py -l -b 160 -o "album:Rumours track:'the chain'"
 ```
-
-## Features
-
-* real-time VBR ripping from spotify PCM stream
-
-* writes id3 tags (including album covers)
-
-* creates files and directories based on the following structure artist/album/song.mp3
-
-* skips existing files
-
-* accepts tracks, playlists, albums, and artist URIs
 
 ## Installation
 

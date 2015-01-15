@@ -257,7 +257,10 @@ class Ripper(threading.Thread):
     def prepare_rip(self, track):
         print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
-        p = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+        if args.cbr:
+            p = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+        else:
+            p = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         self.pipe = p.stdin
         if args.pcm:
           self.pcm_file = open(self.mp3_file[:-4] + ".pcm", 'w')
@@ -349,13 +352,14 @@ if __name__ == '__main__':
     group = parser.add_mutually_exclusive_group(required=True)
 
     parser.add_argument('-b', '--bitrate', default='320', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
+    parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
-    parser.add_argument('-v', '--vbr', default='0', help='Lame VBR quality setting [Default=0]')
+    parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
     parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
     args = parser.parse_args()
 
