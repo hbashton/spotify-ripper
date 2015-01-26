@@ -242,7 +242,7 @@ class Ripper(threading.Thread):
         self.event_loop.stop()
 
     def prepare_path(self, track):
-        base_dir = Utils.norm_path(args.outputdir[0]) if args.directory != None else os.getcwd()
+        base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
         artist = Utils.escape_filename_part(track.artists[0].name)
         album = Utils.escape_filename_part(track.album.name)
@@ -297,6 +297,8 @@ class Ripper(threading.Thread):
         if os.path.exists(self.mp3_file):
             print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
             call(["rm", "-f", self.mp3_file])
+        self.logout()
+        self.finished = True
 
     def set_id3_and_cover(self, track):
         album_browser = track.album.browse()
