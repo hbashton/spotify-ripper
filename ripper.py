@@ -133,6 +133,9 @@ class Ripper(threading.Thread):
                 print(Fore.RED + "Spotify error detected" + Fore.RESET)
                 self.logger.error(e)
                 print("Skipping to next track...")
+                self.session.player.play(False)
+                self.clean_up_partial()
+                continue
 
         # logout, we are done
         self.logout()
@@ -203,6 +206,11 @@ class Ripper(threading.Thread):
         if pick != "":
             print(Fore.RED + "Invalid selection" + Fore.RESET)
         return iter([])
+
+    def clean_up_partial(self):
+        if os.path.exists(self.mp3_file):
+            print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
+            call(["rm", "-f", self.mp3_file])
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
@@ -294,9 +302,7 @@ class Ripper(threading.Thread):
 
     def abort(self):
         self.session.player.play(False)
-        if os.path.exists(self.mp3_file):
-            print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
-            call(["rm", "-f", self.mp3_file])
+        self.clean_up_partial()
         self.logout()
         self.finished = True
 
@@ -374,7 +380,9 @@ if __name__ == '__main__':
     try:
         while not ripper.finished:
             time.sleep(0.1)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, Exception) as e:
+        if not isinstance(e, KeyboardInterrupt):
+            self.logger.error(e)
         print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
         ripper.abort()
         sys.exit(1)
