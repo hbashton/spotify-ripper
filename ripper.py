@@ -179,7 +179,7 @@ class Ripper(threading.Thread):
         # list tracks
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
-            print "  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + track.album.name + "] " + track.artists[0].name + " - " + track.name + " (" + str(track.popularity) + ")"
+            print "  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + track.album.name.encode('ascii', 'ignore') + "] " + track.artists[0].name.encode('ascii', 'ignore') + " - " + track.name.encode('ascii', 'ignore') + " (" + str(track.popularity) + ")"
 
         pick = raw_input("Pick track(s) (ex 1-3,5): ")
 
@@ -252,10 +252,10 @@ class Ripper(threading.Thread):
     def prepare_path(self, track):
         base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
-        artist = Utils.escape_filename_part(track.artists[0].name)
-        album = Utils.escape_filename_part(track.album.name)
-        track_name = Utils.escape_filename_part(track.name)
-        self.mp3_file = os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3")
+        artist = Utils.escape_filename_part(track.artists[0].name).encode('ascii', 'ignore')
+        album = Utils.escape_filename_part(track.album.name).encode('ascii', 'ignore')
+        track_name = Utils.escape_filename_part(track.name).encode('ascii', 'ignore')
+        self.mp3_file = os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
@@ -367,11 +367,12 @@ if __name__ == '__main__':
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
+    parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
     parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
     args = parser.parse_args()
 
-    init()
+    init(strip=True if args.strip_colors else None)
 
     ripper = Ripper(args)
     ripper.start()
