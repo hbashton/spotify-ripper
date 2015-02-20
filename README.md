@@ -69,6 +69,8 @@ Example usage:
 
 * [eyeD3](http://eyed3.nicfit.net)
 
+* [colorama](https://pypi.python.org/pypi/colorama)
+
 ### Mac OS X
 
 Recommend approach uses [homebrew](http://brew.sh/) and [pyenv](https://github.com/yyuu/pyenv)
@@ -82,6 +84,7 @@ $ sudo ln -s /usr/local/opt/libspotify/lib/libspotify.12.1.51.dylib \
 $ pip install --pre pyspotify
 $ brew install lame
 $ pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3
+$ pip install colorama
 $ pyenv rehash
 ```
 
@@ -101,6 +104,7 @@ $ sudo make install prefix=/usr/local
 $ cd ..
 $ pip install --pre pyspotify
 $ pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3
+$ pip install colorama
 $ pyenv rehash
 ```
 
