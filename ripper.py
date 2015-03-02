@@ -53,6 +53,7 @@ class Ripper(threading.Thread):
     ripping = False
     finished = False
     current_playlist = None
+    tracks_to_remove = []
     end_of_track = threading.Event()
 
     def __init__(self, args):
@@ -131,10 +132,20 @@ class Ripper(threading.Thread):
                 self.finish_rip(track)
                 self.set_id3_and_cover(track)
 
-                if args.remove_from_playlist and self.current_playlist:
-                    print(Fore.YELLOW + "Removing track from playlist " + self.current_playlist.name + Fore.RESET)
-                    self.current_playlist.remove_tracks(idx)
-                    print('-'*79 + '\n');
+                if args.remove_from_playlist:
+                    if self.current_playlist:
+                        if self.current_playlist.owner.canonical_name == args.user[0]:
+                            # since removing is instant we make a note of the index
+                            # and remove the indexes when everything is done
+                            self.tracks_to_remove.append(idx)
+                        else:
+                            print(Fore.RED + "This track will not be removed from playlist " + self.current_playlist.name +
+                                    " since " + args.user[0] + " is not the playlist owner..." + Fore.RESET)
+                            print('-'*79 + '\n');
+                    else:
+                        print(Fore.RED + "No playlist specified to remove this track from. " +
+                                "Did you use '-r' without a playlist link?" + Fore.RESET)
+                        print('-'*79 + '\n');
 
             except spotify.Error as e:
                 print(Fore.RED + "Spotify error detected" + Fore.RESET)
@@ -143,6 +154,18 @@ class Ripper(threading.Thread):
                 self.session.player.play(False)
                 self.clean_up_partial()
                 continue
+
+        # actually removing the tracks from playlist
+        if args.remove_from_playlist and self.current_playlist:
+            print(Fore.YELLOW + "Removing successfully ripped tracks from playlist " +
+                    self.current_playlist.name + "..." + Fore.RESET)
+
+            self.current_playlist.remove_tracks(self.tracks_to_remove)
+            self.session.process_events()
+
+            # TODO this seems to work but does it really loop if pending changes take longer?
+            while self.current_playlist.has_pending_changes:
+                time.sleep(1)
 
         # logout, we are done
         self.logout()
