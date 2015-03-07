@@ -156,7 +156,7 @@ class Ripper(threading.Thread):
                 continue
 
         # actually removing the tracks from playlist
-        if args.remove_from_playlist and self.current_playlist:
+        if args.remove_from_playlist and self.current_playlist and len(self.tracks_to_remove):
             print(Fore.YELLOW + "Removing successfully ripped tracks from playlist " +
                     self.current_playlist.name + "..." + Fore.RESET)
 
