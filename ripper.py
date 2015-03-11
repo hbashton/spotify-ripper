@@ -52,6 +52,8 @@ class Ripper(threading.Thread):
     pipe = None
     ripping = False
     finished = False
+    current_playlist = None
+    tracks_to_remove = []
     end_of_track = threading.Event()
 
     def __init__(self, args):
@@ -102,7 +104,7 @@ class Ripper(threading.Thread):
             tracks = self.search_query(args.uri)
 
         # ripping loop
-        for track in tracks:
+        for idx,track in tracks:
             try:
                 print('Loading track...')
                 track.load()
@@ -129,6 +131,22 @@ class Ripper(threading.Thread):
                 self.end_progress()
                 self.finish_rip(track)
                 self.set_id3_and_cover(track)
+
+                if args.remove_from_playlist:
+                    if self.current_playlist:
+                        if self.current_playlist.owner.canonical_name == args.user[0]:
+                            # since removing is instant we make a note of the index
+                            # and remove the indexes when everything is done
+                            self.tracks_to_remove.append(idx)
+                        else:
+                            print(Fore.RED + "This track will not be removed from playlist " + self.current_playlist.name +
+                                    " since " + args.user[0] + " is not the playlist owner..." + Fore.RESET)
+                            print('-'*79 + '\n');
+                    else:
+                        print(Fore.RED + "No playlist specified to remove this track from. " +
+                                "Did you use '-r' without a playlist link?" + Fore.RESET)
+                        print('-'*79 + '\n');
+
             except spotify.Error as e:
                 print(Fore.RED + "Spotify error detected" + Fore.RESET)
                 self.logger.error(e)
@@ -136,6 +154,18 @@ class Ripper(threading.Thread):
                 self.session.player.play(False)
                 self.clean_up_partial()
                 continue
+
+        # actually removing the tracks from playlist
+        if args.remove_from_playlist and self.current_playlist and len(self.tracks_to_remove):
+            print(Fore.YELLOW + "Removing successfully ripped tracks from playlist " +
+                    self.current_playlist.name + "..." + Fore.RESET)
+
+            self.current_playlist.remove_tracks(self.tracks_to_remove)
+            self.session.process_events()
+
+            # TODO this seems to work but does it really loop if pending changes take longer?
+            while self.current_playlist.has_pending_changes:
+                time.sleep(1)
 
         # logout, we are done
         self.logout()
@@ -145,26 +175,31 @@ class Ripper(threading.Thread):
         link = self.session.get_link(uri)
         if link.type == spotify.LinkType.TRACK:
             track = link.as_track()
-            return iter([track])
-        elif link.type == spotify.LinkType.PLAYLIST or link.type == spotify.LinkType.STARRED:
-            playlist = link.as_playlist()
+            return enumerate([track])
+        elif link.type == spotify.LinkType.PLAYLIST:
+            self.current_playlist = link.as_playlist()
             print('Loading playlist...')
-            playlist.load()
-            return iter(playlist.tracks)
+            self.current_playlist.load()
+            return enumerate(self.current_playlist.tracks)
+        elif link.type == spotify.LinkType.STARRED:
+            starred = link.as_playlist()
+            print('Loading starred playlist...')
+            starred.load()
+            return enumerate(starred.tracks)
         elif link.type == spotify.LinkType.ALBUM:
             album = link.as_album()
             print('Loading album...')
             album.load()
             album_browser = album.browse()
             album_browser.load()
-            return iter(album_browser.tracks)
+            return enumerate(album_browser.tracks)
         elif link.type == spotify.LinkType.ARTIST:
             artist = link.as_artist()
             print('Loading artist...')
             artist.load()
             artist_browser = artist.browse()
             artist_browser.load()
-            return iter(artist_browser.tracks)
+            return enumerate(artist_browser.tracks)
         return iter([])
 
     def search_query(self, query):
@@ -369,6 +404,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
+    parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
     args = parser.parse_args()
 

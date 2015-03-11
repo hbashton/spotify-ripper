@@ -22,6 +22,8 @@ Spotify-ripper is a small ripper script for Spotify that rips Spotify URIs to MP
 
 * options for interactive login (no password in shell history) and relogin using previous credentials
 
+* option to remove tracks from playlist after successful ripping
+
 ## Usage
 
 ```shell
@@ -48,6 +50,8 @@ optional arguments:
   -m, --pcm             Saves a .pcm file with the raw PCM data
   -o, --overwrite       Overwrite existing MP3 files [Default=skip]
   -v VBR, --vbr VBR     Lame VBR encoding quality setting [Default=0]
+  -r, --remove-from-playlist
+                        Delete tracks from playlist after successful ripping [Default=no]
 
 Example usage:
     rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
