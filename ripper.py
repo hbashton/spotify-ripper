@@ -134,7 +134,7 @@ class Ripper(threading.Thread):
 
                 if args.remove_from_playlist:
                     if self.current_playlist:
-                        if self.current_playlist.owner.canonical_name == args.user[0]:
+                        if self.current_playlist.owner.canonical_name == self.session.user.canonical_name:
                             # since removing is instant we make a note of the index
                             # and remove the indexes when everything is done
                             self.tracks_to_remove.append(idx)
@@ -156,7 +156,7 @@ class Ripper(threading.Thread):
                 continue
 
         # actually removing the tracks from playlist
-        if args.remove_from_playlist and self.current_playlist and len(self.tracks_to_remove):
+        if args.remove_from_playlist and self.current_playlist and len(self.tracks_to_remove) > 0:
             print(Fore.YELLOW + "Removing successfully ripped tracks from playlist " +
                     self.current_playlist.name + "..." + Fore.RESET)
 
