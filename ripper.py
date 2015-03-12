@@ -162,9 +162,8 @@ class Ripper(threading.Thread):
             self.current_playlist.remove_tracks(self.tracks_to_remove)
             self.session.process_events()
 
-            # TODO this seems to work but does it really loop if pending changes take longer?
             while self.current_playlist.has_pending_changes:
-                time.sleep(1)
+                time.sleep(0.1)
 
         # logout, we are done
         self.logout()
