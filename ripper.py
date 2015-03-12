@@ -139,13 +139,12 @@ class Ripper(threading.Thread):
                             # and remove the indexes when everything is done
                             self.tracks_to_remove.append(idx)
                         else:
-                            print(Fore.RED + "This track will not be removed from playlist " + self.current_playlist.name +
-                                    " since " + args.user[0] + " is not the playlist owner..." + Fore.RESET)
-                            print('-'*79 + '\n');
+                            print(Fore.RED + "This track will not be removed from playlist " +
+                                self.current_playlist.name + " since " + self.session.user.canonical_name +
+                                " is not the playlist owner..." + Fore.RESET)
                     else:
                         print(Fore.RED + "No playlist specified to remove this track from. " +
                                 "Did you use '-r' without a playlist link?" + Fore.RESET)
-                        print('-'*79 + '\n');
 
             except spotify.Error as e:
                 print(Fore.RED + "Spotify error detected" + Fore.RESET)
