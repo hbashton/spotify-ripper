@@ -288,7 +288,10 @@ class Ripper(threading.Thread):
         artist = Utils.escape_filename_part(track.artists[0].name).encode('ascii', 'ignore')
         album = Utils.escape_filename_part(track.album.name).encode('ascii', 'ignore')
         track_name = Utils.escape_filename_part(track.name).encode('ascii', 'ignore')
-        self.mp3_file = os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
+        if args.flat:
+            self.mp3_file = os.path.join(base_dir, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
+        else:
+            self.mp3_file = os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
@@ -395,6 +398,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--bitrate', default='320', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
+    parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')

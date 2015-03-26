@@ -27,7 +27,7 @@ Spotify-ripper is a small ripper script for Spotify that rips Spotify URIs to MP
 ## Usage
 
 ```shell
-usage: ripper [-h] [-b {160,320,96}] [-c] [-d DIRECTORY] [-u USER]
+usage: ripper [-h] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f] [-u USER]
               [-p PASSWORD] [-l] [-m] [-o] [-v VBR]
               uri
 
@@ -43,6 +43,7 @@ optional arguments:
   -c, --cbr             Lame CBR encoding [Default=VBR]
   -d DIRECTORY, --directory DIRECTORY
                         Base directory where ripped MP3s are saved [Default=cwd]
+  -f, --flat            Save all songs to a single directory instead of organizing by album/artist/song
   -u USER, --user USER  Spotify username
   -p PASSWORD, --password PASSWORD
                         Spotify password [Default=ask interactively]
