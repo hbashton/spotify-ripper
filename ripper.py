@@ -55,6 +55,7 @@ class Ripper(threading.Thread):
     current_playlist = None
     tracks_to_remove = []
     end_of_track = threading.Event()
+    idx_digits = 3
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -103,8 +104,11 @@ class Ripper(threading.Thread):
         else:
             tracks = self.search_query(args.uri)
 
+        if args.Flat and self.current_playlist:
+            self.idx_digits = len(str(len(self.current_playlist.tracks)))
+
         # ripping loop
-        for idx,track in tracks:
+        for idx, track in tracks:
             try:
                 print('Loading track...')
                 track.load()
@@ -112,7 +116,7 @@ class Ripper(threading.Thread):
                     print(Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
                     continue
 
-                self.prepare_path(track)
+                self.prepare_path(idx, track)
 
                 if not args.overwrite and os.path.exists(self.mp3_file):
                     print(Fore.YELLOW + "Skipping " + track.link.uri + Fore.RESET)
@@ -282,7 +286,7 @@ class Ripper(threading.Thread):
             self.logged_out.wait()
         self.event_loop.stop()
 
-    def prepare_path(self, track):
+    def prepare_path(self, idx, track):
         base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
         artist = Utils.escape_filename_part(track.artists[0].name).encode('ascii', 'ignore')
@@ -290,6 +294,9 @@ class Ripper(threading.Thread):
         track_name = Utils.escape_filename_part(track.name).encode('ascii', 'ignore')
         if args.flat:
             self.mp3_file = os.path.join(base_dir, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
+        elif args.Flat:
+            filled_idx = str(idx).zfill(self.idx_digits)
+            self.mp3_file = os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
         else:
             self.mp3_file = os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
 
@@ -399,6 +406,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
+    parser.add_argument('-F', '--Flat', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
