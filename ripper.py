@@ -108,7 +108,7 @@ class Ripper(threading.Thread):
             self.idx_digits = len(str(len(self.current_playlist.tracks)))
 
         # ripping loop
-        for idx, track in tracks:
+        for idx, track in enumerate(tracks):
             try:
                 print('Loading track...')
                 track.load()
@@ -177,31 +177,31 @@ class Ripper(threading.Thread):
         link = self.session.get_link(uri)
         if link.type == spotify.LinkType.TRACK:
             track = link.as_track()
-            return enumerate([track])
+            return iter([track])
         elif link.type == spotify.LinkType.PLAYLIST:
             self.current_playlist = link.as_playlist()
             print('Loading playlist...')
             self.current_playlist.load()
-            return enumerate(self.current_playlist.tracks)
+            return iter(self.current_playlist.tracks)
         elif link.type == spotify.LinkType.STARRED:
             starred = link.as_playlist()
             print('Loading starred playlist...')
             starred.load()
-            return enumerate(starred.tracks)
+            return iter(starred.tracks)
         elif link.type == spotify.LinkType.ALBUM:
             album = link.as_album()
             print('Loading album...')
             album.load()
             album_browser = album.browse()
             album_browser.load()
-            return enumerate(album_browser.tracks)
+            return iter(album_browser.tracks)
         elif link.type == spotify.LinkType.ARTIST:
             artist = link.as_artist()
             print('Loading artist...')
             artist.load()
             artist_browser = artist.browse()
             artist_browser.load()
-            return enumerate(artist_browser.tracks)
+            return iter(artist_browser.tracks)
         return iter([])
 
     def search_query(self, query):
