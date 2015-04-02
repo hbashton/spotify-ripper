@@ -98,7 +98,7 @@ Download an application key file `spotify_appkey.key` from `https://devaccount.s
 
 ### Ubuntu/Debian
 
-Recommend approach uses [pyenv](https://github.com/yyuu/pyenv).  If you don't use pyenv, you need to install the ```python-dev`` package too.  If you are installing on the Raspberry Pi, use the [eabi-armv6hf version](https://developer.spotify.com/download/libspotify/libspotify-12.1.103-Linux-armv6-bcm2708hardfp-release.tar.gz)
+Recommend approach uses [pyenv](https://github.com/yyuu/pyenv).  If you don't use pyenv, you need to install the ```python-dev`` package too.  If you are installing on the Raspberry Pi (gen 1), use the [eabi-armv6hf version](https://developer.spotify.com/download/libspotify/libspotify-12.1.103-Linux-armv6-bcm2708hardfp-release.tar.gz) of libspotify.
 
 ```bash
 $ git clone https://github.com/jrnewell/spotify-ripper.git
