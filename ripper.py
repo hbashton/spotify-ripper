@@ -49,6 +49,7 @@ class Ripper(threading.Thread):
 
     mp3_file = None
     pcm_file = None
+    rip_proc = None
     pipe = None
     ripping = False
     finished = False
@@ -309,10 +310,10 @@ class Ripper(threading.Thread):
         print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
         if args.cbr:
-            p = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+            self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         else:
-            p = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
-        self.pipe = p.stdin
+            self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+        self.pipe = self.rip_proc.stdin
         if args.pcm:
           self.pcm_file = open(self.mp3_file[:-4] + ".pcm", 'w')
         self.ripping = True
@@ -322,9 +323,17 @@ class Ripper(threading.Thread):
             print(Fore.GREEN + 'Rip complete' + Fore.RESET)
             self.pipe.flush()
             self.pipe.close()
+
+            # wait for process to end before continuing
+            ret_code = self.rip_proc.wait()
+            if ret_code != 0:
+                print(Fore.YELLOW + "Warning: lame returned non-zero error code " + ret_code + Fore.RESET)
+            self.rip_proc = None
+            self.pipe = None
         if args.pcm:
             self.pcm_file.flush()
             self.pcm_file.close()
+            self.pcm_file = None
         self.ripping = False
 
     def update_progress(self):
@@ -373,7 +382,7 @@ class Ripper(threading.Thread):
         fh_cover.close()
 
         # write id3 data
-        call(["eyeD3",
+        ret_code = call(["eyeD3",
               "--add-image", "cover.jpg:FRONT_COVER",
               "-t", track.name,
               "-a", track.artists[0].name,
@@ -386,6 +395,8 @@ class Ripper(threading.Thread):
               "-Q",
               self.mp3_file
         ])
+        if ret_code != 0:
+            print(Fore.YELLOW + "Warning: eyeD3 returned non-zero error code " + ret_code + Fore.RESET)
 
         # delete cover
         call(["rm", "-f", "cover.jpg"])
