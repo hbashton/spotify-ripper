@@ -43,6 +43,11 @@ class Utils():
         part = re.sub(r"(^\.+\s*|(?<=\.)\.+|\s*\.+$)", r'', part)
         return part
 
+    @staticmethod
+    def to_ascii(str):
+        """convert unicode to ascii"""
+        return str.encode('ascii', 'ignore').decode("utf-8")
+
 class Ripper(threading.Thread):
 
     logger = logging.getLogger('shell.ripper')
@@ -217,7 +222,7 @@ class Ripper(threading.Thread):
         # list tracks
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
-            print "  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + track.album.name.encode('ascii', 'ignore') + "] " + track.artists[0].name.encode('ascii', 'ignore') + " - " + track.name.encode('ascii', 'ignore') + " (" + str(track.popularity) + ")"
+            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + Utils.to_ascii(track.album.name) + "] " + Utils.to_ascii(track.artists[0].name) + " - " + Utils.to_ascii(track.name) + " (" + str(track.popularity) + ")")
 
         pick = raw_input("Pick track(s) (ex 1-3,5): ")
 
@@ -290,16 +295,16 @@ class Ripper(threading.Thread):
     def prepare_path(self, idx, track):
         base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
-        artist = Utils.escape_filename_part(track.artists[0].name).encode('ascii', 'ignore')
-        album = Utils.escape_filename_part(track.album.name).encode('ascii', 'ignore')
-        track_name = Utils.escape_filename_part(track.name).encode('ascii', 'ignore')
+        artist = Utils.to_ascii(Utils.escape_filename_part(track.artists[0].name))
+        album = Utils.to_ascii(Utils.escape_filename_part(track.album.name))
+        track_name = Utils.to_ascii(Utils.escape_filename_part(track.name))
         if args.flat:
-            self.mp3_file = os.path.join(base_dir, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
+            self.mp3_file = Utils.to_ascii(os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
         elif args.Flat:
             filled_idx = str(idx).zfill(self.idx_digits)
-            self.mp3_file = os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
+            self.mp3_file = Utils.to_ascii(os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
         else:
-            self.mp3_file = os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3").encode('ascii', 'ignore')
+            self.mp3_file = Utils.to_ascii(os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
