@@ -44,9 +44,14 @@ class Utils():
         return part
 
     @staticmethod
-    def to_ascii(str):
-        """convert unicode to ascii"""
-        return str.encode('ascii', 'ignore').decode("utf-8")
+    def to_ascii(args, _str):
+        """convert unicode to ascii if necessary"""
+        if isinstance(_str, str) and not args.ascii:
+            return unicode(_str, "utf-8")
+        elif isinstance(_str, unicode) and args.ascii:
+            return _str.encode('ascii', 'ignore').decode("utf-8")
+        else:
+            return _str
 
 class Ripper(threading.Thread):
 
@@ -222,7 +227,7 @@ class Ripper(threading.Thread):
         # list tracks
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
-            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + Utils.to_ascii(track.album.name) + "] " + Utils.to_ascii(track.artists[0].name) + " - " + Utils.to_ascii(track.name) + " (" + str(track.popularity) + ")")
+            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + Utils.to_ascii(args, track.album.name) + "] " + Utils.to_ascii(args, track.artists[0].name) + " - " + Utils.to_ascii(args, track.name) + " (" + str(track.popularity) + ")")
 
         pick = raw_input("Pick track(s) (ex 1-3,5): ")
 
@@ -295,16 +300,16 @@ class Ripper(threading.Thread):
     def prepare_path(self, idx, track):
         base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
-        artist = Utils.to_ascii(Utils.escape_filename_part(track.artists[0].name))
-        album = Utils.to_ascii(Utils.escape_filename_part(track.album.name))
-        track_name = Utils.to_ascii(Utils.escape_filename_part(track.name))
+        artist = Utils.to_ascii(args, Utils.escape_filename_part(track.artists[0].name))
+        album = Utils.to_ascii(args, Utils.escape_filename_part(track.album.name))
+        track_name = Utils.to_ascii(args, Utils.escape_filename_part(track.name))
         if args.flat:
-            self.mp3_file = Utils.to_ascii(os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
+            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
         elif args.Flat:
             filled_idx = str(idx).zfill(self.idx_digits)
-            self.mp3_file = Utils.to_ascii(os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
+            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
         else:
-            self.mp3_file = Utils.to_ascii(os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
+            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
@@ -420,6 +425,7 @@ if __name__ == '__main__':
 
     group = parser.add_mutually_exclusive_group(required=True)
 
+    parser.add_argument('-a', '--ascii', action='store_true', help='Convert file name to ASCII encoding [Default=utf-8]')
     parser.add_argument('-b', '--bitrate', default='320', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')

@@ -27,8 +27,8 @@ Spotify-ripper is a small ripper script for Spotify that rips Spotify URIs to MP
 ## Usage
 
 ```shell
-usage: ripper [-h] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f] [-F] [-u USER]
-              [-p PASSWORD] [-l] [-m] [-o] [-v VBR]
+usage: ripper [-h] [-a] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f] [-F]
+              [-u USER] [-p PASSWORD] [-l] [-m] [-o] [-s] [-v VBR] [-r]
               uri
 
 Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -38,6 +38,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  -a, --ascii           Convert file name to ASCII encoding [Default=utf-8]
   -b {160,320,96}, --bitrate {160,320,96}
                         Bitrate rip quality [Default=320]
   -c, --cbr             Lame CBR encoding [Default=VBR]
