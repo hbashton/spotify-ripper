@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf8 -*-
 
 from __future__ import unicode_literals
@@ -15,6 +14,7 @@ import spotify
 import argparse
 import getpass
 import itertools
+import pkg_resources
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
@@ -412,7 +412,7 @@ class Ripper(threading.Thread):
         call(["rm", "-f", "cover.jpg"])
 
 
-if __name__ == '__main__':
+def main():
     logging.basicConfig(level=logging.INFO)
 
     parser = argparse.ArgumentParser(prog='ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
@@ -438,6 +438,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
+    parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
     args = parser.parse_args()
@@ -458,4 +459,5 @@ if __name__ == '__main__':
         ripper.abort()
         sys.exit(1)
 
-
+if __name__ == '__main__':
+    main()
