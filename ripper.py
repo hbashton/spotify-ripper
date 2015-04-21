@@ -342,6 +342,7 @@ class Ripper(threading.Thread):
             self.pipe = None
         if args.pcm:
             self.pcm_file.flush()
+            os.fsync(self.pcm_file.fileno())
             self.pcm_file.close()
             self.pcm_file = None
         self.ripping = False
@@ -371,6 +372,9 @@ class Ripper(threading.Thread):
         self.finished = True
 
     def set_id3_and_cover(self, track):
+        # ensure everything is loaded still
+        if not track.is_loaded: track.load()
+        if not track.album.is_loaded: track.album.load()
         album_browser = track.album.browse()
         album_browser.load()
 
@@ -383,28 +387,38 @@ class Ripper(threading.Thread):
             if track_browse.disc > num_discs:
                 num_discs = track_browse.disc
 
+        # prepare eyeD3 args
+        eyeD3_args = ["eyeD3"]
+
         # download cover
         image = track.album.cover()
-        image.load()
+        if image is not None:
+            image.load()
 
-        fh_cover = open('cover.jpg','wb')
-        fh_cover.write(image.data)
-        fh_cover.close()
+            fh_cover = open('cover.jpg','wb')
+            fh_cover.write(image.data)
+            fh_cover.flush()
+            os.fsync(fh_cover.fileno())
+            fh_cover.close()
+
+            eyeD3_args.extend(["--add-image", "cover.jpg:FRONT_COVER"])
+
+        # complete eyeD3 args
+        eyeD3_args.extend([
+            "-t", track.name,
+            "-a", track.artists[0].name,
+            "-A", track.album.name,
+            "-n", str(track.index),
+            "-N", str(num_tracks),
+            "-d", str(track.disc),
+            "-D", str(num_discs),
+            "-Y", str(track.album.year),
+            "-Q",
+            self.mp3_file
+        ])
 
         # write id3 data
-        ret_code = call(["eyeD3",
-              "--add-image", "cover.jpg:FRONT_COVER",
-              "-t", track.name,
-              "-a", track.artists[0].name,
-              "-A", track.album.name,
-              "-n", str(track.index),
-              "-N", str(num_tracks),
-              "-d", str(track.disc),
-              "-D", str(num_discs),
-              "-Y", str(track.album.year),
-              "-Q",
-              self.mp3_file
-        ])
+        ret_code = call(eyeD3_args)
         if ret_code != 0:
             print(Fore.YELLOW + "Warning: eyeD3 returned non-zero error code " + str(ret_code) + Fore.RESET)
 
