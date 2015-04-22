@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf8 -*-
 
 from __future__ import unicode_literals
@@ -96,6 +97,7 @@ class Ripper(threading.Thread):
         self.event_loop.start()
 
     def run(self):
+        args = self.args
 
         # login
         print("Logging in...")
@@ -216,6 +218,8 @@ class Ripper(threading.Thread):
         return iter([])
 
     def search_query(self, query):
+        args = self.args
+
         print("Searching for query: " + query)
         try:
             result = self.session.search(query)
@@ -298,6 +302,7 @@ class Ripper(threading.Thread):
         self.event_loop.stop()
 
     def prepare_path(self, idx, track):
+        args = self.args
         base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
         artist = Utils.to_ascii(args, Utils.escape_filename_part(track.artists[0].name))
@@ -317,6 +322,8 @@ class Ripper(threading.Thread):
             os.makedirs(mp3_path)
 
     def prepare_rip(self, track):
+        args = self.args
+
         print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
         if args.cbr:
@@ -340,7 +347,7 @@ class Ripper(threading.Thread):
                 print(Fore.YELLOW + "Warning: lame returned non-zero error code " + str(ret_code) + Fore.RESET)
             self.rip_proc = None
             self.pipe = None
-        if args.pcm:
+        if self.args.pcm:
             self.pcm_file.flush()
             os.fsync(self.pcm_file.fileno())
             self.pcm_file.close()
@@ -362,7 +369,7 @@ class Ripper(threading.Thread):
             self.position += (num_frames * 1000) / audio_format.sample_rate
             self.update_progress()
             self.pipe.write(frame_bytes);
-            if args.pcm:
+            if self.args.pcm:
               self.pcm_file.write(frame_bytes)
 
     def abort(self):
