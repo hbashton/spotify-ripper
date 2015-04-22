@@ -80,7 +80,13 @@ class Ripper(threading.Thread):
         self.logged_out = threading.Event()
         self.logged_out.set()
 
-        self.session = spotify.Session()
+        if args.key is not None:
+            config = spotify.Config()
+            config.load_application_key_file(args.key[0])
+            self.session = spotify.Session(config=config)
+        else:
+            self.session = spotify.Session()
+
         bit_rates = dict([
             ('160', BitRate.BITRATE_160K),
             ('320', BitRate.BITRATE_320K),
@@ -452,6 +458,7 @@ def main():
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
     parser.add_argument('-F', '--Flat', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
+    parser.add_argument('-k', '--key', nargs=1, help='Path to Spotify application key file [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
