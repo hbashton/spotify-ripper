@@ -80,12 +80,35 @@ class Ripper(threading.Thread):
         self.logged_out = threading.Event()
         self.logged_out.set()
 
+        config = spotify.Config()
+
+        default_dir = Utils.norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+
+        # application key location
         if args.key is not None:
-            config = spotify.Config()
             config.load_application_key_file(args.key[0])
-            self.session = spotify.Session(config=config)
         else:
-            self.session = spotify.Session()
+            if not os.path.exists(default_dir):
+                os.makedirs(default_dir)
+
+            app_key_path = os.path.join(default_dir, "spotify_appkey.key")
+            if not os.path.exists(app_key_path):
+                print("\n" + Fore.YELLOW + "Please copy your spotify_appkey.key to " + default_dir +
+                    ", or use the --key|-k option" + Fore.RESET)
+                sys.exit(1)
+
+            config.load_application_key_file(app_key_path)
+
+        # settings directory
+        if args.settings is not None:
+            settings_dir = Utils.norm_path(args.settings[0])
+            config.settings_location = settings_dir
+            config.cache_location = settings_dir
+        else:
+            config.settings_location = default_dir
+            config.cache_location = default_dir
+
+        self.session = spotify.Session(config=config)
 
         bit_rates = dict([
             ('160', BitRate.BITRATE_160K),
@@ -465,6 +488,7 @@ def main():
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
+    parser.add_argument('-S', '--settings', nargs=1, help='Path to settings and temp files directory [Default=~/.spotify-ripper]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
     parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')

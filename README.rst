@@ -38,7 +38,7 @@ Usage
 
     usage: spotify-ripper [-h] [-a] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f]
                           [-F] [-k KEY] [-u USER] [-p PASSWORD] [-l] [-m] [-o]
-                          [-s] [-v VBR] [-V] [-r]
+                          [-s] [-S SETTINGS] [-v VBR] [-V] [-r]
                           uri
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -64,6 +64,8 @@ Usage
       -m, --pcm             Saves a .pcm file with the raw PCM data
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       -s, --strip-colors    Strip coloring from output[Default=colors]
+      -S SETTINGS, --settings SETTINGS
+                            Path to settings and temp files directory [Default=~/.spotify-ripper]
       -v VBR, --vbr VBR     Lame VBR encoding quality setting [Default=0]
       -V, --version         show program's version number and exit
       -r, --remove-from-playlist
@@ -113,7 +115,7 @@ Recommend approach uses `homebrew <http://brew.sh/>`__ and
 
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
-Premium Account) and move to the ``spotify-ripper`` directory (or use
+Premium Account) and move to the ``~/.spotify-ripper`` directory (or use
 the ``-k | --key`` option).
 
 Ubuntu/Debian
@@ -141,7 +143,7 @@ of libspotify.
 
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
-Premium Account) and move to the ``spotify-ripper`` directory (or use
+Premium Account) and move to the ``~/.spotify-ripper`` directory (or use
 the ``-k | --key`` option).
 
 License
