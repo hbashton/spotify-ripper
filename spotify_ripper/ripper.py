@@ -15,6 +15,7 @@ import spotify
 import argparse
 import getpass
 import itertools
+import pkg_resources
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
@@ -79,7 +80,36 @@ class Ripper(threading.Thread):
         self.logged_out = threading.Event()
         self.logged_out.set()
 
-        self.session = spotify.Session()
+        config = spotify.Config()
+
+        default_dir = Utils.norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+
+        # application key location
+        if args.key is not None:
+            config.load_application_key_file(args.key[0])
+        else:
+            if not os.path.exists(default_dir):
+                os.makedirs(default_dir)
+
+            app_key_path = os.path.join(default_dir, "spotify_appkey.key")
+            if not os.path.exists(app_key_path):
+                print("\n" + Fore.YELLOW + "Please copy your spotify_appkey.key to " + default_dir +
+                    ", or use the --key|-k option" + Fore.RESET)
+                sys.exit(1)
+
+            config.load_application_key_file(app_key_path)
+
+        # settings directory
+        if args.settings is not None:
+            settings_dir = Utils.norm_path(args.settings[0])
+            config.settings_location = settings_dir
+            config.cache_location = settings_dir
+        else:
+            config.settings_location = default_dir
+            config.cache_location = default_dir
+
+        self.session = spotify.Session(config=config)
+
         bit_rates = dict([
             ('160', BitRate.BITRATE_160K),
             ('320', BitRate.BITRATE_320K),
@@ -96,6 +126,7 @@ class Ripper(threading.Thread):
         self.event_loop.start()
 
     def run(self):
+        args = self.args
 
         # login
         print("Logging in...")
@@ -216,6 +247,8 @@ class Ripper(threading.Thread):
         return iter([])
 
     def search_query(self, query):
+        args = self.args
+
         print("Searching for query: " + query)
         try:
             result = self.session.search(query)
@@ -298,6 +331,7 @@ class Ripper(threading.Thread):
         self.event_loop.stop()
 
     def prepare_path(self, idx, track):
+        args = self.args
         base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
         artist = Utils.to_ascii(args, Utils.escape_filename_part(track.artists[0].name))
@@ -317,6 +351,8 @@ class Ripper(threading.Thread):
             os.makedirs(mp3_path)
 
     def prepare_rip(self, track):
+        args = self.args
+
         print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
         if args.cbr:
@@ -340,7 +376,7 @@ class Ripper(threading.Thread):
                 print(Fore.YELLOW + "Warning: lame returned non-zero error code " + str(ret_code) + Fore.RESET)
             self.rip_proc = None
             self.pipe = None
-        if args.pcm:
+        if self.args.pcm:
             self.pcm_file.flush()
             os.fsync(self.pcm_file.fileno())
             self.pcm_file.close()
@@ -362,7 +398,7 @@ class Ripper(threading.Thread):
             self.position += (num_frames * 1000) / audio_format.sample_rate
             self.update_progress()
             self.pipe.write(frame_bytes);
-            if args.pcm:
+            if self.args.pcm:
               self.pcm_file.write(frame_bytes)
 
     def abort(self):
@@ -426,15 +462,15 @@ class Ripper(threading.Thread):
         call(["rm", "-f", "cover.jpg"])
 
 
-if __name__ == '__main__':
+def main():
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser(prog='ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
+    parser = argparse.ArgumentParser(prog='spotify-ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
         formatter_class=argparse.RawTextHelpFormatter,
         epilog='''Example usage:
-    rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
-    rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
-    search for tracks to rip: /ripper.py -l -b 160 -o "album:Rumours track:'the chain'"
+    rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
+    rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+    search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
     ''')
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -445,13 +481,16 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
     parser.add_argument('-F', '--Flat', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
+    parser.add_argument('-k', '--key', nargs=1, help='Path to Spotify application key file [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
+    parser.add_argument('-S', '--settings', nargs=1, help='Path to settings and temp files directory [Default=~/.spotify-ripper]')
     parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
+    parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
     args = parser.parse_args()
@@ -472,4 +511,5 @@ if __name__ == '__main__':
         ripper.abort()
         sys.exit(1)
 
-
+if __name__ == '__main__':
+    main()
