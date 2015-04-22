@@ -34,7 +34,7 @@ Features
 Usage
 -----
 
-.. code:: shell
+.. code::
 
     usage: spotify-ripper [-h] [-a] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f]
                           [-F] [-k KEY] [-u USER] [-p PASSWORD] [-l] [-m] [-o]
