@@ -2,6 +2,11 @@
 # coding=utf-8
 
 from setuptools import setup, find_packages
+import os
+
+def _read(fn):
+    path = os.path.join(os.path.dirname(__file__), fn)
+    return open(path).read()
 
 setup(
     name='spotify-ripper',
@@ -45,5 +50,5 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
     ],
-    long_description=open('README.md').read()
+    long_description=_read('README.rst'),
 )
