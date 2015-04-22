@@ -31,6 +31,8 @@ Features
 
 -  option to remove tracks from playlist after successful ripping
 
+-  installs ripper script globally using pip
+
 Usage
 -----
 
@@ -115,14 +117,14 @@ Recommend approach uses `homebrew <http://brew.sh/>`__ and
 
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
-Premium Account) and move to the ``~/.spotify-ripper`` directory (or use
+Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
 the ``-k | --key`` option).
 
 Ubuntu/Debian
 ~~~~~~~~~~~~~
 
 Recommend approach uses `pyenv <https://github.com/yyuu/pyenv>`__. If
-you don't use pyenv, you need to install the \`\ ``python-dev`` package
+you don't use pyenv, you need to install the ``python-dev`` package
 too. If you are installing on the Raspberry Pi (gen 1), use the
 `eabi-armv6hf
 version <https://developer.spotify.com/download/libspotify/libspotify-12.1.103-Linux-armv6-bcm2708hardfp-release.tar.gz>`__
@@ -143,7 +145,7 @@ of libspotify.
 
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
-Premium Account) and move to the ``~/.spotify-ripper`` directory (or use
+Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
 the ``-k | --key`` option).
 
 License
