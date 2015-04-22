@@ -36,9 +36,10 @@ Usage
 
 .. code:: shell
 
-    usage: ripper [-h] [-a] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f] [-F]
-                  [-u USER] [-p PASSWORD] [-l] [-m] [-o] [-s] [-v VBR] [-r]
-                  uri
+    usage: spotify-ripper [-h] [-a] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f]
+                          [-F] [-k KEY] [-u USER] [-p PASSWORD] [-l] [-m] [-o]
+                          [-s] [-v VBR] [-V] [-r]
+                          uri
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
 
@@ -55,20 +56,23 @@ Usage
                             Base directory where ripped MP3s are saved [Default=cwd]
       -f, --flat            Save all songs to a single directory instead of organizing by album/artist/song
       -F, --Flat            Similar to --flat [-f] but includes the playlist index at the start of the song file
+      -k KEY, --key KEY     Path to Spotify application key file [Default=cwd]
       -u USER, --user USER  Spotify username
       -p PASSWORD, --password PASSWORD
                             Spotify password [Default=ask interactively]
       -l, --last            Use last login credentials
       -m, --pcm             Saves a .pcm file with the raw PCM data
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
+      -s, --strip-colors    Strip coloring from output[Default=colors]
       -v VBR, --vbr VBR     Lame VBR encoding quality setting [Default=0]
+      -V, --version         show program's version number and exit
       -r, --remove-from-playlist
                             Delete tracks from playlist after successful ripping [Default=no]
 
     Example usage:
-        rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
-        rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
-        search for tracks to rip: /ripper.py -l -b 160 -o "album:Rumours track:'the chain'"
+        rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
+        rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+        search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
 
 Installation
 ------------
@@ -103,15 +107,14 @@ Recommend approach uses `homebrew <http://brew.sh/>`__ and
     $ brew install homebrew/binary/libspotify
     $ sudo ln -s /usr/local/opt/libspotify/lib/libspotify.12.1.51.dylib \
         /usr/local/opt/libspotify/lib/libspotify
-    $ pip install --pre pyspotify
     $ brew install lame
-    $ pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3
-    $ pip install colorama
+    $ pip install -e . --allow-external eyeD3 --allow-unverified eyeD3
     $ pyenv rehash
 
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
-Premium Account) and move to the ``spotify-ripper`` directory.
+Premium Account) and move to the ``spotify-ripper`` directory (or use
+the ``-k | --key`` option).
 
 Ubuntu/Debian
 ~~~~~~~~~~~~~
@@ -133,14 +136,13 @@ of libspotify.
     $ cd libspotify-12.1.51-Linux-x86_64-release/
     $ sudo make install prefix=/usr/local
     $ cd ..
-    $ pip install --pre pyspotify
-    $ pip install eyeD3 --allow-external eyeD3 --allow-unverified eyeD3
-    $ pip install colorama
+    $ pip install -e . --allow-external eyeD3 --allow-unverified eyeD3
     $ pyenv rehash
 
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
-Premium Account) and move to the ``spotify-ripper`` directory.
+Premium Account) and move to the ``spotify-ripper`` directory (or use
+the ``-k | --key`` option).
 
 License
 -------

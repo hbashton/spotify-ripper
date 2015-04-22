@@ -442,12 +442,12 @@ class Ripper(threading.Thread):
 def main():
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser(prog='ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
+    parser = argparse.ArgumentParser(prog='spotify-ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
         formatter_class=argparse.RawTextHelpFormatter,
         epilog='''Example usage:
-    rip a single file: ./ripper.py -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
-    rip entire playlist: ./ripper.py -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
-    search for tracks to rip: /ripper.py -l -b 160 -o "album:Rumours track:'the chain'"
+    rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
+    rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+    search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
     ''')
 
     group = parser.add_mutually_exclusive_group(required=True)
