@@ -202,16 +202,14 @@ class Ripper(threading.Thread):
             return iter(starred.tracks)
         elif link.type == spotify.LinkType.ALBUM:
             album = link.as_album()
-            print('Loading album...')
-            album.load()
             album_browser = album.browse()
+            print('Loading album browser...')
             album_browser.load()
             return iter(album_browser.tracks)
         elif link.type == spotify.LinkType.ARTIST:
             artist = link.as_artist()
-            print('Loading artist...')
-            artist.load()
             artist_browser = artist.browse()
+            print('Loading artist browser...')
             artist_browser.load()
             return iter(artist_browser.tracks)
         return iter([])
