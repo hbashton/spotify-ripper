@@ -108,13 +108,11 @@ Recommend approach uses `homebrew <http://brew.sh/>`__ and
 
 .. code:: bash
 
-    $ git clone https://github.com/jrnewell/spotify-ripper.git
-    $ cd spotify-ripper
     $ brew install homebrew/binary/libspotify
     $ sudo ln -s /usr/local/opt/libspotify/lib/libspotify.12.1.51.dylib \
         /usr/local/opt/libspotify/lib/libspotify
     $ brew install lame
-    $ pip install -e .
+    $ pip install spotify-ripper
     $ pyenv rehash
 
 Download an application key file ``spotify_appkey.key`` from
@@ -134,21 +132,27 @@ of libspotify.
 
 .. code:: bash
 
-    $ git clone https://github.com/jrnewell/spotify-ripper.git
-    $ cd spotify-ripper
     $ sudo apt-get install lame build-essential libffi-dev
     $ wget https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz # (assuming 64-bit)
     $ tar xvf libspotify-12.1.51-Linux-x86_64-release.tar.gz
     $ cd libspotify-12.1.51-Linux-x86_64-release/
     $ sudo make install prefix=/usr/local
-    $ cd ..
-    $ pip install -e .
+    $ pip install spotify-ripper
     $ pyenv rehash
 
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
 the ``-k | --key`` option).
+
+Upgrade
+~~~~~~~
+
+Use ``pip`` to upgrade to the latest version.
+
+.. code:: bash
+
+    $ pip install --upgrade spotify-ripper
 
 License
 -------

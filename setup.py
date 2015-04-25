@@ -41,6 +41,7 @@ setup(
     license='MIT',
     keywords="spotify ripper mp3",
     url='https://github.com/jrnewell/spotify-ripper',
+    download_url = 'https://github.com/jrnewell/spotify-ripper/tarball/1.1.0',
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Multimedia :: Sound/Audio :: Capture/Recording',
