@@ -37,6 +37,7 @@ setup(
 
     # Metadata
     author='James Newell',
+    author_email='james.newell@gmail.com',
     description='a small ripper for Spotify that rips Spotify URIs to MP3 files',
     license='MIT',
     keywords="spotify ripper mp3",
