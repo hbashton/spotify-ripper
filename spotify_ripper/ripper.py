@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 
 from subprocess import call, Popen, PIPE
-from colorama import init, Fore
+from colorama import init, Fore, Style
 from mutagen import mp3, id3
 from spotify_ripper.utils import *
 from stat import ST_SIZE
@@ -437,7 +437,7 @@ class Ripper(threading.Thread):
                 else:
                     return ""
 
-            print(os.path.basename(self.mp3_file) + "\t[ " + format_size(os.stat(self.mp3_file)[ST_SIZE]) + " ]")
+            print(Fore.GREEN + Style.BRIGHT + os.path.basename(self.mp3_file) + Style.NORMAL + "\t[ " + format_size(os.stat(self.mp3_file)[ST_SIZE]) + " ]" + Fore.RESET)
             print("-" * 79)
             print(Fore.YELLOW + "Setting artist: " + track.artists[0].name + Fore.RESET)
             print(Fore.YELLOW + "Setting album: " + track.album.name + Fore.RESET)
@@ -446,12 +446,13 @@ class Ripper(threading.Thread):
             print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
             print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
             print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
-            print("Time: " + format_time(audio.info.length) + " MPEG" + str(audio.info.version) + ", Layer " + ("I" * audio.info.layer) +
-                "  [ " + bit_rate_str(audio.info.bitrate / 1000) + " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
+            print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
+                ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
+                " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
             print("-" * 79)
             id3_version = "v%d.%d" % (audio.tags.version[0], audio.tags.version[1])
             print("ID3 " + id3_version + ": " + str(len(audio.tags.values())) + " frames")
-            print("Writing ID3 version " + id3_version)
+            print(Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
             print("-" * 79)
 
             audio.save()
