@@ -12,14 +12,14 @@ setup(
     name='spotify-ripper',
     version='1.1.0',
     packages=find_packages(exclude=["tests"]),
-    scripts=['spotify_ripper/ripper.py'],
+    scripts=['spotify_ripper/main.py'],
     include_package_data=True,
     zip_safe=False,
 
      # Executable
     entry_points={
         'console_scripts': [
-            'spotify-ripper = ripper:main',
+            'spotify-ripper = main:main',
         ],
     },
 

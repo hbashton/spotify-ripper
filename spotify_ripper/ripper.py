@@ -1,23 +1,18 @@
-#!/usr/bin/env python
 # -*- coding: utf8 -*-
 
 from __future__ import unicode_literals
 
 from subprocess import call, Popen, PIPE
-from colorama import init, Fore, Style
-from mutagen import mp3, id3
+from colorama import Fore, Style
 from spotify_ripper.utils import *
-from stat import ST_SIZE
+from spotify_ripper.id3 import set_id3_and_cover
 import os, sys
 import time
-import cmd
 import logging
 import threading
 import spotify
-import argparse
 import getpass
 import itertools
-import pkg_resources
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
@@ -25,8 +20,7 @@ class BitRate(spotify.utils.IntEnum):
     BITRATE_96K  = 2
 
 class Ripper(threading.Thread):
-
-    logger = logging.getLogger('shell.ripper')
+    logger = logging.getLogger('spotify.ripper')
 
     mp3_file = None
     pcm_file = None
@@ -146,7 +140,9 @@ class Ripper(threading.Thread):
 
                 self.end_progress()
                 self.finish_rip(track)
-                self.set_id3_and_cover(track)
+
+                # update id3v2 with metadata and embed front cover image
+                set_id3_and_cover(args, self.mp3_file, track)
 
                 if args.remove_from_playlist:
                     if self.current_playlist:
@@ -374,142 +370,3 @@ class Ripper(threading.Thread):
         self.clean_up_partial()
         self.logout()
         self.finished = True
-
-    def set_id3_and_cover(self, track):
-        # ensure everything is loaded still
-        if not track.is_loaded: track.load()
-        if not track.album.is_loaded: track.album.load()
-        album_browser = track.album.browse()
-        album_browser.load()
-
-        # calculate num of tracks on disc and num of dics
-        num_discs = 0
-        num_tracks = 0
-        for track_browse in album_browser.tracks:
-            if track_browse.disc == track.disc and track_browse.index > track.index:
-                num_tracks = track_browse.index
-            if track_browse.disc > num_discs:
-                num_discs = track_browse.disc
-
-        # mutagen
-        try:
-            audio = mp3.MP3(self.mp3_file, ID3=id3.ID3)
-
-            # add ID3 tag if it doesn't exist
-            audio.add_tags()
-
-            image = track.album.cover()
-            if image is not None:
-                image.load()
-
-                fh_cover = open('cover.jpg', 'wb')
-                fh_cover.write(image.data)
-                fh_cover.flush()
-                os.fsync(fh_cover.fileno())
-                fh_cover.close()
-
-                audio.tags.add(
-                    id3.APIC(
-                        encoding=3,
-                        mime='image/jpeg',
-                        type=3,
-                        desc='Front Cover',
-                        data=open('cover.jpg', 'rb').read()
-                    )
-                )
-
-            audio.tags.add(id3.TALB(text=[track.album.name], encoding=3))
-            audio.tags.add(id3.TIT2(text=[track.name], encoding=3))
-            audio.tags.add(id3.TPE1(text=[track.artists[0].name], encoding=3))
-            audio.tags.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
-            audio.tags.add(id3.TPOS(text=[("%d/%d" % (track.disc, num_discs))], encoding=3))
-            audio.tags.add(id3.TRCK(text=[("%d/%d" % (track.index, num_tracks))], encoding=3))
-
-            def bit_rate_str(bit_rate):
-               return "~%d kb/s" % bit_rate
-
-            def mode_str(mode):
-                modes = ["Stereo", "Joint Stereo", "Dual Channel", "Mono"]
-                if mode < len(modes):
-                    return modes[mode]
-                else:
-                    return ""
-
-            print(Fore.GREEN + Style.BRIGHT + os.path.basename(self.mp3_file) + Style.NORMAL + "\t[ " + format_size(os.stat(self.mp3_file)[ST_SIZE]) + " ]" + Fore.RESET)
-            print("-" * 79)
-            print(Fore.YELLOW + "Setting artist: " + track.artists[0].name + Fore.RESET)
-            print(Fore.YELLOW + "Setting album: " + track.album.name + Fore.RESET)
-            print(Fore.YELLOW + "Setting title: " + track.name + Fore.RESET)
-            print(Fore.YELLOW + "Setting track info: (" + str(track.index) + ", " + str(num_tracks) + ")"  + Fore.RESET)
-            print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
-            print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
-            if image is not None: print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
-            print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
-                ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
-                " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
-            print("-" * 79)
-            id3_version = "v%d.%d" % (audio.tags.version[0], audio.tags.version[1])
-            print("ID3 " + id3_version + ": " + str(len(audio.tags.values())) + " frames")
-            print(Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
-            print("-" * 79)
-
-            audio.save()
-
-        except id3.error:
-            print(Fore.YELLOW + "Warning: exception while saving id3 tag: " + str(id3.error) + Fore.RESET)
-
-        # delete cover
-        call(["rm", "-f", "cover.jpg"])
-
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-
-    parser = argparse.ArgumentParser(prog='spotify-ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog='''Example usage:
-    rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
-    rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
-    search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
-    ''')
-
-    group = parser.add_mutually_exclusive_group(required=True)
-
-    parser.add_argument('-a', '--ascii', action='store_true', help='Convert file name to ASCII encoding [Default=utf-8]')
-    parser.add_argument('-b', '--bitrate', default='320', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
-    parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
-    parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
-    parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
-    parser.add_argument('-F', '--Flat', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
-    parser.add_argument('-k', '--key', nargs=1, help='Path to Spotify application key file [Default=cwd]')
-    group.add_argument('-u', '--user', nargs=1, help='Spotify username')
-    parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
-    group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
-    parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
-    parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
-    parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
-    parser.add_argument('-S', '--settings', nargs=1, help='Path to settings and temp files directory [Default=~/.spotify-ripper]')
-    parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
-    parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
-    parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
-    parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
-    args = parser.parse_args()
-
-    init(strip=True if args.strip_colors else None)
-
-    ripper = Ripper(args)
-    ripper.start()
-
-    # wait for ripping thread to finish
-    try:
-        while not ripper.finished:
-            time.sleep(0.1)
-    except (KeyboardInterrupt, Exception) as e:
-        if not isinstance(e, KeyboardInterrupt):
-            self.logger.error(e)
-        print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
-        ripper.abort()
-        sys.exit(1)
-
-if __name__ == '__main__':
-    main()
