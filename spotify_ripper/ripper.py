@@ -458,6 +458,18 @@ class Ripper(threading.Thread):
             audio.tags.add(id3.TPOS(text=[unicode(track.disc) + "/" + unicode(num_discs)], encoding=3))
             audio.tags.add(id3.TRCK(text=[unicode(track.index) + "/" + unicode(num_tracks)], encoding=3))
 
+            print("Writing ID3 version v2.4")
+            print("-" * 79)
+            print(Fore.YELLOW + "Setting artist: " + track.artists[0].name + Fore.RESET)
+            print(Fore.YELLOW + "Setting album: " + track.album.name + Fore.RESET)
+            print(Fore.YELLOW + "Setting title: " + track.name + Fore.RESET)
+            print(Fore.YELLOW + "Setting track info: (" + str(track.index) + ", " + str(num_tracks) + ")"  + Fore.RESET)
+            print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
+            print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
+            print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
+            print(audio.info.pprint())
+            print("-" * 79)
+
             audio.save()
 
         except id3.error:
