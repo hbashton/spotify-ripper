@@ -6,8 +6,9 @@ from __future__ import unicode_literals
 from subprocess import call, Popen, PIPE
 from colorama import init, Fore
 from mutagen import mp3, id3
+from spotify_ripper.utils import *
+from stat import ST_SIZE
 import os, sys
-import re
 import time
 import cmd
 import logging
@@ -22,38 +23,6 @@ class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
     BITRATE_320K = 1
     BITRATE_96K  = 2
-
-class Utils():
-    @staticmethod
-    def print_str(str):
-        """print without newline"""
-        sys.stdout.write(str)
-        sys.stdout.flush()
-
-    @staticmethod
-    def norm_path(path):
-        """normalize path"""
-        return os.path.normpath(os.path.realpath(path))
-
-    # borrowed from AndersTornkvist's fork
-    @staticmethod
-    def escape_filename_part(part):
-        """escape possible offending characters"""
-        part = re.sub(r"\s*/\s*", r' & ', part)
-        part = re.sub(r"""\s*[\\/:"*?<>|]+\s*""", r' ', part)
-        part = part.strip()
-        part = re.sub(r"(^\.+\s*|(?<=\.)\.+|\s*\.+$)", r'', part)
-        return part
-
-    @staticmethod
-    def to_ascii(args, _str):
-        """convert unicode to ascii if necessary"""
-        if isinstance(_str, str) and not args.ascii:
-            return unicode(_str, "utf-8")
-        elif isinstance(_str, unicode) and args.ascii:
-            return _str.encode('ascii', 'ignore').decode("utf-8")
-        else:
-            return _str
 
 class Ripper(threading.Thread):
 
@@ -83,7 +52,7 @@ class Ripper(threading.Thread):
 
         config = spotify.Config()
 
-        default_dir = Utils.norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+        default_dir = norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
 
         # application key location
         if args.key is not None:
@@ -102,7 +71,7 @@ class Ripper(threading.Thread):
 
         # settings directory
         if args.settings is not None:
-            settings_dir = Utils.norm_path(args.settings[0])
+            settings_dir = norm_path(args.settings[0])
             config.settings_location = settings_dir
             config.cache_location = settings_dir
         else:
@@ -261,7 +230,7 @@ class Ripper(threading.Thread):
         # list tracks
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
-            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + Utils.to_ascii(args, track.album.name) + "] " + Utils.to_ascii(args, track.artists[0].name) + " - " + Utils.to_ascii(args, track.name) + " (" + str(track.popularity) + ")")
+            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + to_ascii(args, track.album.name) + "] " + to_ascii(args, track.artists[0].name) + " - " + to_ascii(args, track.name) + " (" + str(track.popularity) + ")")
 
         pick = raw_input("Pick track(s) (ex 1-3,5): ")
 
@@ -333,18 +302,18 @@ class Ripper(threading.Thread):
 
     def prepare_path(self, idx, track):
         args = self.args
-        base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
+        base_dir = norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
-        artist = Utils.to_ascii(args, Utils.escape_filename_part(track.artists[0].name))
-        album = Utils.to_ascii(args, Utils.escape_filename_part(track.album.name))
-        track_name = Utils.to_ascii(args, Utils.escape_filename_part(track.name))
+        artist = to_ascii(args, escape_filename_part(track.artists[0].name))
+        album = to_ascii(args, escape_filename_part(track.album.name))
+        track_name = to_ascii(args, escape_filename_part(track.name))
         if args.flat:
-            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
         elif args.Flat:
             filled_idx = str(idx).zfill(self.idx_digits)
-            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
         else:
-            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
@@ -389,10 +358,10 @@ class Ripper(threading.Thread):
         dur_seconds = self.duration // 1000
         pct = int(self.position * 100 // self.duration)
         x = int(pct * 40 // 100)
-        Utils.print_str(("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
+        print_str(("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
 
     def end_progress(self):
-        Utils.print_str("\n")
+        print_str("\n")
 
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:
@@ -458,7 +427,17 @@ class Ripper(threading.Thread):
             audio.tags.add(id3.TPOS(text=[unicode(track.disc) + "/" + unicode(num_discs)], encoding=3))
             audio.tags.add(id3.TRCK(text=[unicode(track.index) + "/" + unicode(num_tracks)], encoding=3))
 
-            print("Writing ID3 version v2.4")
+            def bit_rate_str(bit_rate):
+               return "~%d kb/s" % bit_rate
+
+            def mode_str(mode):
+                modes = ["Stereo", "Joint Stereo", "Dual Channel", "Mono"]
+                if mode < len(modes):
+                    return modes[mode]
+                else:
+                    return ""
+
+            print(os.path.basename(self.mp3_file) + "\t[ " + format_size(os.stat(self.mp3_file)[ST_SIZE]) + " ]")
             print("-" * 79)
             print(Fore.YELLOW + "Setting artist: " + track.artists[0].name + Fore.RESET)
             print(Fore.YELLOW + "Setting album: " + track.album.name + Fore.RESET)
@@ -467,7 +446,12 @@ class Ripper(threading.Thread):
             print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
             print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
             print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
-            print(audio.info.pprint())
+            print("Time: " + format_time(audio.info.length) + " MPEG" + str(audio.info.version) + ", Layer " + ("I" * audio.info.layer) +
+                "  [ " + bit_rate_str(audio.info.bitrate / 1000) + " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
+            print("-" * 79)
+            id3_version = "v%d.%d" % (audio.tags.version[0], audio.tags.version[1])
+            print("ID3 " + id3_version + ": " + str(len(audio.tags.values())) + " frames")
+            print("Writing ID3 version " + id3_version)
             print("-" * 79)
 
             audio.save()
