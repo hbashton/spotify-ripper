@@ -10,16 +10,16 @@ def _read(fn):
 
 setup(
     name='spotify-ripper',
-    version='1.0.1',
+    version='1.1.0',
     packages=find_packages(exclude=["tests"]),
-    scripts=['spotify_ripper/ripper.py'],
+    scripts=['spotify_ripper/main.py'],
     include_package_data=True,
     zip_safe=False,
 
      # Executable
     entry_points={
         'console_scripts': [
-            'spotify-ripper = ripper:main',
+            'spotify-ripper = main:main',
         ],
     },
 
@@ -31,8 +31,8 @@ setup(
     # Requirements
     install_requires=[
         'pyspotify==2.0.0b4',
-        'colorama==0.3.3',
-        'eyeD3==0.7.5',
+        'colorama>=0.3.3',
+        'mutagen==1.28',
     ],
 
     # Metadata
@@ -49,6 +49,8 @@ setup(
         "Intended Audience :: Developers",
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
     ],
     long_description=_read('README.rst'),
 )

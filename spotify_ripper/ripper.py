@@ -1,62 +1,26 @@
-#!/usr/bin/env python
 # -*- coding: utf8 -*-
 
 from __future__ import unicode_literals
 
 from subprocess import call, Popen, PIPE
-from colorama import init, Fore
+from colorama import Fore, Style
+from spotify_ripper.utils import *
+from spotify_ripper.id3 import set_id3_and_cover
 import os, sys
-import re
 import time
-import cmd
 import logging
 import threading
 import spotify
-import argparse
 import getpass
 import itertools
-import pkg_resources
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
     BITRATE_320K = 1
     BITRATE_96K  = 2
 
-class Utils():
-    @staticmethod
-    def print_str(str):
-        """print without newline"""
-        sys.stdout.write(str)
-        sys.stdout.flush()
-
-    @staticmethod
-    def norm_path(path):
-        """normalize path"""
-        return os.path.normpath(os.path.realpath(path))
-
-    # borrowed from AndersTornkvist's fork
-    @staticmethod
-    def escape_filename_part(part):
-        """escape possible offending characters"""
-        part = re.sub(r"\s*/\s*", r' & ', part)
-        part = re.sub(r"""\s*[\\/:"*?<>|]+\s*""", r' ', part)
-        part = part.strip()
-        part = re.sub(r"(^\.+\s*|(?<=\.)\.+|\s*\.+$)", r'', part)
-        return part
-
-    @staticmethod
-    def to_ascii(args, _str):
-        """convert unicode to ascii if necessary"""
-        if isinstance(_str, str) and not args.ascii:
-            return unicode(_str, "utf-8")
-        elif isinstance(_str, unicode) and args.ascii:
-            return _str.encode('ascii', 'ignore').decode("utf-8")
-        else:
-            return _str
-
 class Ripper(threading.Thread):
-
-    logger = logging.getLogger('shell.ripper')
+    logger = logging.getLogger('spotify.ripper')
 
     mp3_file = None
     pcm_file = None
@@ -82,7 +46,7 @@ class Ripper(threading.Thread):
 
         config = spotify.Config()
 
-        default_dir = Utils.norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+        default_dir = norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
 
         # application key location
         if args.key is not None:
@@ -101,7 +65,7 @@ class Ripper(threading.Thread):
 
         # settings directory
         if args.settings is not None:
-            settings_dir = Utils.norm_path(args.settings[0])
+            settings_dir = norm_path(args.settings[0])
             config.settings_location = settings_dir
             config.cache_location = settings_dir
         else:
@@ -176,7 +140,9 @@ class Ripper(threading.Thread):
 
                 self.end_progress()
                 self.finish_rip(track)
-                self.set_id3_and_cover(track)
+
+                # update id3v2 with metadata and embed front cover image
+                set_id3_and_cover(args, self.mp3_file, track)
 
                 if args.remove_from_playlist:
                     if self.current_playlist:
@@ -258,7 +224,7 @@ class Ripper(threading.Thread):
         # list tracks
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
-            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + Utils.to_ascii(args, track.album.name) + "] " + Utils.to_ascii(args, track.artists[0].name) + " - " + Utils.to_ascii(args, track.name) + " (" + str(track.popularity) + ")")
+            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + to_ascii(args, track.album.name) + "] " + to_ascii(args, track.artists[0].name) + " - " + to_ascii(args, track.name) + " (" + str(track.popularity) + ")")
 
         pick = raw_input("Pick track(s) (ex 1-3,5): ")
 
@@ -330,18 +296,18 @@ class Ripper(threading.Thread):
 
     def prepare_path(self, idx, track):
         args = self.args
-        base_dir = Utils.norm_path(args.directory[0]) if args.directory != None else os.getcwd()
+        base_dir = norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
-        artist = Utils.to_ascii(args, Utils.escape_filename_part(track.artists[0].name))
-        album = Utils.to_ascii(args, Utils.escape_filename_part(track.album.name))
-        track_name = Utils.to_ascii(args, Utils.escape_filename_part(track.name))
+        artist = to_ascii(args, escape_filename_part(track.artists[0].name))
+        album = to_ascii(args, escape_filename_part(track.album.name))
+        track_name = to_ascii(args, escape_filename_part(track.name))
         if args.flat:
-            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
         elif args.Flat:
             filled_idx = str(idx).zfill(self.idx_digits)
-            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
         else:
-            self.mp3_file = Utils.to_ascii(args, os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
@@ -386,10 +352,10 @@ class Ripper(threading.Thread):
         dur_seconds = self.duration // 1000
         pct = int(self.position * 100 // self.duration)
         x = int(pct * 40 // 100)
-        Utils.print_str(("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
+        print_str(("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
 
     def end_progress(self):
-        Utils.print_str("\n")
+        print_str("\n")
 
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:
@@ -404,110 +370,3 @@ class Ripper(threading.Thread):
         self.clean_up_partial()
         self.logout()
         self.finished = True
-
-    def set_id3_and_cover(self, track):
-        # ensure everything is loaded still
-        if not track.is_loaded: track.load()
-        if not track.album.is_loaded: track.album.load()
-        album_browser = track.album.browse()
-        album_browser.load()
-
-        # calculate num of tracks on disc and num of dics
-        num_discs = 0
-        num_tracks = 0
-        for track_browse in album_browser.tracks:
-            if track_browse.disc == track.disc and track_browse.index > track.index:
-                num_tracks = track_browse.index
-            if track_browse.disc > num_discs:
-                num_discs = track_browse.disc
-
-        # prepare eyeD3 args
-        eyeD3_args = ["eyeD3"]
-
-        # download cover
-        image = track.album.cover()
-        if image is not None:
-            image.load()
-
-            fh_cover = open('cover.jpg','wb')
-            fh_cover.write(image.data)
-            fh_cover.flush()
-            os.fsync(fh_cover.fileno())
-            fh_cover.close()
-
-            eyeD3_args.extend(["--add-image", "cover.jpg:FRONT_COVER"])
-
-        # complete eyeD3 args
-        eyeD3_args.extend([
-            "-t", track.name,
-            "-a", track.artists[0].name,
-            "-A", track.album.name,
-            "-n", str(track.index),
-            "-N", str(num_tracks),
-            "-d", str(track.disc),
-            "-D", str(num_discs),
-            "-Y", str(track.album.year),
-            "-Q",
-            self.mp3_file
-        ])
-
-        # write id3 data
-        ret_code = call(eyeD3_args)
-        if ret_code != 0:
-            print(Fore.YELLOW + "Warning: eyeD3 returned non-zero error code " + str(ret_code) + Fore.RESET)
-
-        # delete cover
-        call(["rm", "-f", "cover.jpg"])
-
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-
-    parser = argparse.ArgumentParser(prog='spotify-ripper', description='Rips Spotify URIs to MP3s with ID3 tags and album covers',
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog='''Example usage:
-    rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
-    rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
-    search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
-    ''')
-
-    group = parser.add_mutually_exclusive_group(required=True)
-
-    parser.add_argument('-a', '--ascii', action='store_true', help='Convert file name to ASCII encoding [Default=utf-8]')
-    parser.add_argument('-b', '--bitrate', default='320', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
-    parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
-    parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
-    parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
-    parser.add_argument('-F', '--Flat', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
-    parser.add_argument('-k', '--key', nargs=1, help='Path to Spotify application key file [Default=cwd]')
-    group.add_argument('-u', '--user', nargs=1, help='Spotify username')
-    parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
-    group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
-    parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
-    parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
-    parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
-    parser.add_argument('-S', '--settings', nargs=1, help='Path to settings and temp files directory [Default=~/.spotify-ripper]')
-    parser.add_argument('-v', '--vbr', default='0', help='Lame VBR encoding quality setting [Default=0]')
-    parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
-    parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
-    parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
-    args = parser.parse_args()
-
-    init(strip=True if args.strip_colors else None)
-
-    ripper = Ripper(args)
-    ripper.start()
-
-    # wait for ripping thread to finish
-    try:
-        while not ripper.finished:
-            time.sleep(0.1)
-    except (KeyboardInterrupt, Exception) as e:
-        if not isinstance(e, KeyboardInterrupt):
-            self.logger.error(e)
-        print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
-        ripper.abort()
-        sys.exit(1)
-
-if __name__ == '__main__':
-    main()

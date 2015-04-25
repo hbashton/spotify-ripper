@@ -31,7 +31,9 @@ Features
 
 -  option to remove tracks from playlist after successful ripping
 
--  installs ripper script globally using pip
+-  globally installs ripper script using pip
+
+-  Python 2.7.x and 3.4.x compatible.  Python 3 will occasionally throw a ``NameError: name '_lock' is not defined`` exception at the end of the script due to an `upstream bug <https://github.com/mopidy/pyspotify/issues/133>`__ in pyspotify.
 
 Usage
 -----
@@ -94,7 +96,7 @@ Prerequisites
 
 -  `lame <http://lame.sourceforge.net>`__
 
--  `eyeD3 <http://eyed3.nicfit.net>`__
+-  `mutagen <https://mutagen.readthedocs.org/en/latest/>`__
 
 -  `colorama <https://pypi.python.org/pypi/colorama>`__
 
@@ -112,7 +114,7 @@ Recommend approach uses `homebrew <http://brew.sh/>`__ and
     $ sudo ln -s /usr/local/opt/libspotify/lib/libspotify.12.1.51.dylib \
         /usr/local/opt/libspotify/lib/libspotify
     $ brew install lame
-    $ pip install -e . --allow-external eyeD3 --allow-unverified eyeD3
+    $ pip install -e .
     $ pyenv rehash
 
 Download an application key file ``spotify_appkey.key`` from
@@ -140,7 +142,7 @@ of libspotify.
     $ cd libspotify-12.1.51-Linux-x86_64-release/
     $ sudo make install prefix=/usr/local
     $ cd ..
-    $ pip install -e . --allow-external eyeD3 --allow-unverified eyeD3
+    $ pip install -e .
     $ pyenv rehash
 
 Download an application key file ``spotify_appkey.key`` from
