@@ -402,7 +402,7 @@ class Ripper(threading.Thread):
             if image is not None:
                 image.load()
 
-                fh_cover = open('cover.jpg','wb')
+                fh_cover = open('cover.jpg', 'wb')
                 fh_cover.write(image.data)
                 fh_cover.flush()
                 os.fsync(fh_cover.fileno())
@@ -410,20 +410,20 @@ class Ripper(threading.Thread):
 
                 audio.tags.add(
                     id3.APIC(
-                        encoding=3, # 3 is for utf-8
-                        mime='image/jpeg', # image/jpeg or image/png
-                        type=3, # 3 is for the cover image
-                        desc=u'Front Cover',
-                        data=open('cover.jpg').read()
+                        encoding=3,
+                        mime='image/jpeg',
+                        type=3,
+                        desc='Front Cover',
+                        data=open('cover.jpg', 'rb').read()
                     )
                 )
 
             audio.tags.add(id3.TALB(text=[track.album.name], encoding=3))
             audio.tags.add(id3.TIT2(text=[track.name], encoding=3))
             audio.tags.add(id3.TPE1(text=[track.artists[0].name], encoding=3))
-            audio.tags.add(id3.TDRL(text=[unicode(track.album.year)], encoding=3))
-            audio.tags.add(id3.TPOS(text=[unicode(track.disc) + "/" + unicode(num_discs)], encoding=3))
-            audio.tags.add(id3.TRCK(text=[unicode(track.index) + "/" + unicode(num_tracks)], encoding=3))
+            audio.tags.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
+            audio.tags.add(id3.TPOS(text=[("%d/%d" % (track.disc, num_discs))], encoding=3))
+            audio.tags.add(id3.TRCK(text=[("%d/%d" % (track.index, num_tracks))], encoding=3))
 
             def bit_rate_str(bit_rate):
                return "~%d kb/s" % bit_rate
@@ -443,7 +443,7 @@ class Ripper(threading.Thread):
             print(Fore.YELLOW + "Setting track info: (" + str(track.index) + ", " + str(num_tracks) + ")"  + Fore.RESET)
             print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
             print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
-            print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
+            if image is not None: print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
             print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
                 ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
                 " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")

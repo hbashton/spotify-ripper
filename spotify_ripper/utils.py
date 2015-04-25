@@ -24,12 +24,21 @@ def escape_filename_part(part):
 
 def to_ascii(args, _str):
     """convert unicode to ascii if necessary"""
-    if isinstance(_str, str) and not args.ascii:
-        return unicode(_str, "utf-8")
-    elif isinstance(_str, unicode) and args.ascii:
-        return _str.encode('ascii', 'ignore').decode("utf-8")
+    # python 3 renamed unicode to str
+    if sys.version_info >= (3, 0):
+        if isinstance(_str, bytes) and not args.ascii:
+            return str(_str, "utf-8")
+        elif isinstance(_str, str) and args.ascii:
+            return _str.encode('ascii', 'ignore').decode("utf-8")
+        else:
+            return _str
     else:
-        return _str
+        if isinstance(_str, str) and not args.ascii:
+            return unicode(_str, "utf-8")
+        elif isinstance(_str, unicode) and args.ascii:
+            return _str.encode('ascii', 'ignore').decode("utf-8")
+        else:
+            return _str
 
 KB_BYTES = 1024
 '''Number of bytes per KB (2^10)'''

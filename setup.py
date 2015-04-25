@@ -10,7 +10,7 @@ def _read(fn):
 
 setup(
     name='spotify-ripper',
-    version='1.0.0',
+    version='1.1.0',
     packages=find_packages(exclude=["tests"]),
     scripts=['spotify_ripper/ripper.py'],
     include_package_data=True,
@@ -32,7 +32,7 @@ setup(
     install_requires=[
         'pyspotify==2.0.0b4',
         'colorama>=0.3.3',
-        'mutagen==1.2.8',
+        'mutagen==1.28',
     ],
 
     # Metadata

@@ -1,3 +1,3 @@
 pyspotify==2.0.0b4
 colorama>=0.3.3
-mutagen==1.2.8
+mutagen==1.28
