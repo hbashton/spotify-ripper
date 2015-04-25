@@ -31,7 +31,7 @@ Features
 
 -  option to remove tracks from playlist after successful ripping
 
--  installs ripper script globally using pip
+-  globally installs ripper script using pip
 
 Usage
 -----

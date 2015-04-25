@@ -31,8 +31,8 @@ setup(
     # Requirements
     install_requires=[
         'pyspotify==2.0.0b4',
-        'colorama==0.3.3',
-        'eyeD3==0.7.5',
+        'colorama>=0.3.3',
+        'mutagen==1.2.8',
     ],
 
     # Metadata
@@ -49,6 +49,8 @@ setup(
         "Intended Audience :: Developers",
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
     ],
     long_description=_read('README.rst'),
 )

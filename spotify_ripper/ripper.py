@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 from subprocess import call, Popen, PIPE
 from colorama import init, Fore
+from mutagen import mp3, id3
 import os, sys
 import re
 import time
@@ -423,40 +424,44 @@ class Ripper(threading.Thread):
             if track_browse.disc > num_discs:
                 num_discs = track_browse.disc
 
-        # prepare eyeD3 args
-        eyeD3_args = ["eyeD3"]
+        # mutagen
+        try:
+            audio = mp3.MP3(self.mp3_file, ID3=id3.ID3)
 
-        # download cover
-        image = track.album.cover()
-        if image is not None:
-            image.load()
+            # add ID3 tag if it doesn't exist
+            audio.add_tags()
 
-            fh_cover = open('cover.jpg','wb')
-            fh_cover.write(image.data)
-            fh_cover.flush()
-            os.fsync(fh_cover.fileno())
-            fh_cover.close()
+            image = track.album.cover()
+            if image is not None:
+                image.load()
 
-            eyeD3_args.extend(["--add-image", "cover.jpg:FRONT_COVER"])
+                fh_cover = open('cover.jpg','wb')
+                fh_cover.write(image.data)
+                fh_cover.flush()
+                os.fsync(fh_cover.fileno())
+                fh_cover.close()
 
-        # complete eyeD3 args
-        eyeD3_args.extend([
-            "-t", track.name,
-            "-a", track.artists[0].name,
-            "-A", track.album.name,
-            "-n", str(track.index),
-            "-N", str(num_tracks),
-            "-d", str(track.disc),
-            "-D", str(num_discs),
-            "-Y", str(track.album.year),
-            "-Q",
-            self.mp3_file
-        ])
+                audio.tags.add(
+                    id3.APIC(
+                        encoding=3, # 3 is for utf-8
+                        mime='image/jpeg', # image/jpeg or image/png
+                        type=3, # 3 is for the cover image
+                        desc=u'Front Cover',
+                        data=open('cover.jpg').read()
+                    )
+                )
 
-        # write id3 data
-        ret_code = call(eyeD3_args)
-        if ret_code != 0:
-            print(Fore.YELLOW + "Warning: eyeD3 returned non-zero error code " + str(ret_code) + Fore.RESET)
+            audio.tags.add(id3.TALB(text=[track.album.name], encoding=3))
+            audio.tags.add(id3.TIT2(text=[track.name], encoding=3))
+            audio.tags.add(id3.TPE1(text=[track.artists[0].name], encoding=3))
+            audio.tags.add(id3.TDRL(text=[unicode(track.album.year)], encoding=3))
+            audio.tags.add(id3.TPOS(text=[unicode(track.disc) + "/" + unicode(num_discs)], encoding=3))
+            audio.tags.add(id3.TRCK(text=[unicode(track.index) + "/" + unicode(num_tracks)], encoding=3))
+
+            audio.save()
+
+        except id3.error:
+            print(Fore.YELLOW + "Warning: exception while saving id3 tag: " + str(id3.error) + Fore.RESET)
 
         # delete cover
         call(["rm", "-f", "cover.jpg"])
