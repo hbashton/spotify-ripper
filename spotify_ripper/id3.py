@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 
-from subprocess import call
 from colorama import Fore, Style
 from mutagen import mp3, id3
 from stat import ST_SIZE
@@ -96,4 +95,4 @@ def set_id3_and_cover(args, mp3_file, track):
         print(Fore.YELLOW + "Warning: exception while saving id3 tag: " + str(id3.error) + Fore.RESET)
 
     # delete cover
-    if image is not None: call(["rm", "-f", "cover.jpg"])
+    if image is not None: rm_file("cover.jpg")

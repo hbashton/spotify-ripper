@@ -2,7 +2,8 @@
 
 from __future__ import unicode_literals
 
-import os, sys
+from colorama import Fore, Style
+import os, sys, errno
 import re
 
 def print_str(str):
@@ -41,6 +42,15 @@ def to_ascii(args, _str):
             return _str.encode('ascii', 'ignore').decode("utf-8")
         else:
             return _str
+
+def rm_file(file_name):
+    try:
+        os.remove(file_name)
+    except OSError as e:
+        # don't need to print a warning if the file doesn't exist
+        if e.errno != errno.ENOENT:
+            print(Fore.YELLOW + "Warning: error while trying to remove file " + file_name + Fore.RESET)
+            print(str(e))
 
 KB_BYTES = 1024
 '''Number of bytes per KB (2^10)'''

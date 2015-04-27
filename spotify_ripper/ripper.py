@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-from subprocess import call, Popen, PIPE
+from subprocess import Popen, PIPE
 from colorama import Fore, Style
 from spotify_ripper.utils import *
 from spotify_ripper.id3 import set_id3_and_cover
@@ -257,7 +257,7 @@ class Ripper(threading.Thread):
     def clean_up_partial(self):
         if os.path.exists(self.mp3_file):
             print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
-            call(["rm", "-f", self.mp3_file])
+            rm_file(self.mp3_file)
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
