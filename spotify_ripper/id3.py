@@ -96,4 +96,4 @@ def set_id3_and_cover(args, mp3_file, track):
         print(Fore.YELLOW + "Warning: exception while saving id3 tag: " + str(id3.error) + Fore.RESET)
 
     # delete cover
-    call(["rm", "-f", "cover.jpg"])
+    if image is not None: call(["rm", "-f", "cover.jpg"])

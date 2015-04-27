@@ -85,6 +85,8 @@ class Ripper(threading.Thread):
             self.on_end_of_track)
         self.session.on(spotify.SessionEvent.MUSIC_DELIVERY,
             self.on_music_delivery)
+        self.session.on(spotify.SessionEvent.PLAY_TOKEN_LOST,
+            self.play_token_lost)
 
         self.event_loop = spotify.EventLoop(self.session)
         self.event_loop.start()
@@ -268,6 +270,12 @@ class Ripper(threading.Thread):
         elif session.connection.state is spotify.ConnectionState.LOGGED_OUT:
             self.logged_in.clear()
             self.logged_out.set()
+
+    def play_token_lost(self, session):
+        print("\n"  + Fore.RED + "Play token lost, aborting..." + Fore.RESET)
+        self.session.player.play(False)
+        self.clean_up_partial()
+        self.finished = True
 
     def on_end_of_track(self, session):
         self.session.player.play(False)
