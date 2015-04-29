@@ -27,6 +27,9 @@ def set_id3_and_cover(args, mp3_file, track):
     # use mutagen to update id3v2 tags
     try:
         audio = mp3.MP3(mp3_file, ID3=id3.ID3)
+        album = to_ascii(args, track.album.name)
+        artist = to_ascii(args, track.artists[0].name)
+        title = to_ascii(args, track.name)
 
         # add ID3 tag if it doesn't exist
         audio.add_tags()
@@ -51,12 +54,18 @@ def set_id3_and_cover(args, mp3_file, track):
                 )
             )
 
-        audio.tags.add(id3.TALB(text=[track.album.name], encoding=3))
-        audio.tags.add(id3.TIT2(text=[track.name], encoding=3))
-        audio.tags.add(id3.TPE1(text=[track.artists[0].name], encoding=3))
+        def idx_of_total_str(_idx, _total):
+            if _total > 0:
+                return "%d/%d" % (_idx, _total)
+            else:
+                return "%d" % (_idx)
+
+        if album is not None: audio.tags.add(id3.TALB(text=[album], encoding=3))
+        audio.tags.add(id3.TIT2(text=[title], encoding=3))
+        audio.tags.add(id3.TPE1(text=[artist], encoding=3))
         audio.tags.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
-        audio.tags.add(id3.TPOS(text=[("%d/%d" % (track.disc, num_discs))], encoding=3))
-        audio.tags.add(id3.TRCK(text=[("%d/%d" % (track.index, num_tracks))], encoding=3))
+        audio.tags.add(id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)], encoding=3))
+        audio.tags.add(id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)], encoding=3))
 
         def bit_rate_str(bit_rate):
            brs = "%d kb/s" % bit_rate
@@ -73,9 +82,9 @@ def set_id3_and_cover(args, mp3_file, track):
 
         print(Fore.GREEN + Style.BRIGHT + os.path.basename(mp3_file) + Style.NORMAL + "\t[ " + format_size(os.stat(mp3_file)[ST_SIZE]) + " ]" + Fore.RESET)
         print("-" * 79)
-        print(Fore.YELLOW + "Setting artist: " + track.artists[0].name + Fore.RESET)
-        print(Fore.YELLOW + "Setting album: " + track.album.name + Fore.RESET)
-        print(Fore.YELLOW + "Setting title: " + track.name + Fore.RESET)
+        print(Fore.YELLOW + "Setting artist: " + artist + Fore.RESET)
+        if album is not None: print(Fore.YELLOW + "Setting album: " + album + Fore.RESET)
+        print(Fore.YELLOW + "Setting title: " + title + Fore.RESET)
         print(Fore.YELLOW + "Setting track info: (" + str(track.index) + ", " + str(num_tracks) + ")"  + Fore.RESET)
         print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
         print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
