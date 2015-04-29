@@ -46,7 +46,7 @@ class Ripper(threading.Thread):
 
         config = spotify.Config()
 
-        default_dir = norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+        default_dir = default_settings_dir()
 
         # application key location
         if args.key is not None:

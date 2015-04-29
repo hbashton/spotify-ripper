@@ -14,7 +14,7 @@ import pkg_resources
 import ConfigParser
 
 def load_config(args, defaults):
-    settings_dir = args.settings[0] if args.settings is not None else norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+    settings_dir = args.settings[0] if args.settings is not None else default_settings_dir()
     config_file = os.path.join(settings_dir, "config.ini")
     if os.path.exists(config_file):
         try:
@@ -33,7 +33,7 @@ def load_config(args, defaults):
             # overwrite any existing defaults
             defaults.update(config_items)
         except (ConfigParser.Error) as e:
-            print("\nError parsing config: " + config_file)
+            print("\nError parsing config file: " + config_file)
             print(str(e))
 
     return defaults
@@ -42,8 +42,8 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger('spotify.ripper')
 
-    # in case we changed the location of the settings directory where the config file lives, we need to parse argument
-    # first before we parse the rest of the arguments
+    # in case we changed the location of the settings directory where the config file lives, we need to parse this argument
+    # before we parse the rest of the arguments (which can overwrite the options in the config file)
     settings_parser = argparse.ArgumentParser(add_help=False)
     settings_parser.add_argument('-S', '--settings', nargs=1, help='Path to settings, config and temp files directory [Default=~/.spotify-ripper]')
     args, remaining_argv = settings_parser.parse_known_args()
@@ -65,8 +65,10 @@ def main():
     ''')
 
     # create group to prevent to prevent user from using both the -l and -u option
-    if defaults.get('user') is not None or defaults.get('last') is True:
-        if defaults.get('user') is not None and defaults.get('last') is True:
+    is_user_set = defaults.get('user') is not None
+    is_last_set = defaults.get('last') is True
+    if is_user_set or is_last_set:
+        if is_user_set and is_last_set:
             print("spotify-ripper: error: one of the arguments -u/--user -l/--last is required")
             sys.exit(1)
         else:

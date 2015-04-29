@@ -52,6 +52,9 @@ def rm_file(file_name):
             print(Fore.YELLOW + "Warning: error while trying to remove file " + file_name + Fore.RESET)
             print(str(e))
 
+def default_settings_dir():
+    return norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+
 KB_BYTES = 1024
 '''Number of bytes per KB (2^10)'''
 MB_BYTES = 1048576
