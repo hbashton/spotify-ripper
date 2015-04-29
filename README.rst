@@ -33,16 +33,23 @@ Features
 
 -  globally installs ripper script using pip
 
--  Python 2.7.x and 3.4.x compatible.  Python 3 will occasionally throw a ``NameError: name '_lock' is not defined`` exception at the end of the script due to an `upstream bug <https://github.com/mopidy/pyspotify/issues/133>`__ in pyspotify.
+-  Python 2.7.x and 3.4.x compatible.  Python 3 will occasionally throw a ``NameError: name '_lock' is not defined`` exception at the end of the script due to an `upstream bug <https://github.com/mopidy/pyspotify/issues/133>`__ in ``pyspotify``.
+
+-  use a config file to specify common command-line options
 
 Usage
 -----
 
+Command Line
+~~~~~~~~~~~~
+
+``spotify-ripper`` takes many command-line options
+
 .. code::
 
-    usage: spotify-ripper [-h] [-a] [-b {160,320,96}] [-c] [-d DIRECTORY] [-f]
-                          [-F] [-k KEY] [-u USER] [-p PASSWORD] [-l] [-m] [-o]
-                          [-s] [-S SETTINGS] [-v VBR] [-V] [-r]
+    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-b {160,320,96}] [-c]
+                          [-d DIRECTORY] [-f] [-F] [-k KEY] [-u USER]
+                          [-p PASSWORD] [-l] [-m] [-o] [-s] [-v VBR] [-V] [-r]
                           uri
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -52,6 +59,8 @@ Usage
 
     optional arguments:
       -h, --help            show this help message and exit
+      -S SETTINGS, --settings SETTINGS
+                            Path to settings, config and temp files directory [Default=~/.spotify-ripper]
       -a, --ascii           Convert file name to ASCII encoding [Default=utf-8]
       -b {160,320,96}, --bitrate {160,320,96}
                             Bitrate rip quality [Default=320]
@@ -68,8 +77,6 @@ Usage
       -m, --pcm             Saves a .pcm file with the raw PCM data
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       -s, --strip-colors    Strip coloring from output[Default=colors]
-      -S SETTINGS, --settings SETTINGS
-                            Path to settings and temp files directory [Default=~/.spotify-ripper]
       -v VBR, --vbr VBR     Lame VBR encoding quality setting [Default=0]
       -V, --version         show program's version number and exit
       -r, --remove-from-playlist
@@ -79,6 +86,22 @@ Usage
         rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
         rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
         search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
+
+Config File
+~~~~~~~~~~~
+
+For options that you want set on every run, you can use a config file named ``config.ini`` in the settings folder (defaults to ``~/.spotify-ripper``).  The options in the config file use the same name as the command line options with the exception that dashes are tranlated to ``snake_case``.  Any option specified in the command line will overwrite any setting in the config file.  Please put all options under a ``[main]`` section.
+
+Here is an example config file
+
+.. code:: ini
+
+    [main]
+    ascii = True
+    bitrate = 160
+    flat = True
+    last = True
+    remove_from_playlist = True
 
 Installation
 ------------
