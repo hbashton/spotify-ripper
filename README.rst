@@ -1,5 +1,5 @@
-spotify-ripper
-==============
+spotify-ripper |Version|
+========================
 
 A fork of
 `spotify-ripper <https://github.com/robbeofficial/spotifyripper>`__ that
@@ -181,3 +181,6 @@ License
 -------
 
 `MIT License <http://en.wikipedia.org/wiki/MIT_License>`__
+
+.. |Version| image:: http://img.shields.io/pypi/v/spotify-ripper.svg?style=flat-square
+  :target: https://pypi.python.org/pypi/spotify-ripper
