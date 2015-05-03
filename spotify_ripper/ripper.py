@@ -8,7 +8,6 @@ from spotify_ripper.utils import *
 from spotify_ripper.id3 import set_id3_and_cover
 import os, sys
 import time
-import logging
 import threading
 import spotify
 import getpass
@@ -20,8 +19,6 @@ class BitRate(spotify.utils.IntEnum):
     BITRATE_96K  = 2
 
 class Ripper(threading.Thread):
-    logger = logging.getLogger('spotify.ripper')
-
     mp3_file = None
     pcm_file = None
     rip_proc = None
@@ -162,7 +159,7 @@ class Ripper(threading.Thread):
 
             except spotify.Error as e:
                 print(Fore.RED + "Spotify error detected" + Fore.RESET)
-                self.logger.error(e)
+                print(str(e))
                 print("Skipping to next track...")
                 self.session.player.play(False)
                 self.clean_up_partial()
@@ -220,7 +217,7 @@ class Ripper(threading.Thread):
             result = self.session.search(query)
             result.load()
         except spotify.Error as e:
-            self.logger.warning(e)
+            print(str(e))
             return iter([])
 
         # list tracks
@@ -292,7 +289,7 @@ class Ripper(threading.Thread):
             self.session.relogin()
             self.logged_in.wait()
         except spotify.Error as e:
-            self.logger.error(e)
+            print(str(e))
 
     def logout(self):
         "logout from Spotify"
@@ -360,10 +357,10 @@ class Ripper(threading.Thread):
         dur_seconds = self.duration // 1000
         pct = int(self.position * 100 // self.duration)
         x = int(pct * 40 // 100)
-        print_str(("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
+        print_str(self.args, ("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
 
     def end_progress(self):
-        print_str("\n")
+        print_str(self.args, "\n")
 
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:

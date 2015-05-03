@@ -6,11 +6,11 @@ from colorama import Fore, Style
 import os, sys, errno
 import re
 
-def print_str(str):
+def print_str(args, _str):
     """print without newline"""
-    sys.stdout.write(str)
-    sys.stdout.flush()
-
+    if not args.has_log:
+        sys.stdout.write(_str)
+        sys.stdout.flush()
 
 def norm_path(path):
     """normalize path"""

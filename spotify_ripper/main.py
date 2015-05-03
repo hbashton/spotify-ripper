@@ -3,12 +3,11 @@
 
 from __future__ import unicode_literals
 
-from colorama import init, Fore, Style
+from colorama import init, Fore, Style, AnsiToWin32
 from spotify_ripper.ripper import Ripper
 from spotify_ripper.utils import *
 import os, sys
 import time
-import logging
 import argparse
 import pkg_resources
 import ConfigParser
@@ -45,9 +44,6 @@ def load_config(args, defaults):
     return defaults
 
 def main():
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger('spotify.ripper')
-
     # in case we changed the location of the settings directory where the config file lives, we need to parse this argument
     # before we parse the rest of the arguments (which can overwrite the options in the config file)
     settings_parser = argparse.ArgumentParser(add_help=False)
@@ -96,6 +92,7 @@ def main():
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
+    parser.add_argument('-L', '--log', nargs=1, help='Log in a log-friendly format to a file (use - to log to stdout)')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
@@ -105,7 +102,25 @@ def main():
     parser.add_argument('uri', help='Spotify URI (either URI, a file of URIs or a search query)')
     args = parser.parse_args(remaining_argv)
 
-    init(strip=True if args.strip_colors else None)
+    # kind of a hack to get colorama stripping to work when outputting
+    # to a file instead of stdout.  Taken from initialise.py in colorama
+    def wrap_stream(stream, convert, strip, autoreset, wrap):
+        if wrap:
+            wrapper = AnsiToWin32(stream,
+                convert=convert, strip=strip, autoreset=autoreset)
+            if wrapper.should_wrap():
+                stream = wrapper.stream
+        return stream
+
+    args.has_log = args.log is not None
+    if args.has_log:
+        if args.log[0] == "-":
+            init(strip=True)
+        else:
+            log_file = open(args.log[0], 'a')
+            sys.stdout = wrap_stream(log_file, None, True, False, True)
+    else:
+        init(strip=True if args.strip_colors else None)
 
     if args.ascii_path_only is True: args.ascii = True
 
@@ -118,7 +133,7 @@ def main():
             time.sleep(0.1)
     except (KeyboardInterrupt, Exception) as e:
         if not isinstance(e, KeyboardInterrupt):
-            logger.error(e)
+            print(str(e))
         print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
         ripper.abort()
         sys.exit(1)
