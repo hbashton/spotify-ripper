@@ -49,7 +49,8 @@ Command Line
 
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
                           [-d DIRECTORY] [-f] [-F] [-k KEY] [-u USER]
-                          [-p PASSWORD] [-l] [-m] [-o] [-s] [-v VBR] [-V] [-r]
+                          [-p PASSWORD] [-l] [-L LOG] [-m] [-o] [-s] [-v VBR] [-V]
+                          [-r]
                           uri
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -76,6 +77,7 @@ Command Line
       -p PASSWORD, --password PASSWORD
                             Spotify password [Default=ask interactively]
       -l, --last            Use last login credentials
+      -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
       -m, --pcm             Saves a .pcm file with the raw PCM data
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       -s, --strip-colors    Strip coloring from output[Default=colors]
