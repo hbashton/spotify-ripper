@@ -23,12 +23,18 @@ def load_config(args, defaults):
             if not config.has_section("main"): return defaults
             config_items = dict(config.items("main"))
 
+            to_array_options = ["directory", "key", "user", "password"]
+
             # coerce boolean and none types
             for _key in config_items:
                 item = config_items[_key]
                 if item == 'True': config_items[_key] = True
                 elif item == 'False': config_items[_key] = False
                 elif item == 'None': config_items[_key] = None
+
+                # certain options need to be in array (nargs=1)
+                if _key in to_array_options:
+                    config_items[_key] = [item]
 
             # overwrite any existing defaults
             defaults.update(config_items)
