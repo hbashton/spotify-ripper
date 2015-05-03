@@ -85,7 +85,8 @@ def main():
     # set defaults
     parser.set_defaults(**defaults)
 
-    parser.add_argument('-a', '--ascii', action='store_true', help='Convert file name to ASCII encoding [Default=utf-8]')
+    parser.add_argument('-a', '--ascii', action='store_true', help='Convert the file name and the ID3 tag to ASCII encoding [Default=utf-8]')
+    parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the ID3 tag) to ASCII encoding [Default=utf-8]')
     parser.add_argument('-b', '--bitrate', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
@@ -105,6 +106,8 @@ def main():
     args = parser.parse_args(remaining_argv)
 
     init(strip=True if args.strip_colors else None)
+
+    if args.ascii_path_only is True: args.ascii = True
 
     ripper = Ripper(args)
     ripper.start()

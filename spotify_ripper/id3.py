@@ -27,9 +27,10 @@ def set_id3_and_cover(args, mp3_file, track):
     # use mutagen to update id3v2 tags
     try:
         audio = mp3.MP3(mp3_file, ID3=id3.ID3)
-        album = to_ascii(args, track.album.name)
-        artist = to_ascii(args, track.artists[0].name)
-        title = to_ascii(args, track.name)
+        on_error = 'replace' if args.ascii_path_only else 'ignore'
+        album = to_ascii(args, track.album.name, on_error)
+        artist = to_ascii(args, track.artists[0].name, on_error)
+        title = to_ascii(args, track.name, on_error)
 
         # add ID3 tag if it doesn't exist
         audio.add_tags()
@@ -54,15 +55,18 @@ def set_id3_and_cover(args, mp3_file, track):
                 )
             )
 
+        def id3_to_ascii(_str, _str_ascii):
+            return _str if args.ascii_path_only else _str_ascii
+
         def idx_of_total_str(_idx, _total):
             if _total > 0:
                 return "%d/%d" % (_idx, _total)
             else:
                 return "%d" % (_idx)
 
-        if album is not None: audio.tags.add(id3.TALB(text=[album], encoding=3))
-        audio.tags.add(id3.TIT2(text=[title], encoding=3))
-        audio.tags.add(id3.TPE1(text=[artist], encoding=3))
+        if album is not None: audio.tags.add(id3.TALB(text=[id3_to_ascii(track.album.name, album)], encoding=3))
+        audio.tags.add(id3.TIT2(text=[id3_to_ascii(track.name, title)], encoding=3))
+        audio.tags.add(id3.TPE1(text=[id3_to_ascii(track.artists[0].name, artist)], encoding=3))
         audio.tags.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
         audio.tags.add(id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)], encoding=3))
         audio.tags.add(id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)], encoding=3))
