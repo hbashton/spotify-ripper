@@ -47,7 +47,7 @@ Command Line
 
 .. code::
 
-    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-b {160,320,96}] [-c]
+    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
                           [-d DIRECTORY] [-f] [-F] [-k KEY] [-u USER]
                           [-p PASSWORD] [-l] [-m] [-o] [-s] [-v VBR] [-V] [-r]
                           uri
@@ -61,7 +61,9 @@ Command Line
       -h, --help            show this help message and exit
       -S SETTINGS, --settings SETTINGS
                             Path to settings, config and temp files directory [Default=~/.spotify-ripper]
-      -a, --ascii           Convert file name to ASCII encoding [Default=utf-8]
+      -a, --ascii           Convert the file name and the ID3 tag to ASCII encoding [Default=utf-8]
+      -A, --ascii-path-only
+                            Convert the file name (but not the ID3 tag) to ASCII encoding [Default=utf-8]
       -b {160,320,96}, --bitrate {160,320,96}
                             Bitrate rip quality [Default=320]
       -c, --cbr             Lame CBR encoding [Default=VBR]
