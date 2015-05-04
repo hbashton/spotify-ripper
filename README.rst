@@ -48,9 +48,9 @@ Command Line
 .. code::
 
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
-                          [-d DIRECTORY] [-f] [-F] [-k KEY] [-u USER]
-                          [-p PASSWORD] [-l] [-L LOG] [-m] [-o] [-s] [-v VBR] [-V]
-                          [-r]
+                          [-d DIRECTORY] [-f] [-F] [-g {artist,album}] [-k KEY]
+                          [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o] [-s]
+                          [-v VBR] [-V] [-r]
                           uri
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -72,6 +72,8 @@ Command Line
                             Base directory where ripped MP3s are saved [Default=cwd]
       -f, --flat            Save all songs to a single directory instead of organizing by album/artist/song
       -F, --Flat            Similar to --flat [-f] but includes the playlist index at the start of the song file
+      -g {artist,album}, --genres {artist,album}
+                            Attempt to retrieve genre information from Spotify's Web API [Default=skip]
       -k KEY, --key KEY     Path to Spotify application key file [Default=cwd]
       -u USER, --user USER  Spotify username
       -p PASSWORD, --password PASSWORD
@@ -89,6 +91,7 @@ Command Line
     Example usage:
         rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
         rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+        rip a list of URIs: spotify-ripper -u user -p password list_of_uris.txt
         search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
 
 Config File

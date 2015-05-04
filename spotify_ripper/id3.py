@@ -7,6 +7,7 @@ from mutagen import mp3, id3
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
+import requests
 
 def set_id3_and_cover(args, mp3_file, track):
     # ensure everything is loaded still
@@ -24,6 +25,25 @@ def set_id3_and_cover(args, mp3_file, track):
         if track_browse.disc > num_discs:
             num_discs = track_browse.disc
 
+    # try to get genres from Spotify's Web API
+    genres = None
+    if args.genres is not None:
+        item = track.artists[0] if args.genres[0] == "artist" else track.album
+        uri_tokens = item.link.uri.split(':')
+        if len(uri_tokens) == 3:
+            url = 'https://api.spotify.com/v1/' + args.genres[0] + 's/' + uri_tokens[2]
+            print(Fore.GREEN + "Attempting to retrieve genres from Spotify's Web API" + Fore.RESET)
+            print(Fore.CYAN + url + Fore.RESET)
+            req = requests.get(url)
+            if req.status_code == 200:
+                try:
+                    resp_json = req.json()
+                    genres = resp_json["genres"]
+                except KeyError as e:
+                    pass
+            else:
+                print(Fore.YELLOW + "URL returned non-200 HTTP code: " + str(req.status_code) + Fore.RESET)
+
     # use mutagen to update id3v2 tags
     try:
         audio = mp3.MP3(mp3_file, ID3=id3.ID3)
@@ -31,6 +51,8 @@ def set_id3_and_cover(args, mp3_file, track):
         album = to_ascii(args, track.album.name, on_error)
         artist = to_ascii(args, track.artists[0].name, on_error)
         title = to_ascii(args, track.name, on_error)
+        if genres is not None and genres:
+            genres_ascii = [to_ascii(args, genre) for genre in genres]
 
         # add ID3 tag if it doesn't exist
         audio.add_tags()
@@ -70,6 +92,10 @@ def set_id3_and_cover(args, mp3_file, track):
         audio.tags.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
         audio.tags.add(id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)], encoding=3))
         audio.tags.add(id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)], encoding=3))
+        if genres is not None and genres:
+            tcon_tag = id3.TCON(encoding=3)
+            tcon_tag.genres = genres if args.ascii_path_only else genres_ascii
+            audio.tags.add(tcon_tag)
 
         def bit_rate_str(bit_rate):
            brs = "%d kb/s" % bit_rate
@@ -92,6 +118,7 @@ def set_id3_and_cover(args, mp3_file, track):
         print(Fore.YELLOW + "Setting track info: (" + str(track.index) + ", " + str(num_tracks) + ")"  + Fore.RESET)
         print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
         print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
+        if genres is not None and genres: print(Fore.YELLOW + "Setting genres: " + " / ".join(genres_ascii) + Fore.RESET)
         if image is not None: print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
         print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
             ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +

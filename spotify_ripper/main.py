@@ -22,7 +22,7 @@ def load_config(args, defaults):
             if not config.has_section("main"): return defaults
             config_items = dict(config.items("main"))
 
-            to_array_options = ["directory", "key", "user", "password"]
+            to_array_options = ["directory", "key", "user", "password", "log", "genres"]
 
             # coerce boolean and none types
             for _key in config_items:
@@ -63,6 +63,7 @@ def main():
         epilog='''Example usage:
     rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
     rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+    rip a list of URIs: spotify-ripper -u user -p password list_of_uris.txt
     search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
     ''')
 
@@ -88,6 +89,7 @@ def main():
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
     parser.add_argument('-F', '--Flat', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
+    parser.add_argument('-g', '--genres', nargs=1, choices=['artist', 'album'], help='Attempt to retrieve genre information from Spotify\'s Web API [Default=skip]')
     parser.add_argument('-k', '--key', nargs=1, help='Path to Spotify application key file [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
