@@ -189,6 +189,9 @@ class Ripper(threading.Thread):
         self.finished = True
 
     def load_link(self, uri):
+        # ignore if the uri is just blank (e.g. from a file)
+        if not uri: return iter([])
+
         link = self.session.get_link(uri)
         if link.type == spotify.LinkType.TRACK:
             track = link.as_track()
