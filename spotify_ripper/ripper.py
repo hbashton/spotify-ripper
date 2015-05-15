@@ -110,12 +110,13 @@ class Ripper(threading.Thread):
             return
 
         # create track iterator
-        if os.path.exists(args.uri):
-            tracks = itertools.chain(*[self.load_link(line.strip()) for line in open(args.uri)])
-        elif args.uri.startswith("spotify:"):
-            tracks = self.load_link(args.uri)
-        else:
-            tracks = self.search_query(args.uri)
+        for uri in args.uri:
+            if os.path.exists(uri):
+                tracks = itertools.chain(*[self.load_link(line.strip()) for line in open(uri)])
+            elif uri.startswith("spotify:"):
+                tracks = self.load_link(uri)
+            else:
+                tracks = self.search_query(uri)
 
         if args.Flat and self.current_playlist:
             self.idx_digits = len(str(len(self.current_playlist.tracks)))

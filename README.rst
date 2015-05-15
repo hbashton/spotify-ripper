@@ -51,12 +51,12 @@ Command Line
                           [-d DIRECTORY] [-f] [-F] [-g {artist,album}] [-k KEY]
                           [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o] [-s]
                           [-v VBR] [-V] [-r]
-                          uri
+                          uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
 
     positional arguments:
-      uri                   Spotify URI (either URI, a file of URIs or a search query)
+      uri                   One or more Spotify URI(s) (either URI, a file of URIs or a search query)
 
     optional arguments:
       -h, --help            show this help message and exit
