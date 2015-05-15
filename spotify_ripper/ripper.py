@@ -29,6 +29,7 @@ class Ripper(threading.Thread):
     tracks_to_remove = []
     end_of_track = threading.Event()
     idx_digits = 3
+    login_success = False
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -84,6 +85,8 @@ class Ripper(threading.Thread):
             self.on_music_delivery)
         self.session.on(spotify.SessionEvent.PLAY_TOKEN_LOST,
             self.play_token_lost)
+        self.session.on(spotify.SessionEvent.LOGGED_IN,
+            self.on_logged_in)
 
         self.event_loop = spotify.EventLoop(self.session)
         self.event_loop.start()
@@ -100,6 +103,11 @@ class Ripper(threading.Thread):
             self.login(args.user[0], password)
         else:
             self.login(args.user[0], args.password[0])
+
+        if not self.login_success:
+            print(Fore.RED + "Encountered issue while logging into Spotify, aborting..." + Fore.RESET)
+            self.finished = True
+            return
 
         # create track iterator
         if os.path.exists(args.uri):
@@ -252,7 +260,7 @@ class Ripper(threading.Thread):
         return iter([])
 
     def clean_up_partial(self):
-        if os.path.exists(self.mp3_file):
+        if self.mp3_file is not None and os.path.exists(self.mp3_file):
             print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
             rm_file(self.mp3_file)
 
@@ -262,11 +270,29 @@ class Ripper(threading.Thread):
 
     def on_connection_state_changed(self, session):
         if session.connection.state is spotify.ConnectionState.LOGGED_IN:
+            self.login_success = True
             self.logged_in.set()
             self.logged_out.clear()
         elif session.connection.state is spotify.ConnectionState.LOGGED_OUT:
             self.logged_in.clear()
             self.logged_out.set()
+
+    def on_logged_in(self, session, error):
+        if error is spotify.ErrorType.OK:
+            print("Logged in as " + session.user.display_name)
+        else:
+            errorMap = {
+                9: "CLIENT_TOO_OLD",
+                8: "UNABLE_TO_CONTACT_SERVER",
+                6: "BAD_USERNAME_OR_PASSWORD",
+                7: "USER_BANNED",
+                15: "USER_NEEDS_PREMIUM",
+                16: "OTHER_TRANSIENT",
+                10: "OTHER_PERMANENT"
+            }
+            print("Logged in failed: " + errorMap.get(error, "UNKNOWN_ERROR_CODE: " + str(error)))
+            self.login_success = False
+            self.logged_in.set()
 
     def play_token_lost(self, session):
         print("\n"  + Fore.RED + "Play token lost, aborting..." + Fore.RESET)
