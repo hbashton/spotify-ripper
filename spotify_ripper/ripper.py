@@ -336,13 +336,23 @@ class Ripper(threading.Thread):
         artist = to_ascii(args, escape_filename_part(track.artists[0].name))
         album = to_ascii(args, escape_filename_part(track.album.name))
         track_name = to_ascii(args, escape_filename_part(track.name))
+
+        # in case the file name is too long
+        def truncate(_str, max_size):
+            return (_str[:max_size].strip() if len(_str) > max_size else _str)
+
         if args.flat:
-            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist + " - " + track_name + ".mp3"))
+            file_name = truncate(artist + " - " + track_name, 251) + ".mp3"
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
         elif args.Flat:
             filled_idx = str(idx).zfill(self.idx_digits)
-            self.mp3_file = to_ascii(args, os.path.join(base_dir, filled_idx + " - " + artist + " - " + track_name + ".mp3"))
+            file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + ".mp3"
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
         else:
-            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist, album, artist + " - " + track_name + ".mp3"))
+            artist_t = truncate(artist, 255)
+            album_t = truncate(album, 255)
+            file_name = truncate(artist + " - " + track_name, 251) + ".mp3"
+            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist_t, album_t, file_name))
 
         # create directory if it doesn't exist
         mp3_path = os.path.dirname(self.mp3_file)
