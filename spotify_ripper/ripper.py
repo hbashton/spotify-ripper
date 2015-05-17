@@ -371,7 +371,12 @@ class Ripper(threading.Thread):
             if self.eta_prev is not None:
                 rate = (self.position - self.eta_prev[0]) / (time.time() - self.eta_prev[1])
                 if rate > 0.00000001:
-                    self.eta = (self.duration - self.position) / rate
+                    new_eta = (self.duration - self.position) / rate
+                    # debounce and round
+                    if self.eta is None or abs(new_eta - self.eta) > 10:
+                        r = new_eta % 15
+                        new_eta += ((15 - r) if r >= 7 else (0 - r))
+                        self.eta = new_eta
             self.eta_prev = (self.position, time.time())
 
     def prepare_rip(self, track):
