@@ -8,6 +8,7 @@ from spotify_ripper.utils import *
 from spotify_ripper.id3 import set_id3_and_cover
 import os, sys
 import time
+import schedule
 import threading
 import spotify
 import getpass
@@ -30,6 +31,10 @@ class Ripper(threading.Thread):
     end_of_track = threading.Event()
     idx_digits = 3
     login_success = False
+
+    # ETA calculations
+    eta_prev = None
+    eta = None
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -109,6 +114,10 @@ class Ripper(threading.Thread):
             self.finished = True
             return
 
+        # start eta calc timer
+        if not args.has_log:
+            schedule.every(2).seconds.do(self.eta_calc)
+
         # create track iterator
         for uri in args.uri:
             if os.path.exists(uri):
@@ -139,8 +148,6 @@ class Ripper(threading.Thread):
 
                 self.session.player.load(track)
                 self.prepare_rip(track)
-                self.duration = track.duration
-                self.position = 0
                 self.session.player.play()
 
                 self.end_of_track.wait()
@@ -359,8 +366,20 @@ class Ripper(threading.Thread):
         if not os.path.exists(mp3_path):
             os.makedirs(mp3_path)
 
+    def eta_calc(self):
+        if self.ripping:
+            if self.eta_prev is not None:
+                rate = (self.position - self.eta_prev[0]) / (time.time() - self.eta_prev[1])
+                if rate > 0.00000001:
+                    self.eta = (self.duration - self.position) / rate
+            self.eta_prev = (self.position, time.time())
+
     def prepare_rip(self, track):
         args = self.args
+
+        # reset track position data
+        self.position = 0
+        self.duration = track.duration
 
         print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
@@ -390,6 +409,8 @@ class Ripper(threading.Thread):
             os.fsync(self.pcm_file.fileno())
             self.pcm_file.close()
             self.pcm_file = None
+        self.eta = None
+        self.eta_prev = None
         self.ripping = False
 
     def update_progress(self):
@@ -398,6 +419,8 @@ class Ripper(threading.Thread):
         pct = int(self.position * 100 // self.duration)
         x = int(pct * 40 // 100)
         print_str(self.args, ("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
+        if self.eta is not None:
+            print_str(self.args, ("   (~" + format_time(self.eta, short=True) + " remaining)"))
 
     def end_progress(self):
         print_str(self.args, "\n")

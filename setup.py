@@ -10,7 +10,7 @@ def _read(fn):
 
 setup(
     name='spotify-ripper',
-    version='1.2.2',
+    version='1.2.3',
     packages=find_packages(exclude=["tests"]),
     scripts=['spotify_ripper/main.py'],
     include_package_data=True,
@@ -33,7 +33,8 @@ setup(
         'pyspotify==2.0.0b4',
         'colorama>=0.3.3',
         'mutagen==1.28',
-        'requests>=2.3.0'
+        'requests>=2.3.0',
+        'schedule>=0.3.1',
     ],
 
     # Metadata
@@ -43,7 +44,7 @@ setup(
     license='MIT',
     keywords="spotify ripper mp3",
     url='https://github.com/jrnewell/spotify-ripper',
-    download_url = 'https://github.com/jrnewell/spotify-ripper/tarball/1.2.2',
+    download_url = 'https://github.com/jrnewell/spotify-ripper/tarball/1.2.3',
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Multimedia :: Sound/Audio :: Capture/Recording',

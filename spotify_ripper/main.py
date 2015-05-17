@@ -11,6 +11,7 @@ import time
 import argparse
 import pkg_resources
 import ConfigParser
+import schedule
 
 def load_config(args, defaults):
     settings_dir = args.settings[0] if args.settings is not None else default_settings_dir()
@@ -132,6 +133,7 @@ def main():
     # wait for ripping thread to finish
     try:
         while not ripper.finished:
+            schedule.run_pending()
             time.sleep(0.1)
     except (KeyboardInterrupt, Exception) as e:
         if not isinstance(e, KeyboardInterrupt):

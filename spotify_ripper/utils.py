@@ -162,12 +162,12 @@ def format_time(seconds, total=None, short=False):
         seconds = int(seconds)
 
         if seconds < 60:
-            return u'   {0:02d}s'.format(seconds)
+            return u'{0:02d}s'.format(seconds)
         for i in xrange(len(units) - 1):
             unit1, limit1 = units[i]
             unit2, limit2 = units[i + 1]
             if seconds >= limit1:
-                return u'{0:02d}{1}{2:02d}{3}'.format(
+                return u'{0:02d}{1} {2:02d}{3}'.format(
                     seconds // limit1, unit1,
                     (seconds % limit1) // limit2, unit2)
         return u'  ~inf'
