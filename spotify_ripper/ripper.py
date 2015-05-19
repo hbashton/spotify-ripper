@@ -6,9 +6,9 @@ from subprocess import Popen, PIPE
 from colorama import Fore, Style
 from spotify_ripper.utils import *
 from spotify_ripper.id3 import set_id3_and_cover
+from spotify_ripper.progress import Progress
 import os, sys
 import time
-import schedule
 import threading
 import spotify
 import getpass
@@ -31,10 +31,7 @@ class Ripper(threading.Thread):
     end_of_track = threading.Event()
     idx_digits = 3
     login_success = False
-
-    # ETA calculations
-    eta_prev = None
-    eta = None
+    progress = None
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -114,9 +111,8 @@ class Ripper(threading.Thread):
             self.finished = True
             return
 
-        # start eta calc timer
-        if not args.has_log:
-            schedule.every(2).seconds.do(self.eta_calc)
+        # initalize progress meter
+        self.progress = Progress(args, self)
 
         # create track iterator
         for uri in args.uri:
@@ -129,6 +125,9 @@ class Ripper(threading.Thread):
 
             if args.Flat and self.current_playlist:
                 self.idx_digits = len(str(len(self.current_playlist.tracks)))
+
+            tracks = list(tracks)
+            self.progress.calc_total(tracks)
 
             # ripping loop
             for idx, track in enumerate(tracks):
@@ -153,7 +152,6 @@ class Ripper(threading.Thread):
                     self.end_of_track.wait()
                     self.end_of_track.clear()
 
-                    self.end_progress()
                     self.finish_rip(track)
 
                     # update id3v2 with metadata and embed front cover image
@@ -366,25 +364,11 @@ class Ripper(threading.Thread):
         if not os.path.exists(mp3_path):
             os.makedirs(mp3_path)
 
-    def eta_calc(self):
-        if self.ripping:
-            if self.eta_prev is not None:
-                rate = (self.position - self.eta_prev[0]) / (time.time() - self.eta_prev[1])
-                if rate > 0.00000001:
-                    new_eta = (self.duration - self.position) / rate
-                    # debounce and round
-                    if self.eta is None or abs(new_eta - self.eta) > 10:
-                        r = new_eta % 15
-                        new_eta += ((15 - r) if r >= 7 else (0 - r))
-                        self.eta = new_eta
-            self.eta_prev = (self.position, time.time())
-
     def prepare_rip(self, track):
         args = self.args
 
-        # reset track position data
-        self.position = 0
-        self.duration = track.duration
+        # reset progress
+        self.progress.prepare_track(track)
 
         print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
@@ -398,6 +382,7 @@ class Ripper(threading.Thread):
         self.ripping = True
 
     def finish_rip(self, track):
+        self.progress.end_track()
         if self.pipe is not None:
             print(Fore.GREEN + 'Rip complete' + Fore.RESET)
             self.pipe.flush()
@@ -414,26 +399,11 @@ class Ripper(threading.Thread):
             os.fsync(self.pcm_file.fileno())
             self.pcm_file.close()
             self.pcm_file = None
-        self.eta = None
-        self.eta_prev = None
         self.ripping = False
-
-    def update_progress(self):
-        pos_seconds = self.position // 1000
-        dur_seconds = self.duration // 1000
-        pct = int(self.position * 100 // self.duration)
-        x = int(pct * 40 // 100)
-        print_str(self.args, ("\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] %d:%02d / %d:%02d") % (pos_seconds // 60, pos_seconds % 60, dur_seconds // 60, dur_seconds % 60))
-        if self.eta is not None:
-            print_str(self.args, ("   (~" + format_time(self.eta, short=True) + " remaining)"))
-
-    def end_progress(self):
-        print_str(self.args, "\n")
 
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:
-            self.position += (num_frames * 1000) / audio_format.sample_rate
-            self.update_progress()
+            self.progress.update_progress(num_frames, audio_format)
             self.pipe.write(frame_bytes);
             if self.args.pcm:
               self.pcm_file.write(frame_bytes)
