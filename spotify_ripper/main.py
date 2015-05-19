@@ -44,12 +44,12 @@ def load_config(args, defaults):
 
     return defaults
 
-def main():
+def main(prog_args=sys.argv[1:]):
     # in case we changed the location of the settings directory where the config file lives, we need to parse this argument
     # before we parse the rest of the arguments (which can overwrite the options in the config file)
     settings_parser = argparse.ArgumentParser(add_help=False)
     settings_parser.add_argument('-S', '--settings', nargs=1, help='Path to settings, config and temp files directory [Default=~/.spotify-ripper]')
-    args, remaining_argv = settings_parser.parse_known_args()
+    args, remaining_argv = settings_parser.parse_known_args(prog_args)
 
     # load config file, overwriting any defaults
     defaults = {
