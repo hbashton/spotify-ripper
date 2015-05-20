@@ -17,7 +17,7 @@ Features
 
 -  writes id3 tags (including album covers)
 
--  rips files into the follow following directory structure: ``artist/album/artist - song.mp3`` or optionally into a flat directory structure using the ``f`` or ``-F`` options
+-  rips files into the following directory structure: ``artist/album/artist - song.mp3`` by default or optionally into a flat directory structure using the ``-f`` or ``-F`` options
 
 -  option to skip or overwrite existing files
 
