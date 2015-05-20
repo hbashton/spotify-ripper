@@ -143,6 +143,7 @@ class Ripper(threading.Thread):
                     if not args.overwrite and os.path.exists(self.mp3_file):
                         print(Fore.YELLOW + "Skipping " + track.link.uri + Fore.RESET)
                         print(Fore.CYAN + self.mp3_file + Fore.RESET)
+                        self.queue_remove_from_playlist(idx)
                         continue
 
                     self.session.player.load(track)
@@ -157,19 +158,9 @@ class Ripper(threading.Thread):
                     # update id3v2 with metadata and embed front cover image
                     set_id3_and_cover(args, self.mp3_file, track)
 
-                    if args.remove_from_playlist:
-                        if self.current_playlist:
-                            if self.current_playlist.owner.canonical_name == self.session.user.canonical_name:
-                                # since removing is instant we make a note of the index
-                                # and remove the indexes when everything is done
-                                self.tracks_to_remove.append(idx)
-                            else:
-                                print(Fore.RED + "This track will not be removed from playlist " +
-                                    self.current_playlist.name + " since " + self.session.user.canonical_name +
-                                    " is not the playlist owner..." + Fore.RESET)
-                        else:
-                            print(Fore.RED + "No playlist specified to remove this track from. " +
-                                    "Did you use '-r' without a playlist link?" + Fore.RESET)
+                    # make a note of the index and remove all the
+                    # tracks from the playlist when everything is done
+                    self.queue_remove_from_playlist(idx)
 
                 except spotify.Error as e:
                     print(Fore.RED + "Spotify error detected" + Fore.RESET)
@@ -180,15 +171,7 @@ class Ripper(threading.Thread):
                     continue
 
             # actually removing the tracks from playlist
-            if args.remove_from_playlist and self.current_playlist and len(self.tracks_to_remove) > 0:
-                print(Fore.YELLOW + "Removing successfully ripped tracks from playlist " +
-                        self.current_playlist.name + "..." + Fore.RESET)
-
-                self.current_playlist.remove_tracks(self.tracks_to_remove)
-                self.session.process_events()
-
-                while self.current_playlist.has_pending_changes:
-                    time.sleep(0.1)
+            self.remove_tracks_from_playlist()
 
         # logout, we are done
         self.logout()
@@ -413,5 +396,30 @@ class Ripper(threading.Thread):
     def abort(self):
         self.session.player.play(False)
         self.clean_up_partial()
+        self.remove_tracks_from_playlist()
         self.logout()
         self.finished = True
+
+    def queue_remove_from_playlist(self, idx):
+        if self.args.remove_from_playlist:
+            if self.current_playlist:
+                if self.current_playlist.owner.canonical_name == self.session.user.canonical_name:
+                    self.tracks_to_remove.append(idx)
+                else:
+                    print(Fore.RED + "This track will not be removed from playlist " +
+                        self.current_playlist.name + " since " + self.session.user.canonical_name +
+                        " is not the playlist owner..." + Fore.RESET)
+            else:
+                print(Fore.RED + "No playlist specified to remove this track from. " +
+                        "Did you use '-r' without a playlist link?" + Fore.RESET)
+
+    def remove_tracks_from_playlist(self):
+        if self.args.remove_from_playlist and self.current_playlist and len(self.tracks_to_remove) > 0:
+            print(Fore.YELLOW + "Removing successfully ripped tracks from playlist " +
+                    self.current_playlist.name + "..." + Fore.RESET)
+
+            self.current_playlist.remove_tracks(self.tracks_to_remove)
+            self.session.process_events()
+
+            while self.current_playlist.has_pending_changes:
+                time.sleep(0.1)
