@@ -40,10 +40,13 @@ class Progress(object):
 
         self.show_total = True
         self.total_duration = 0
-        for track in tracks:
+
+        # some duplicate work here, maybe cache this info beforehand?
+        for idx, track in enumerate(tracks):
             track.load()
-            if track.availability != 1:
-                continue
+            if track.availability != 1: continue
+            mp3_file = self.ripper.track_path(idx, track)
+            if not self.args.overwrite and os.path.exists(mp3_file): continue
             self.total_duration += track.duration
 
     def eta_calc(self):

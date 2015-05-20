@@ -138,7 +138,7 @@ class Ripper(threading.Thread):
                         print(Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
                         continue
 
-                    self.prepare_path(idx, track)
+                    self.mp3_file = self.track_path(idx, track)
 
                     if not args.overwrite and os.path.exists(self.mp3_file):
                         print(Fore.YELLOW + "Skipping " + track.link.uri + Fore.RESET)
@@ -334,7 +334,7 @@ class Ripper(threading.Thread):
             self.logged_out.wait()
         self.event_loop.stop()
 
-    def prepare_path(self, idx, track):
+    def track_path(self, idx, track):
         args = self.args
         base_dir = norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
@@ -348,21 +348,23 @@ class Ripper(threading.Thread):
 
         if args.flat:
             file_name = truncate(artist + " - " + track_name, 251) + ".mp3"
-            self.mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
+            mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
         elif args.Flat:
             filled_idx = str(idx).zfill(self.idx_digits)
             file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + ".mp3"
-            self.mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
+            mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
         else:
             artist_t = truncate(artist, 255)
             album_t = truncate(album, 255)
             file_name = truncate(artist + " - " + track_name, 251) + ".mp3"
-            self.mp3_file = to_ascii(args, os.path.join(base_dir, artist_t, album_t, file_name))
+            mp3_file = to_ascii(args, os.path.join(base_dir, artist_t, album_t, file_name))
 
         # create directory if it doesn't exist
-        mp3_path = os.path.dirname(self.mp3_file)
+        mp3_path = os.path.dirname(mp3_file)
         if not os.path.exists(mp3_path):
             os.makedirs(mp3_path)
+
+        return mp3_file
 
     def prepare_rip(self, track):
         args = self.args
