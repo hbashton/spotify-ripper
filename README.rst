@@ -17,10 +17,9 @@ Features
 
 -  writes id3 tags (including album covers)
 
--  creates files and directories based on the following structure
-   artist/album/artist - song.mp3
+-  rips files into the follow following directory structure: ``artist/album/artist - song.mp3`` or optionally into a flat directory structure using the ``f`` or ``-F`` options
 
--  optionally skip existing files
+-  option to skip or overwrite existing files
 
 -  accepts tracks, playlists, albums, and artist URIs
 
