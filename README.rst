@@ -36,6 +36,8 @@ Features
 
 -  use a config file to specify common command-line options
 
+-  helpful progress bar to gauge the time remaining until completion
+
 Usage
 -----
 
