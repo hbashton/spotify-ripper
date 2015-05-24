@@ -72,7 +72,8 @@ Command Line
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
       -f, --flat            Save all songs to a single directory instead of organizing by album/artist/song
-      -F, --Flat            Similar to --flat [-f] but includes the playlist index at the start of the song file
+      -F, --flat-with-index
+                            Similar to --flat [-f] but includes the playlist index at the start of the song file
       -g {artist,album}, --genres {artist,album}
                             Attempt to retrieve genre information from Spotify's Web API [Default=skip]
       -k KEY, --key KEY     Path to Spotify application key file [Default=cwd]

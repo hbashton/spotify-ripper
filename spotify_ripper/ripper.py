@@ -123,7 +123,7 @@ class Ripper(threading.Thread):
             else:
                 tracks = self.search_query(uri)
 
-            if args.Flat and self.current_playlist:
+            if args.flat_with_index and self.current_playlist:
                 self.idx_digits = len(str(len(self.current_playlist.tracks)))
 
             tracks = list(tracks)
@@ -332,7 +332,7 @@ class Ripper(threading.Thread):
         if args.flat:
             file_name = truncate(artist + " - " + track_name, 251) + ".mp3"
             mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
-        elif args.Flat:
+        elif args.flat_with_index:
             filled_idx = str(idx).zfill(self.idx_digits)
             file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + ".mp3"
             mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
