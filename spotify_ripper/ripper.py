@@ -147,7 +147,7 @@ class Ripper(threading.Thread):
                         continue
 
                     self.session.player.load(track)
-                    self.prepare_rip(track)
+                    self.prepare_rip(idx, track)
                     self.session.player.play()
 
                     self.end_of_track.wait()
@@ -349,13 +349,16 @@ class Ripper(threading.Thread):
 
         return mp3_file
 
-    def prepare_rip(self, track):
+    def prepare_rip(self, idx, track):
         args = self.args
 
         # reset progress
         self.progress.prepare_track(track)
 
-        print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
+        if self.progress.total_tracks > 1:
+            print(Fore.GREEN + "[ " + str(idx + 1) + " / " + str(self.progress.total_tracks) + " ] Ripping " + track.link.uri + Fore.RESET)
+        else:
+            print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
         if args.cbr:
             self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)

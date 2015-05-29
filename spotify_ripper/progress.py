@@ -17,6 +17,7 @@ class Progress(object):
 
     # total progress
     show_total = False
+    total_tracks = 0
     total_position = 0
     total_duration = 0
 
@@ -35,7 +36,8 @@ class Progress(object):
             schedule.every(2).seconds.do(self.eta_calc)
 
     def calc_total(self, tracks):
-        if len(tracks) <= 1:
+        self.total_tracks = len(tracks)
+        if self.total_tracks <= 1:
             return
 
         self.show_total = True
