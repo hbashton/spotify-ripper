@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from colorama import Fore, Style
 import os, sys, errno
 import re
+import math
 
 def print_str(args, _str):
     """print without newline"""
@@ -54,6 +55,9 @@ def rm_file(file_name):
 
 def default_settings_dir():
     return norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+
+def calc_file_size(args, track):
+    return (int(args.bitrate) / 8) * track.duration
 
 KB_BYTES = 1024
 '''Number of bytes per KB (2^10)'''

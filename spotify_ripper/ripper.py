@@ -129,6 +129,9 @@ class Ripper(threading.Thread):
             tracks = list(tracks)
             self.progress.calc_total(tracks)
 
+            if self.progress.total_size > 0:
+                print("Total Download Size: " + format_size(self.progress.total_size))
+
             # ripping loop
             for idx, track in enumerate(tracks):
                 try:
@@ -360,6 +363,10 @@ class Ripper(threading.Thread):
         else:
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.mp3_file + Fore.RESET)
+
+        file_size = calc_file_size(self.args, track)
+        print("Track Download Size: " + format_size(file_size))
+
         if args.cbr:
             self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         else:
