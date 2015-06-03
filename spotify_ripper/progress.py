@@ -23,6 +23,7 @@ class Progress(object):
     total_size = 0
 
     # eta calculations
+    ema_rate = None
     stat_prev = None
     song_eta = None
     total_eta = None
@@ -56,6 +57,13 @@ class Progress(object):
             self.total_size += file_size
 
     def eta_calc(self):
+        # exponential moving average
+        def calc_rate(rate, avg_rate, smoothing_factor):
+            if avg_rate is None:
+                return rate
+            else:
+                return (smoothing_factor * rate) + ((1.0 - smoothing_factor) * avg_rate)
+
         def calc(pos, dur, rate, old_eta):
             new_eta = (dur - pos) / rate
             # debounce and round
@@ -70,13 +78,16 @@ class Progress(object):
                 rate = (self.song_position - self.stat_prev[0]) / (time.time() - self.stat_prev[1])
                 if rate > 0.00000001:
 
+                    # calc new average rate using an EMA
+                    self.ema_rate = calc_rate(rate, self.ema_rate, 0.005)
+
                     # calc song eta
-                    self.song_eta = calc(self.song_position, self.song_duration, rate, self.song_eta)
+                    self.song_eta = calc(self.song_position, self.song_duration, self.ema_rate, self.song_eta)
 
                     # calc total eta
                     if self.show_total:
                         total_position = (self.total_position + self.song_position)
-                        self.total_eta = calc(total_position, self.total_duration, rate, self.total_eta)
+                        self.total_eta = calc(total_position, self.total_duration, self.ema_rate, self.total_eta)
 
             self.stat_prev = (self.song_position, time.time())
 
