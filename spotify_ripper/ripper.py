@@ -39,6 +39,9 @@ class Ripper(threading.Thread):
         # set to a daemon thread
         self.daemon = True
 
+        # initalize progress meter
+        self.progress = Progress(args, self)
+
         self.args = args
         self.logged_in = threading.Event()
         self.logged_out = threading.Event()
@@ -110,9 +113,6 @@ class Ripper(threading.Thread):
             print(Fore.RED + "Encountered issue while logging into Spotify, aborting..." + Fore.RESET)
             self.finished = True
             return
-
-        # initalize progress meter
-        self.progress = Progress(args, self)
 
         # create track iterator
         for uri in args.uri:

@@ -8,6 +8,10 @@ import os, sys
 import time
 import schedule
 
+from fcntl import ioctl
+from array import array
+import termios
+
 class Progress(object):
 
     # song progress
@@ -30,6 +34,7 @@ class Progress(object):
 
     # flag for moving cursor
     move_cursor = False
+    term_width = 120
 
     def __init__(self, args, ripper):
         self.args = args
@@ -91,6 +96,12 @@ class Progress(object):
 
             self.stat_prev = (self.song_position, time.time())
 
+    def handle_resize(self, signum=None, frame=None):
+        h = 'h'.encode('ascii', 'ignore')
+        null_str = ('\0' * 8).encode('ascii', 'ignore')
+        h, w = array(h, ioctl(sys.stdout, termios.TIOCGWINSZ, null_str))[:2]
+        self.term_width = w
+
     def prepare_track(self, track):
         self.song_position = 0
         self.song_duration = track.duration
@@ -108,11 +119,32 @@ class Progress(object):
     def update_progress(self, num_frames, audio_format):
         if self.args.has_log: return
 
+        # log output until we run out of space on this line
+        def output_what_fits(init, output_strings):
+            print_str(self.args, init)
+            w = 0
+            for _str in output_strings:
+                _len = len(_str)
+                if w + _len >= (self.term_width - 1):
+                    return
+
+                print_str(self.args, _str)
+                w += _len
+
+        # make progress bar width flexible
+        if self.term_width < 70:
+            prog_width = 10
+        elif self.term_width < 100:
+            prog_width = 40 - (100 - self.term_width)
+        else:
+            prog_width = 40
+
+        # song position/progress calculations
         self.song_position += (num_frames * 1000) / audio_format.sample_rate
         pos_seconds = self.song_position // 1000
         dur_seconds = self.song_duration // 1000
         pct = int(self.song_position * 100 // self.song_duration)
-        x = int(pct * 40 // 100)
+        x = int(pct * prog_width // 100)
 
         # don't move cursor on first update
         if self.show_total:
@@ -121,19 +153,37 @@ class Progress(object):
             else:
                 self.move_cursor = True
 
-        print_str(self.args, "\rProgress: [" + ("=" * x) + (" " * (40 - x)) + "] " + format_time(pos_seconds, dur_seconds))
+        # song output text
+        output_strings = [
+            "Progress:",
+            " [" + ("=" * x) + (" " * (prog_width - x)) + "]",
+            " " + format_time(pos_seconds, dur_seconds)
+        ]
         if self.song_eta is not None:
-            print_str(self.args, ("\t(~" + format_time(self.song_eta, short=True) + " remaining)"))
+            _str = "\t(~" + format_time(self.song_eta, short=True) + " remaining)"
+            output_strings.append(_str.expandtabs())
+
+        output_what_fits("\r\033[2K", output_strings)
 
         if self.show_total:
+            # total position/progress calculations
             total_position = self.total_position + self.song_position
             total_pos_seconds = total_position // 1000
             total_dur_seconds = self.total_duration // 1000
             total_pct = int(total_position * 100 // self.total_duration)
-            total_x = int(total_pct * 40 // 100)
-            print_str(self.args, "\nTotal:    [" + ("=" * total_x) + (" " * (40 - total_x)) + "] " + format_time(total_pos_seconds, total_dur_seconds))
+            total_x = int(total_pct * prog_width // 100)
+
+            # total output text
+            output_strings = [
+                "Total:",
+                "    [" + ("=" * total_x) + (" " * (prog_width - total_x)) + "]",
+                " " + format_time(total_pos_seconds, total_dur_seconds)
+            ]
             if self.total_eta is not None:
-                print_str(self.args, ("\t(~" + format_time(self.total_eta, short=True) + " remaining)"))
+                _str = "\t(~" + format_time(self.total_eta, short=True) + " remaining)"
+                output_strings.append(_str.expandtabs())
+
+            output_what_fits("\n\033[2K", output_strings)
 
     def end_progress(self):
         print_str(self.args, "\n")

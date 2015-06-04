@@ -12,6 +12,7 @@ import argparse
 import pkg_resources
 import ConfigParser
 import schedule
+import signal
 
 def load_config(args, defaults):
     settings_dir = args.settings[0] if args.settings is not None else default_settings_dir()
@@ -129,6 +130,11 @@ def main(prog_args=sys.argv[1:]):
 
     ripper = Ripper(args)
     ripper.start()
+
+    # try to listen for terminal resize events (needs to be called on main thread)
+    if not args.has_log:
+        ripper.progress.handle_resize()
+        signal.signal(signal.SIGWINCH, ripper.progress.handle_resize)
 
     # wait for ripping thread to finish
     try:
