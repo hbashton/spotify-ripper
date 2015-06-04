@@ -8,9 +8,12 @@ import os, sys
 import time
 import schedule
 
-from fcntl import ioctl
-from array import array
-import termios
+try:
+    from fcntl import ioctl
+    from array import array
+    import termios
+except ImportError:
+    pass
 
 class Progress(object):
 
@@ -97,10 +100,13 @@ class Progress(object):
             self.stat_prev = (self.song_position, time.time())
 
     def handle_resize(self, signum=None, frame=None):
-        h = 'h'.encode('ascii', 'ignore')
-        null_str = ('\0' * 8).encode('ascii', 'ignore')
-        h, w = array(h, ioctl(sys.stdout, termios.TIOCGWINSZ, null_str))[:2]
-        self.term_width = w
+        try:
+            h = 'h'.encode('ascii', 'ignore')
+            null_str = ('\0' * 8).encode('ascii', 'ignore')
+            h, w = array(h, ioctl(sys.stdout, termios.TIOCGWINSZ, null_str))[:2]
+            self.term_width = w
+        except (NameError, IOError):
+            self.term_width = int(os.environ.get('COLUMNS', 120)) - 1
 
     def prepare_track(self, track):
         self.song_position = 0
