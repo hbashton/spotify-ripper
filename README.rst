@@ -51,7 +51,7 @@ Command Line
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
                           [-d DIRECTORY] [-f] [-F] [-g {artist,album}] [-k KEY]
                           [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o] [-s]
-                          [-v VBR] [-V] [-r]
+                          [-v VBR] [-V] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -89,6 +89,8 @@ Command Line
       -V, --version         show program's version number and exit
       -r, --remove-from-playlist
                             Delete tracks from playlist after successful ripping [Default=no]
+      -x, --exclude-appears-on
+                            Exclude albums that an artist 'appears on' when passing a Spotify artist URI
 
     Example usage:
         rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
