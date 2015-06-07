@@ -61,19 +61,13 @@ def set_id3_and_cover(args, mp3_file, track):
         if image is not None:
             image.load()
 
-            fh_cover = open('cover.jpg', 'wb')
-            fh_cover.write(image.data)
-            fh_cover.flush()
-            os.fsync(fh_cover.fileno())
-            fh_cover.close()
-
             audio.tags.add(
                 id3.APIC(
                     encoding=3,
                     mime='image/jpeg',
                     type=3,
                     desc='Front Cover',
-                    data=open('cover.jpg', 'rb').read()
+                    data=image.data
                 )
             )
 
@@ -119,7 +113,7 @@ def set_id3_and_cover(args, mp3_file, track):
         print(Fore.YELLOW + "Setting disc info: (" + str(track.disc) + ", " + str(num_discs) + ")"  + Fore.RESET)
         print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
         if genres is not None and genres: print(Fore.YELLOW + "Setting genres: " + " / ".join(genres_ascii) + Fore.RESET)
-        if image is not None: print(Fore.YELLOW + "Adding image cover.jpg" + Fore.RESET)
+        if image is not None: print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
         print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
             ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
             " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
@@ -133,6 +127,3 @@ def set_id3_and_cover(args, mp3_file, track):
 
     except id3.error:
         print(Fore.YELLOW + "Warning: exception while saving id3 tag: " + str(id3.error) + Fore.RESET)
-
-    # delete cover
-    if image is not None: rm_file("cover.jpg")
