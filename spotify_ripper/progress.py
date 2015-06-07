@@ -75,9 +75,9 @@ class Progress(object):
         def calc(pos, dur, rate, old_eta):
             new_eta = (dur - pos) / rate
             # debounce and round
-            if old_eta is None or abs(new_eta - old_eta) > 10:
-                r = new_eta % 15
-                new_eta += ((15 - r) if r >= 7 else (0 - r))
+            if old_eta is None or abs(new_eta - old_eta) >= 5:
+                r = new_eta % 5
+                new_eta += ((5 - r) if r >= 3 else (0 - r))
                 return new_eta
             return old_eta
 
