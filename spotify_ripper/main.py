@@ -35,7 +35,9 @@ def load_config(args, defaults):
 
                 # certain options need to be in array (nargs=1)
                 if _key in to_array_options:
-                    config_items[_key] = [item]
+                    item = config_items[_key]
+                    if item is not None:
+                        config_items[_key] = [item]
 
             # overwrite any existing defaults
             defaults.update(config_items)
