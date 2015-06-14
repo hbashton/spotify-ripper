@@ -369,22 +369,23 @@ class Ripper(threading.Thread):
         artist = to_ascii(args, escape_filename_part(track.artists[0].name))
         album = to_ascii(args, escape_filename_part(track.album.name))
         track_name = to_ascii(args, escape_filename_part(track.name))
+        extension = (".flac" if args.flac else ".mp3")
 
         # in case the file name is too long
         def truncate(_str, max_size):
             return (_str[:max_size].strip() if len(_str) > max_size else _str)
 
         if args.flat:
-            file_name = truncate(artist + " - " + track_name, 251) + ".mp3"
+            file_name = truncate(artist + " - " + track_name, 251) + extension
             mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
         elif args.flat_with_index:
             filled_idx = str(idx).zfill(self.idx_digits)
-            file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + ".mp3"
+            file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + extension
             mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
         else:
             artist_t = truncate(artist, 255)
             album_t = truncate(album, 255)
-            file_name = truncate(artist + " - " + track_name, 251) + ".mp3"
+            file_name = truncate(artist + " - " + track_name, 251) + extension
             mp3_file = to_ascii(args, os.path.join(base_dir, artist_t, album_t, file_name))
 
         # create directory if it doesn't exist
@@ -409,13 +410,16 @@ class Ripper(threading.Thread):
         file_size = calc_file_size(self.args, track)
         print("Track Download Size: " + format_size(file_size))
 
-        if args.cbr:
+        if args.flac:
+            self.rip_proc = Popen(["flac", "-f", "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.mp3_file, "-"], stdin=PIPE)
+        elif args.cbr:
             self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         else:
             self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         self.pipe = self.rip_proc.stdin
         if args.pcm:
-          self.pcm_file = open(self.mp3_file[:-4] + ".pcm", 'w')
+            pcm_file_name = (self.mp3_file[:-5] + ".pcm" if args.flac else self.mp3_file[:-4] + ".pcm")
+            self.pcm_file = open(pcm_file_name, 'w')
         self.ripping = True
 
     def finish_rip(self, track):
