@@ -132,6 +132,12 @@ def main(prog_args=sys.argv[1:]):
 
     if args.ascii_path_only is True: args.ascii = True
 
+    # check that lame or flac is available
+    executable = ("flac" if args.flac else "lame")
+    if which(executable) is None:
+        print(Fore.RED + "Missing dependency '" + executable + "'.  Please install and add to path..." + Fore.RESET)
+        sys.exit(1)
+
     ripper = Ripper(args)
     ripper.start()
 

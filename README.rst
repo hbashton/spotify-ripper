@@ -38,6 +38,8 @@ Features
 
 -  helpful progress bar to gauge the time remaining until completion
 
+-  option to rip to FLAC, a loseless codec, instead of MP3 (requires extra ``flac`` dependency)
+
 Usage
 -----
 
@@ -49,9 +51,9 @@ Command Line
 .. code::
 
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
-                          [-d DIRECTORY] [-f] [-F] [-g {artist,album}] [-k KEY]
-                          [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o] [-s]
-                          [-v VBR] [-V] [-r] [-x]
+                          [-d DIRECTORY] [--flac] [-f] [-F] [-g {artist,album}]
+                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o]
+                          [-s] [-v VBR] [-V] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -71,6 +73,7 @@ Command Line
       -c, --cbr             Lame CBR encoding [Default=VBR]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
+      --flac                Rip songs to lossless FLAC encoding instead of MP3
       -f, --flat            Save all songs to a single directory instead of organizing by album/artist/song
       -F, --flat-with-index
                             Similar to --flat [-f] but includes the playlist index at the start of the song file
@@ -133,6 +136,8 @@ Prerequisites
 -  `mutagen <https://mutagen.readthedocs.org/en/latest/>`__
 
 -  `colorama <https://pypi.python.org/pypi/colorama>`__
+
+-  (optional) `flac <https://xiph.org/flac/index.html>`__
 
 Mac OS X
 ~~~~~~~~
