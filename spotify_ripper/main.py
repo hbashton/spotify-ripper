@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 
-from colorama import init, Fore, Style, AnsiToWin32
+from colorama import init, Fore, AnsiToWin32
 from spotify_ripper.ripper import Ripper
 from spotify_ripper.utils import *
 import os, sys
@@ -86,6 +86,7 @@ def main(prog_args=sys.argv[1:]):
     # set defaults
     parser.set_defaults(**defaults)
 
+    prog_version = pkg_resources.require("spotify-ripper")[0].version
     parser.add_argument('-a', '--ascii', action='store_true', help='Convert the file name and the ID3 tag to ASCII encoding [Default=utf-8]')
     parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the ID3 tag) to ASCII encoding [Default=utf-8]')
     parser.add_argument('-b', '--bitrate', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
@@ -105,7 +106,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', help='Lame VBR encoding quality setting [Default=0]')
-    parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
+    parser.add_argument('-V', '--version', action='version', version=prog_version)
     parser.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('-x', '--exclude-appears-on', action='store_true', help='Exclude albums that an artist \'appears on\' when passing a Spotify artist URI')
@@ -155,6 +156,35 @@ def main(prog_args=sys.argv[1:]):
     if which(encoder) is None:
         print(Fore.RED + "Missing dependency '" + encoder + "'.  Please install and add to path..." + Fore.RESET)
         sys.exit(1)
+
+    # print some settings
+    print(Fore.GREEN + "Spotify Ripper - v" + prog_version + Fore.RESET)
+    print(Fore.YELLOW + "  Encoding output type:\t" + Fore.RESET + args.output_type)
+    print(Fore.YELLOW + "  Spotify bitrate:\t" + Fore.RESET + args.bitrate + " kbps")
+
+    def unicode_support_str():
+        if args.ascii_path_only:
+            return "Unicode tags, ASCII file path"
+        elif args.ascii:
+            return "ASCII only"
+        else:
+            return "Yes"
+
+    print(Fore.YELLOW + "  Unicode support:\t" + Fore.RESET + unicode_support_str())
+    print(Fore.YELLOW + "  Output directory:\t" + Fore.RESET + (norm_path(args.directory[0]) if args.directory != None else os.getcwd()))
+    print(Fore.YELLOW + "  Settings directory:\t" + Fore.RESET + (norm_path(args.settings[0]) if args.settings != None else default_settings_dir()))
+
+    def export_org_str():
+        if args.flat:
+            return "Single directory"
+        elif args.flat_with_index:
+            return "Single directory with playlist index"
+        else:
+            return "Artist / Album sub-directories"
+
+
+    print(Fore.YELLOW + "  Export Organization:\t" + Fore.RESET + export_org_str())
+    print(Fore.YELLOW + "  Overwrite files:\t" + Fore.RESET + ("Yes" if args.overwrite else "No"))
 
     ripper = Ripper(args)
     ripper.start()

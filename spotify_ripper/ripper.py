@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from subprocess import Popen, PIPE
-from colorama import Fore, Style
+from colorama import Fore
 from spotify_ripper.utils import *
 from spotify_ripper.id3 import set_id3_and_cover
 from spotify_ripper.progress import Progress
