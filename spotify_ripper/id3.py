@@ -3,11 +3,12 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-from mutagen import mp3, id3, flac
+from mutagen import mp3, id3, flac, oggopus
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
 import requests
+import base64
 
 def set_id3_and_cover(args, mp3_file, track):
     # ensure everything is loaded still
@@ -107,7 +108,11 @@ def set_id3_and_cover(args, mp3_file, track):
                 pic.mime = "image/jpeg"
                 pic.desc="Front Cover"
                 pic.data = image.data
-                audio.add_picture(pic)
+                if args.flac:
+                    audio.add_picture(pic)
+                else:
+                    data = base64.b64encode(pic.write())
+                    audio["METADATA_BLOCK_PICTURE"] = [data.decode("ascii")]
 
             if album is not None: audio.tags["ALBUM"] = id3_to_ascii(track.album.name, album)
             audio.tags["TITLE"] = id3_to_ascii(track.name, title)
@@ -124,10 +129,13 @@ def set_id3_and_cover(args, mp3_file, track):
 
             audio.save()
 
-        if args.flac:
+        if args.output_type == "flac":
             audio = flac.FLAC(mp3_file)
             set_flac_metadata(audio)
-        else:
+        elif args.output_type == "opus":
+            audio = oggopus.OggOpus(mp3_file)
+            set_flac_metadata(audio)
+        elif args.output_type == "mp3":
             audio = mp3.MP3(mp3_file, ID3=id3.ID3)
             set_id3_tags(audio)
 
@@ -155,7 +163,7 @@ def set_id3_and_cover(args, mp3_file, track):
         print(Fore.YELLOW + "Setting release year: " + str(track.album.year) + Fore.RESET)
         if genres is not None and genres: print(Fore.YELLOW + "Setting genres: " + " / ".join(genres_ascii) + Fore.RESET)
         if image is not None: print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
-        if args.flac:
+        if args.output_type == "flac":
             bit_rate = (audio.info.bits_per_sample * audio.info.total_samples) / audio.info.length
             print("Time: " + format_time(audio.info.length) + "\tFree Lossless Audio Codec"+
                 "\t[ " + bit_rate_str(bit_rate / 1000) + " @ " + str(audio.info.sample_rate) +
@@ -163,8 +171,13 @@ def set_id3_and_cover(args, mp3_file, track):
             print("-" * 79)
             print(Fore.YELLOW + "Writing Vorbis comments - " + audio.tags.vendor + Fore.RESET)
             print("-" * 79)
-
-        else:
+        elif args.output_type == "opus":
+            print("Time: " + format_time(audio.info.length) + "\tOpus Codec"+
+                "\t[ " + ("Stereo" if audio.info.channels == 2 else "Mono") + " ]")
+            print("-" * 79)
+            print(Fore.YELLOW + "Writing Vorbis comments - " + audio.tags.vendor + Fore.RESET)
+            print("-" * 79)
+        elif args.output_type == "mp3":
             print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
                 ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
                 " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")

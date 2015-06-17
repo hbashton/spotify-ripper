@@ -102,6 +102,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-L', '--log', nargs=1, help='Log in a log-friendly format to a file (use - to log to stdout)')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
+    parser.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', help='Lame VBR encoding quality setting [Default=0]')
     parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
@@ -132,10 +133,25 @@ def main(prog_args=sys.argv[1:]):
 
     if args.ascii_path_only is True: args.ascii = True
 
-    # check that lame or flac is available
-    executable = ("flac" if args.flac else "lame")
-    if which(executable) is None:
-        print(Fore.RED + "Missing dependency '" + executable + "'.  Please install and add to path..." + Fore.RESET)
+    if args.flac:
+        args.output_type = "flac"
+    # elif args.vorbis_ogg:
+    #     args.output_type = "ogg"
+    elif args.opus:
+        args.output_type = "opus"
+    else:
+        args.output_type = "mp3"
+
+    # check that encoder tool is available
+    encoders = {
+        "flac": "flac",
+        "ogg": "oggenc",
+        "opus": "opusenc",
+        "mp3": "lame"
+    }
+    encoder = encoders[args.output_type]
+    if which(encoder) is None:
+        print(Fore.RED + "Missing dependency '" + encoder + "'.  Please install and add to path..." + Fore.RESET)
         sys.exit(1)
 
     ripper = Ripper(args)

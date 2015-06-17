@@ -369,7 +369,7 @@ class Ripper(threading.Thread):
         artist = to_ascii(args, escape_filename_part(track.artists[0].name))
         album = to_ascii(args, escape_filename_part(track.album.name))
         track_name = to_ascii(args, escape_filename_part(track.name))
-        extension = (".flac" if args.flac else ".mp3")
+        extension = "." + args.output_type
 
         # in case the file name is too long
         def truncate(_str, max_size):
@@ -410,15 +410,20 @@ class Ripper(threading.Thread):
         file_size = calc_file_size(self.args, track)
         print("Track Download Size: " + format_size(file_size))
 
-        if args.flac:
-            self.rip_proc = Popen(["flac", "-f", "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.mp3_file, "-"], stdin=PIPE)
-        elif args.cbr:
-            self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
-        else:
+        if args.output_type == "flac":
+            self.rip_proc = Popen(["flac", "-f", "--best", "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.mp3_file, "-"], stdin=PIPE)
+        elif args.output_type == "ogg":
             self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+        elif args.output_type == "opus":
+            self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--raw", "--raw-rate", "44100", "-", self.mp3_file], stdin=PIPE)
+        elif args.output_type == "mp3":
+            if args.cbr:
+                self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+            else:
+                self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
         self.pipe = self.rip_proc.stdin
         if args.pcm:
-            pcm_file_name = (self.mp3_file[:-5] + ".pcm" if args.flac else self.mp3_file[:-4] + ".pcm")
+            pcm_file_name = self.mp3_file[:-(len(args.output_type) + 1)] + ".pcm"
             self.pcm_file = open(pcm_file_name, 'w')
         self.ripping = True
 
