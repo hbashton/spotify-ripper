@@ -40,6 +40,10 @@ Features
 
 -  option to rip to FLAC, a loseless codec, instead of MP3 (requires extra ``flac`` dependency)
 
+-  option to rip to Ogg Vorbis instead of MP3 (requires extra ``vorbis-tools`` dependency)
+
+-  option to rip to Opus instead of MP3 (requires extra ``opus-tools`` dependency)
+
 Usage
 -----
 
@@ -53,7 +57,7 @@ Command Line
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
                           [-d DIRECTORY] [--flac] [-f] [-F] [-g {artist,album}]
                           [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o]
-                          [-s] [-v VBR] [-V] [-r] [-x]
+                          [--opus] [-s] [-v VBR] [-V] [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -65,9 +69,9 @@ Command Line
       -h, --help            show this help message and exit
       -S SETTINGS, --settings SETTINGS
                             Path to settings, config and temp files directory [Default=~/.spotify-ripper]
-      -a, --ascii           Convert the file name and the ID3 tag to ASCII encoding [Default=utf-8]
+      -a, --ascii           Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]
       -A, --ascii-path-only
-                            Convert the file name (but not the ID3 tag) to ASCII encoding [Default=utf-8]
+                            Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]
       -b {160,320,96}, --bitrate {160,320,96}
                             Bitrate rip quality [Default=320]
       -c, --cbr             Lame CBR encoding [Default=VBR]
@@ -87,9 +91,11 @@ Command Line
       -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
       -m, --pcm             Saves a .pcm file with the raw PCM data
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
+      --opus                Rip songs to Ogg Opus encoding instead of MP3
       -s, --strip-colors    Strip coloring from output[Default=colors]
       -v VBR, --vbr VBR     Lame VBR encoding quality setting [Default=0]
       -V, --version         show program's version number and exit
+      --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3
       -r, --remove-from-playlist
                             Delete tracks from playlist after successful ripping [Default=no]
       -x, --exclude-appears-on
@@ -138,6 +144,10 @@ Prerequisites
 -  `colorama <https://pypi.python.org/pypi/colorama>`__
 
 -  (optional) `flac <https://xiph.org/flac/index.html>`__
+
+-  (optional) `opus-tools <http://www.opus-codec.org/downloads/>`__
+
+-  (optional) `vorbis-tools <http://downloads.xiph.org/releases/vorbis/>`__
 
 Mac OS X
 ~~~~~~~~

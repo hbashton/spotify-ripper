@@ -83,6 +83,8 @@ def main(prog_args=sys.argv[1:]):
     else:
         group = parser.add_mutually_exclusive_group(required=True)
 
+    encoding_group = parser.add_mutually_exclusive_group(required=False)
+
     # set defaults
     parser.set_defaults(**defaults)
 
@@ -92,7 +94,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-b', '--bitrate', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
-    parser.add_argument('--flac', action='store_true', help='Rip songs to lossless FLAC encoding instead of MP3')
+    encoding_group.add_argument('--flac', action='store_true', help='Rip songs to lossless FLAC encoding instead of MP3')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
     parser.add_argument('-F', '--flat-with-index', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
     parser.add_argument('-g', '--genres', nargs=1, choices=['artist', 'album'], help='Attempt to retrieve genre information from Spotify\'s Web API [Default=skip]')
@@ -103,11 +105,11 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-L', '--log', nargs=1, help='Log in a log-friendly format to a file (use - to log to stdout)')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
-    parser.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
+    encoding_group.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', help='Lame VBR encoding quality setting [Default=0]')
     parser.add_argument('-V', '--version', action='version', version=prog_version)
-    parser.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
+    encoding_group.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('-x', '--exclude-appears-on', action='store_true', help='Exclude albums that an artist \'appears on\' when passing a Spotify artist URI')
     parser.add_argument('uri', nargs="+", help='One or more Spotify URI(s) (either URI, a file of URIs or a search query)')
