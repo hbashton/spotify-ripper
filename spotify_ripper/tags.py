@@ -10,7 +10,7 @@ import os, sys
 import requests
 import base64
 
-def set_id3_and_cover(args, mp3_file, track):
+def set_metadata_tags(args, audio_file, track):
     # ensure everything is loaded still
     if not track.is_loaded: track.load()
     if not track.album.is_loaded: track.album.load()
@@ -45,7 +45,7 @@ def set_id3_and_cover(args, mp3_file, track):
             else:
                 print(Fore.YELLOW + "URL returned non-200 HTTP code: " + str(req.status_code) + Fore.RESET)
 
-    # use mutagen to update id3v2 tags
+    # use mutagen to update id3v2 tags and vorbis comments
     try:
         audio = None
         on_error = 'replace' if args.ascii_path_only else 'ignore'
@@ -58,7 +58,7 @@ def set_id3_and_cover(args, mp3_file, track):
         # cover art image
         image = track.album.cover()
 
-        def id3_to_ascii(_str, _str_ascii):
+        def tag_to_ascii(_str, _str_ascii):
             return _str if args.ascii_path_only else _str_ascii
 
         def idx_of_total_str(_idx, _total):
@@ -83,9 +83,9 @@ def set_id3_and_cover(args, mp3_file, track):
                     )
                 )
 
-            if album is not None: audio.tags.add(id3.TALB(text=[id3_to_ascii(track.album.name, album)], encoding=3))
-            audio.tags.add(id3.TIT2(text=[id3_to_ascii(track.name, title)], encoding=3))
-            audio.tags.add(id3.TPE1(text=[id3_to_ascii(track.artists[0].name, artist)], encoding=3))
+            if album is not None: audio.tags.add(id3.TALB(text=[tag_to_ascii(track.album.name, album)], encoding=3))
+            audio.tags.add(id3.TIT2(text=[tag_to_ascii(track.name, title)], encoding=3))
+            audio.tags.add(id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)], encoding=3))
             audio.tags.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
             audio.tags.add(id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)], encoding=3))
             audio.tags.add(id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)], encoding=3))
@@ -96,7 +96,7 @@ def set_id3_and_cover(args, mp3_file, track):
 
             audio.save()
 
-        def set_flac_metadata(audio):
+        def set_vorbis_comments(audio):
             # add Vorbis comment block if it doesn't exist
             if audio.tags is None:
                 audio.add_tags()
@@ -108,15 +108,15 @@ def set_id3_and_cover(args, mp3_file, track):
                 pic.mime = "image/jpeg"
                 pic.desc="Front Cover"
                 pic.data = image.data
-                if args.flac:
+                if args.output_type == "flac":
                     audio.add_picture(pic)
                 else:
                     data = base64.b64encode(pic.write())
                     audio["METADATA_BLOCK_PICTURE"] = [data.decode("ascii")]
 
-            if album is not None: audio.tags["ALBUM"] = id3_to_ascii(track.album.name, album)
-            audio.tags["TITLE"] = id3_to_ascii(track.name, title)
-            audio.tags["ARTIST"] = id3_to_ascii(track.artists[0].name, artist)
+            if album is not None: audio.tags["ALBUM"] = tag_to_ascii(track.album.name, album)
+            audio.tags["TITLE"] = tag_to_ascii(track.name, title)
+            audio.tags["ARTIST"] = tag_to_ascii(track.artists[0].name, artist)
             audio.tags["YEAR"] = str(track.album.year)
             audio.tags["DISCNUMBER"] = str(track.disc)
             audio.tags["DISCTOTAL"] = str(num_discs)
@@ -130,16 +130,16 @@ def set_id3_and_cover(args, mp3_file, track):
             audio.save()
 
         if args.output_type == "flac":
-            audio = flac.FLAC(mp3_file)
-            set_flac_metadata(audio)
+            audio = flac.FLAC(audio_file)
+            set_vorbis_comments(audio)
         elif args.output_type == "ogg":
-            audio = oggvorbis.OggVorbis(mp3_file)
-            set_flac_metadata(audio)
+            audio = oggvorbis.OggVorbis(audio_file)
+            set_vorbis_comments(audio)
         elif args.output_type == "opus":
-            audio = oggopus.OggOpus(mp3_file)
-            set_flac_metadata(audio)
+            audio = oggopus.OggOpus(audio_file)
+            set_vorbis_comments(audio)
         elif args.output_type == "mp3":
-            audio = mp3.MP3(mp3_file, ID3=id3.ID3)
+            audio = mp3.MP3(audio_file, ID3=id3.ID3)
             set_id3_tags(audio)
 
         def bit_rate_str(bit_rate):
@@ -156,14 +156,14 @@ def set_id3_and_cover(args, mp3_file, track):
                 return ""
 
         def channel_str(num):
-            channels = ["Mono", "Stereo"]
+            channels = ["", "Mono", "Stereo"]
             if num < len(channels):
                 return channels[num]
             else:
                 return ""
 
         # log id3 tags
-        print(Fore.GREEN + Style.BRIGHT + os.path.basename(mp3_file) + Style.NORMAL + "\t[ " + format_size(os.stat(mp3_file)[ST_SIZE]) + " ]" + Fore.RESET)
+        print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) + Style.NORMAL + "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) + " ]" + Fore.RESET)
         print("-" * 79)
         print(Fore.YELLOW + "Setting artist: " + artist + Fore.RESET)
         if album is not None: print(Fore.YELLOW + "Setting album: " + album + Fore.RESET)

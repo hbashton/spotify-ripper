@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from subprocess import Popen, PIPE
 from colorama import Fore
 from spotify_ripper.utils import *
-from spotify_ripper.id3 import set_id3_and_cover
+from spotify_ripper.tags import set_metadata_tags
 from spotify_ripper.progress import Progress
 import os, sys
 import time
@@ -21,7 +21,7 @@ class BitRate(spotify.utils.IntEnum):
     BITRATE_96K  = 2
 
 class Ripper(threading.Thread):
-    mp3_file = None
+    audio_file = None
     pcm_file = None
     rip_proc = None
     pipe = None
@@ -146,11 +146,11 @@ class Ripper(threading.Thread):
                         print(Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
                         continue
 
-                    self.mp3_file = self.track_path(idx, track)
+                    self.audio_file = self.track_path(idx, track)
 
-                    if not args.overwrite and os.path.exists(self.mp3_file):
+                    if not args.overwrite and os.path.exists(self.audio_file):
                         print(Fore.YELLOW + "Skipping " + track.link.uri + Fore.RESET)
-                        print(Fore.CYAN + self.mp3_file + Fore.RESET)
+                        print(Fore.CYAN + self.audio_file + Fore.RESET)
                         self.queue_remove_from_playlist(idx)
                         continue
 
@@ -164,7 +164,7 @@ class Ripper(threading.Thread):
                     self.finish_rip(track)
 
                     # update id3v2 with metadata and embed front cover image
-                    set_id3_and_cover(args, self.mp3_file, track)
+                    set_metadata_tags(args, self.audio_file, track)
 
                     # make a note of the index and remove all the
                     # tracks from the playlist when everything is done
@@ -297,9 +297,9 @@ class Ripper(threading.Thread):
         return iter([])
 
     def clean_up_partial(self):
-        if self.mp3_file is not None and os.path.exists(self.mp3_file):
+        if self.audio_file is not None and os.path.exists(self.audio_file):
             print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
-            rm_file(self.mp3_file)
+            rm_file(self.audio_file)
 
     def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
@@ -377,23 +377,23 @@ class Ripper(threading.Thread):
 
         if args.flat:
             file_name = truncate(artist + " - " + track_name, 251) + extension
-            mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
+            audio_file = to_ascii(args, os.path.join(base_dir, file_name))
         elif args.flat_with_index:
             filled_idx = str(idx).zfill(self.idx_digits)
             file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + extension
-            mp3_file = to_ascii(args, os.path.join(base_dir, file_name))
+            audio_file = to_ascii(args, os.path.join(base_dir, file_name))
         else:
             artist_t = truncate(artist, 255)
             album_t = truncate(album, 255)
             file_name = truncate(artist + " - " + track_name, 251) + extension
-            mp3_file = to_ascii(args, os.path.join(base_dir, artist_t, album_t, file_name))
+            audio_file = to_ascii(args, os.path.join(base_dir, artist_t, album_t, file_name))
 
         # create directory if it doesn't exist
-        mp3_path = os.path.dirname(mp3_file)
+        mp3_path = os.path.dirname(audio_file)
         if not os.path.exists(mp3_path):
             os.makedirs(mp3_path)
 
-        return mp3_file
+        return audio_file
 
     def prepare_rip(self, idx, track):
         args = self.args
@@ -405,31 +405,31 @@ class Ripper(threading.Thread):
             print(Fore.GREEN + "[ " + str(idx + 1) + " / " + str(self.progress.total_tracks) + " ] Ripping " + track.link.uri + Fore.RESET)
         else:
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
-        print(Fore.CYAN + self.mp3_file + Fore.RESET)
+        print(Fore.CYAN + self.audio_file + Fore.RESET)
 
         file_size = calc_file_size(self.args, track)
         print("Track Download Size: " + format_size(file_size))
 
         if args.output_type == "flac":
-            self.rip_proc = Popen(["flac", "-f", "--best", "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.mp3_file, "-"], stdin=PIPE)
+            self.rip_proc = Popen(["flac", "-f", "--best", "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "ogg":
             if args.cbr:
-                self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-b", args.bitrate, "-o", self.mp3_file, "-"], stdin=PIPE)
+                self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
             else:
-                self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o", self.mp3_file, "-"], stdin=PIPE)
+                self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "opus":
             if args.cbr:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.mp3_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
             else:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--raw", "--raw-rate", "44100", "-", self.mp3_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--comp",  args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
         elif args.output_type == "mp3":
             if args.cbr:
-                self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+                self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.audio_file], stdin=PIPE)
             else:
-                self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+                self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.audio_file], stdin=PIPE)
         self.pipe = self.rip_proc.stdin
         if args.pcm:
-            pcm_file_name = self.mp3_file[:-(len(args.output_type) + 1)] + ".pcm"
+            pcm_file_name = self.audio_file[:-(len(args.output_type) + 1)] + ".pcm"
             self.pcm_file = open(pcm_file_name, 'w')
         self.ripping = True
 

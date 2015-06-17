@@ -87,8 +87,8 @@ def main(prog_args=sys.argv[1:]):
     parser.set_defaults(**defaults)
 
     prog_version = pkg_resources.require("spotify-ripper")[0].version
-    parser.add_argument('-a', '--ascii', action='store_true', help='Convert the file name and the ID3 tag to ASCII encoding [Default=utf-8]')
-    parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the ID3 tag) to ASCII encoding [Default=utf-8]')
+    parser.add_argument('-a', '--ascii', action='store_true', help='Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]')
+    parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]')
     parser.add_argument('-b', '--bitrate', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
@@ -139,9 +139,10 @@ def main(prog_args=sys.argv[1:]):
         args.output_type = "flac"
     elif args.vorbis:
         args.output_type = "ogg"
-        if args.vbr == 0: args.vbr = 3
+        if args.vbr == "0": args.vbr = "10"
     elif args.opus:
         args.output_type = "opus"
+        if args.vbr == "0": args.vbr = "10"
     else:
         args.output_type = "mp3"
 
@@ -159,7 +160,26 @@ def main(prog_args=sys.argv[1:]):
 
     # print some settings
     print(Fore.GREEN + "Spotify Ripper - v" + prog_version + Fore.RESET)
-    print(Fore.YELLOW + "  Encoding output type:\t" + Fore.RESET + args.output_type)
+
+
+    def encoding_output_str():
+        if args.output_type == "flac":
+            return "FLAC"
+        else:
+            if args.output_type == "ogg":
+                codec = "Ogg Vorbis"
+            elif args.output_type == "opus":
+                codec = "Opus"
+            elif args.output_type == "mp3":
+                codec = "MP3"
+
+            if args.cbr:
+                return codec + " CBR " + args.bitrate + " kbps"
+            else:
+                return codec + " VBR " + args.vbr
+        return ""
+
+    print(Fore.YELLOW + "  Encoding output:\t" + Fore.RESET + encoding_output_str())
     print(Fore.YELLOW + "  Spotify bitrate:\t" + Fore.RESET + args.bitrate + " kbps")
 
     def unicode_support_str():
@@ -178,9 +198,9 @@ def main(prog_args=sys.argv[1:]):
         if args.flat:
             return "Single directory"
         elif args.flat_with_index:
-            return "Single directory with playlist index"
+            return "Single directory (with playlist index)"
         else:
-            return "Artist / Album sub-directories"
+            return "Artist/album/song"
 
 
     print(Fore.YELLOW + "  Export Organization:\t" + Fore.RESET + export_org_str())
