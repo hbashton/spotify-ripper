@@ -413,9 +413,15 @@ class Ripper(threading.Thread):
         if args.output_type == "flac":
             self.rip_proc = Popen(["flac", "-f", "--best", "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.mp3_file, "-"], stdin=PIPE)
         elif args.output_type == "ogg":
-            self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.mp3_file], stdin=PIPE)
+            if args.cbr:
+                self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-b", args.bitrate, "-o", self.mp3_file, "-"], stdin=PIPE)
+            else:
+                self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o", self.mp3_file, "-"], stdin=PIPE)
         elif args.output_type == "opus":
-            self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--raw", "--raw-rate", "44100", "-", self.mp3_file], stdin=PIPE)
+            if args.cbr:
+                self.rip_proc = Popen(["opusenc", "--quiet", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.mp3_file], stdin=PIPE)
+            else:
+                self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--raw", "--raw-rate", "44100", "-", self.mp3_file], stdin=PIPE)
         elif args.output_type == "mp3":
             if args.cbr:
                 self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.mp3_file], stdin=PIPE)

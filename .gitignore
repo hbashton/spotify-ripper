@@ -55,6 +55,7 @@ Thumbs.db
 spotify_appkey.key
 *.mp3
 *.flac
+*.ogg
 *.opus
 tmp/*
 *~

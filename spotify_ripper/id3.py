@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-from mutagen import mp3, id3, flac, oggopus
+from mutagen import mp3, id3, flac, oggvorbis, oggopus
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
@@ -132,6 +132,9 @@ def set_id3_and_cover(args, mp3_file, track):
         if args.output_type == "flac":
             audio = flac.FLAC(mp3_file)
             set_flac_metadata(audio)
+        elif args.output_type == "ogg":
+            audio = oggvorbis.OggVorbis(mp3_file)
+            set_flac_metadata(audio)
         elif args.output_type == "opus":
             audio = oggopus.OggOpus(mp3_file)
             set_flac_metadata(audio)
@@ -152,6 +155,13 @@ def set_id3_and_cover(args, mp3_file, track):
             else:
                 return ""
 
+        def channel_str(num):
+            channels = ["Mono", "Stereo"]
+            if num < len(channels):
+                return channels[num]
+            else:
+                return ""
+
         # log id3 tags
         print(Fore.GREEN + Style.BRIGHT + os.path.basename(mp3_file) + Style.NORMAL + "\t[ " + format_size(os.stat(mp3_file)[ST_SIZE]) + " ]" + Fore.RESET)
         print("-" * 79)
@@ -167,13 +177,20 @@ def set_id3_and_cover(args, mp3_file, track):
             bit_rate = (audio.info.bits_per_sample * audio.info.total_samples) / audio.info.length
             print("Time: " + format_time(audio.info.length) + "\tFree Lossless Audio Codec"+
                 "\t[ " + bit_rate_str(bit_rate / 1000) + " @ " + str(audio.info.sample_rate) +
-                " Hz - " + ("Stereo" if audio.info.channels == 2 else "Mono") + " ]")
+                " Hz - " + channel_str(audio.info.channels) + " ]")
+            print("-" * 79)
+            print(Fore.YELLOW + "Writing Vorbis comments - " + audio.tags.vendor + Fore.RESET)
+            print("-" * 79)
+        elif args.output_type == "ogg":
+            print("Time: " + format_time(audio.info.length) + "\tOgg Vorbis Codec"+
+                "\t[ " + bit_rate_str(audio.info.bitrate / 1000) + " @ " + str(audio.info.sample_rate) +
+                " Hz - " + channel_str(audio.info.channels) + " ]")
             print("-" * 79)
             print(Fore.YELLOW + "Writing Vorbis comments - " + audio.tags.vendor + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "opus":
             print("Time: " + format_time(audio.info.length) + "\tOpus Codec"+
-                "\t[ " + ("Stereo" if audio.info.channels == 2 else "Mono") + " ]")
+                "\t[ " + channel_str(audio.info.channels) + " ]")
             print("-" * 79)
             print(Fore.YELLOW + "Writing Vorbis comments - " + audio.tags.vendor + Fore.RESET)
             print("-" * 79)

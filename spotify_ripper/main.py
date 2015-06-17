@@ -106,6 +106,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', help='Lame VBR encoding quality setting [Default=0]')
     parser.add_argument('-V', '--version', action='version', version=pkg_resources.require("spotify-ripper")[0].version)
+    parser.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('-x', '--exclude-appears-on', action='store_true', help='Exclude albums that an artist \'appears on\' when passing a Spotify artist URI')
     parser.add_argument('uri', nargs="+", help='One or more Spotify URI(s) (either URI, a file of URIs or a search query)')
@@ -135,8 +136,9 @@ def main(prog_args=sys.argv[1:]):
 
     if args.flac:
         args.output_type = "flac"
-    # elif args.vorbis_ogg:
-    #     args.output_type = "ogg"
+    elif args.vorbis:
+        args.output_type = "ogg"
+        if args.vbr == 0: args.vbr = 3
     elif args.opus:
         args.output_type = "opus"
     else:
