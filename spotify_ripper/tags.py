@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-from mutagen import mp3, id3, flac, oggvorbis, oggopus
+from mutagen import mp3, id3, flac, oggvorbis, oggopus, mp4
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
@@ -138,6 +138,9 @@ def set_metadata_tags(args, audio_file, track):
         elif args.output_type == "opus":
             audio = oggopus.OggOpus(audio_file)
             set_vorbis_comments(audio)
+        elif args.output_type == "m4a":
+            audio = mp4.MP4(audio_file)
+            set_id3_tags(audio)
         elif args.output_type == "mp3":
             audio = mp3.MP3(audio_file, ID3=id3.ID3)
             set_id3_tags(audio)
@@ -195,6 +198,15 @@ def set_metadata_tags(args, audio_file, track):
             print(Fore.YELLOW + "Writing Vorbis comments - " + audio.tags.vendor + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "mp3":
+            print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
+                ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
+                " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
+            print("-" * 79)
+            id3_version = "v%d.%d" % (audio.tags.version[0], audio.tags.version[1])
+            print("ID3 " + id3_version + ": " + str(len(audio.tags.values())) + " frames")
+            print(Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
+            print("-" * 79)
+        elif args.output_type == "m4a":
             print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
                 ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
                 " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
