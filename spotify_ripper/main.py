@@ -57,7 +57,7 @@ def main(prog_args=sys.argv[1:]):
     # load config file, overwriting any defaults
     defaults = {
         "bitrate": "320",
-		"stream-quality: 320"
+        "quality": "320",
         "vbr": "0",
     }
     defaults = load_config(args, defaults)
@@ -107,7 +107,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
-	parser.add_argument('-Q', '--stream-quality', choices=['160', '320', '96'], help='Spotify stream bitrate preference [Default=320]')
+    parser.add_argument('-Q', '--quality', choices=['160', '320', '96'], help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-v', '--vbr', help='VBR quality setting or target bitrate for Opus [Default=0]')
     parser.add_argument('-V', '--version', action='version', version=prog_version)
@@ -184,7 +184,7 @@ def main(prog_args=sys.argv[1:]):
         return ""
 
     print(Fore.YELLOW + "  Encoding output:\t" + Fore.RESET + encoding_output_str())
-    print(Fore.YELLOW + "  Spotify bitrate:\t" + Fore.RESET + args.stream_quality + " kbps")
+    print(Fore.YELLOW + "  Spotify bitrate:\t" + Fore.RESET + args.quality + " kbps")
 
     def unicode_support_str():
         if args.ascii_path_only:
