@@ -422,6 +422,11 @@ class Ripper(threading.Thread):
                 self.rip_proc = Popen(["opusenc", "--quiet", "--cvbr", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
             else:
                 self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--bitrate", args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+        elif args.output_type == "aac":
+            if args.cbr:
+                self.rip_proc = Popen(["fdkaac", "-S", "-R", "w", "44100", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
+            else:
+                self.rip_proc = Popen(["fdaaac", "-S", "-R", "w", "44100", "-m", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "mp3":
             if args.cbr:
                 self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.audio_file], stdin=PIPE)
