@@ -159,7 +159,7 @@ def main(prog_args=sys.argv[1:]):
         "flac": "flac",
         "ogg": "oggenc",
         "opus": "opusenc",
-        "mp3": "lame"
+        "mp3": "lame",
         "m4a": "fdkaac"
     }
     encoder = encoders[args.output_type]
