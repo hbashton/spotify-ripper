@@ -57,7 +57,7 @@ def default_settings_dir():
     return norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
 
 def calc_file_size(args, track):
-    return (int(args.bitrate) / 8) * track.duration
+    return (int(args.stream_quality) / 8) * track.duration
 
 # returns path of executable
 def which(program):

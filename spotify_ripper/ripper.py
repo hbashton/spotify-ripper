@@ -82,7 +82,7 @@ class Ripper(threading.Thread):
             ('160', BitRate.BITRATE_160K),
             ('320', BitRate.BITRATE_320K),
             ('96', BitRate.BITRATE_96K)])
-        self.session.preferred_bitrate(bit_rates[args.bitrate])
+        self.session.preferred_bitrate(bit_rates[args.stream_quality])
         self.session.on(spotify.SessionEvent.CONNECTION_STATE_UPDATED,
             self.on_connection_state_changed)
         self.session.on(spotify.SessionEvent.END_OF_TRACK,
