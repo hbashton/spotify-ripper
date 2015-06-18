@@ -143,10 +143,10 @@ def main(prog_args=sys.argv[1:]):
         args.output_type = "flac"
     elif args.vorbis:
         args.output_type = "ogg"
-        if args.vbr == "0": args.vbr = "10"
+        if args.vbr == "0": args.vbr = "9"
     elif args.opus:
         args.output_type = "opus"
-        if args.vbr == "0": args.vbr = "10"
+        if args.vbr == "0": args.vbr = "320"
     else:
         args.output_type = "mp3"
 
