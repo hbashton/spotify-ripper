@@ -82,7 +82,7 @@ class Ripper(threading.Thread):
             ('160', BitRate.BITRATE_160K),
             ('320', BitRate.BITRATE_320K),
             ('96', BitRate.BITRATE_96K)])
-        self.session.preferred_bitrate(bit_rates[args.bitrate])
+        self.session.preferred_bitrate(bit_rates[args.quality])
         self.session.on(spotify.SessionEvent.CONNECTION_STATE_UPDATED,
             self.on_connection_state_changed)
         self.session.on(spotify.SessionEvent.END_OF_TRACK,
@@ -419,9 +419,9 @@ class Ripper(threading.Thread):
                 self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "opus":
             if args.cbr:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--cvbr", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
             else:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--comp",  args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--bitrate", args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
         elif args.output_type == "mp3":
             if args.cbr:
                 self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.audio_file], stdin=PIPE)

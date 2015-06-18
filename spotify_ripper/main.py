@@ -57,6 +57,7 @@ def main(prog_args=sys.argv[1:]):
     # load config file, overwriting any defaults
     defaults = {
         "bitrate": "320",
+        "quality": "320",
         "vbr": "0",
     }
     defaults = load_config(args, defaults)
@@ -71,7 +72,7 @@ def main(prog_args=sys.argv[1:]):
     search for tracks to rip: spotify-ripper -l -b 160 -o "album:Rumours track:'the chain'"
     ''')
 
-    # create group to prevent to prevent user from using both the -l and -u option
+    # create group to prevent user from using both the -l and -u option
     is_user_set = defaults.get('user') is not None
     is_last_set = defaults.get('last') is True
     if is_user_set or is_last_set:
@@ -91,8 +92,8 @@ def main(prog_args=sys.argv[1:]):
     prog_version = pkg_resources.require("spotify-ripper")[0].version
     parser.add_argument('-a', '--ascii', action='store_true', help='Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]')
     parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]')
-    parser.add_argument('-b', '--bitrate', choices=['160', '320', '96'], help='Bitrate rip quality [Default=320]')
-    parser.add_argument('-c', '--cbr', action='store_true', help='Lame CBR encoding [Default=VBR]')
+    parser.add_argument('-b', '--bitrate', help='CBR bitrate [Default=320]')
+    parser.add_argument('-c', '--cbr', action='store_true', help='CBR encoding [Default=VBR]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     encoding_group.add_argument('--flac', action='store_true', help='Rip songs to lossless FLAC encoding instead of MP3')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
@@ -106,8 +107,9 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
+    parser.add_argument('-Q', '--quality', choices=['160', '320', '96'], help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
-    parser.add_argument('-v', '--vbr', help='Lame VBR encoding quality setting [Default=0]')
+    parser.add_argument('-v', '--vbr', help='VBR quality setting or target bitrate for Opus [Default=0]')
     parser.add_argument('-V', '--version', action='version', version=prog_version)
     encoding_group.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
@@ -182,7 +184,7 @@ def main(prog_args=sys.argv[1:]):
         return ""
 
     print(Fore.YELLOW + "  Encoding output:\t" + Fore.RESET + encoding_output_str())
-    print(Fore.YELLOW + "  Spotify bitrate:\t" + Fore.RESET + args.bitrate + " kbps")
+    print(Fore.YELLOW + "  Spotify bitrate:\t" + Fore.RESET + args.quality + " kbps")
 
     def unicode_support_str():
         if args.ascii_path_only:
