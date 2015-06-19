@@ -33,6 +33,7 @@ class Ripper(threading.Thread):
     idx_digits = 3
     login_success = False
     progress = None
+    dev_null = None
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -423,10 +424,11 @@ class Ripper(threading.Thread):
             else:
                 self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--bitrate", args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
         elif args.output_type == "aac":
+            if self.dev_null is None: self.dev_null = open(os.devnull, 'wb')
             if args.cbr:
-                self.rip_proc = Popen(["faac", "-P", "-X", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
+                self.rip_proc = Popen(["faac", "-P", "-X", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE, stdout=self.dev_null, stderr=self.dev_null)
             else:
-                self.rip_proc = Popen(["faac", "-P", "-X", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
+                self.rip_proc = Popen(["faac", "-P", "-X", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE, stdout=self.dev_null, stderr=self.dev_null)
         elif args.output_type == "m4a":
             if args.cbr:
                 self.rip_proc = Popen(["fdkaac", "-S", "-R", "-w", "200000", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
@@ -453,7 +455,7 @@ class Ripper(threading.Thread):
             # wait for process to end before continuing
             ret_code = self.rip_proc.wait()
             if ret_code != 0:
-                print(Fore.YELLOW + "Warning: lame returned non-zero error code " + str(ret_code) + Fore.RESET)
+                print(Fore.YELLOW + "Warning: encoder returned non-zero error code " + str(ret_code) + Fore.RESET)
             self.rip_proc = None
             self.pipe = None
         if self.args.pcm:

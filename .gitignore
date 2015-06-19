@@ -57,5 +57,7 @@ spotify_appkey.key
 *.flac
 *.ogg
 *.opus
+*.aac
+*.m4a
 tmp/*
 *~

@@ -10,7 +10,7 @@ def _read(fn):
 
 setup(
     name='spotify-ripper',
-    version='1.5.1',
+    version='2.0.0',
     packages=find_packages(exclude=["tests"]),
     scripts=['spotify_ripper/main.py'],
     include_package_data=True,
@@ -40,11 +40,11 @@ setup(
     # Metadata
     author='James Newell',
     author_email='james.newell@gmail.com',
-    description='a small ripper for Spotify that rips Spotify URIs to MP3 files',
+    description='a small ripper for Spotify that rips Spotify URIs to audio files',
     license='MIT',
-    keywords="spotify ripper mp3",
+    keywords="spotify ripper mp3 ogg vorbis flac opus acc mp4 m4a",
     url='https://github.com/jrnewell/spotify-ripper',
-    download_url = 'https://github.com/jrnewell/spotify-ripper/tarball/1.5.1',
+    download_url = 'https://github.com/jrnewell/spotify-ripper/tarball/2.0.0',
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Multimedia :: Sound/Audio :: Capture/Recording',
