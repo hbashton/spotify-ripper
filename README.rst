@@ -44,6 +44,10 @@ Features
 
 -  option to rip to Opus instead of MP3 (requires extra ``opus-tools`` dependency)
 
+-  option to rip to AAC instead of MP3 (requires extra ``faac`` dependency)
+
+-  option to rip to MP4 instead of MP3 (requires compiling fdk-aac)
+
 Usage
 -----
 
@@ -70,11 +74,12 @@ Command Line
       -S SETTINGS, --settings SETTINGS
                             Path to settings, config and temp files directory [Default=~/.spotify-ripper]
       -a, --ascii           Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]
+      --aac                 Rip songs to AAC with the LGPL Free AAC Encoder
       -A, --ascii-path-only
                             Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]
-      -b {160,320,96}, --bitrate {160,320,96}
-                            Bitrate rip quality [Default=320]
-      -c, --cbr             Lame CBR encoding [Default=VBR]
+      -b --bitrate
+                            CBR bitrate [Default=320]
+      -c, --cbr             CBR encoding instead of VBR [Default=VBR]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
       --flac                Rip songs to lossless FLAC encoding instead of MP3
@@ -90,10 +95,12 @@ Command Line
       -l, --last            Use last login credentials
       -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
       -m, --pcm             Saves a .pcm file with the raw PCM data
+      --mp4                 Rip songs to MP4 with the nonfree Fraunhofer FDK MPEG4-AAC Encoder
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
-      --opus                Rip songs to Ogg Opus encoding instead of MP3
+      --opus                Rip songs with Opus Codec instead of MP3
+      -q VBR, --vbr VBR     VBR encoding quality setting or target bitrate for Opus [Default=Max]
+      -Q {160,320,96}       Bitrate / Quality of Spotify stream [Default=Extreme/320kbit]
       -s, --strip-colors    Strip coloring from output[Default=colors]
-      -v VBR, --vbr VBR     Lame VBR encoding quality setting [Default=0]
       -V, --version         show program's version number and exit
       --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3
       -r, --remove-from-playlist
@@ -148,6 +155,10 @@ Prerequisites
 -  (optional) `opus-tools <http://www.opus-codec.org/downloads/>`__
 
 -  (optional) `vorbis-tools <http://downloads.xiph.org/releases/vorbis/>`__
+
+-  (optional) `faac <http://www.audiocoding.com/downloads.html>`__
+
+-  (optional) `fdk-aac <https://github.com/nu774/fdkaac>`__
 
 Mac OS X
 ~~~~~~~~

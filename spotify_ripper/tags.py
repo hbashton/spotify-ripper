@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-from mutagen import mp3, id3, flac, oggvorbis, oggopus
+from mutagen import mp3, id3, flac, oggvorbis, oggopus, mp4, aac
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
@@ -138,6 +138,10 @@ def set_metadata_tags(args, audio_file, track):
         elif args.output_type == "opus":
             audio = oggopus.OggOpus(audio_file)
             set_vorbis_comments(audio)
+        elif args.output_type == "aac":
+            audio = aac.AAC(audio_file)
+        elif args.output_type == "m4a":
+            audio = mp4.MP4(audio_file)
         elif args.output_type == "mp3":
             audio = mp3.MP3(audio_file, ID3=id3.ID3)
             set_id3_tags(audio)
