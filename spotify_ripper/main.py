@@ -91,6 +91,7 @@ def main(prog_args=sys.argv[1:]):
 
     prog_version = pkg_resources.require("spotify-ripper")[0].version
     parser.add_argument('-a', '--ascii', action='store_true', help='Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]')
+    encoding_group.add_argument('--aac', action='store_true', help='Rip songs to AAC format with FreeAAC instead of MP3')
     parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]')
     parser.add_argument('-b', '--bitrate', help='CBR bitrate [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='CBR encoding [Default=VBR]')
@@ -106,12 +107,12 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-L', '--log', nargs=1, help='Log in a log-friendly format to a file (use - to log to stdout)')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
     encoding_group.add_argument('--mp4', action='store_true', help='Rip songs to MP4 format with Fraunhofer codec instead of MP3')
-    encoding_group.add_argument('--aac', action='store_true', help='Rip songs to AAC format with FreeAAC instead of MP3')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
+    parser.add_argument('-q', '--vbr', help='VBR quality setting or target bitrate for Opus [Default=0]')
     parser.add_argument('-Q', '--quality', choices=['160', '320', '96'], help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
-    parser.add_argument('-v', '--vbr', help='VBR quality setting or target bitrate for Opus [Default=0]')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode (reserved for future use)')
     parser.add_argument('-V', '--version', action='version', version=prog_version)
     encoding_group.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
