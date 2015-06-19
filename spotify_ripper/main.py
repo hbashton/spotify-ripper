@@ -151,9 +151,10 @@ def main(prog_args=sys.argv[1:]):
         if args.vbr == "0": args.vbr = "320"
     elif args.aac:
         args.output_type = "aac"
+        if args.vbr == "0": args.vbr = "500"
     elif args.mp4:
         args.output_type = "m4a"
-        if args.vbr == "0": args.vbr = "500"
+        if args.vbr == "0": args.vbr = "5"
     else:
         args.output_type = "mp3"
 
