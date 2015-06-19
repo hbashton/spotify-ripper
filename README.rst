@@ -99,7 +99,7 @@ Command Line
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs with Opus Codec instead of MP3
       -q VBR, --vbr VBR     VBR encoding quality setting or target bitrate for Opus [Default=Max]
-      -Q                    Bitrate / Quality of Spotify stream [Default=Extreme/320kbit]
+      -Q {160,320,96}       Bitrate / Quality of Spotify stream [Default=Extreme/320kbit]
       -s, --strip-colors    Strip coloring from output[Default=colors]
       -V, --version         show program's version number and exit
       --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3
