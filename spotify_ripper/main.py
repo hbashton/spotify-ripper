@@ -105,7 +105,8 @@ def main(prog_args=sys.argv[1:]):
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-L', '--log', nargs=1, help='Log in a log-friendly format to a file (use - to log to stdout)')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
-    encoding_group.add_argument('--aac', action='store_true', help='Rip songs to MP4/AAC format instead of MP3')
+    encoding_group.add_argument('--mp4', action='store_true', help='Rip songs to MP4 format with Fraunhofer codec instead of MP3')
+    encoding_group.add_argument('--aac', action='store_true', help='Rip songs to AAC format with FreeAAC instead of MP3')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument('--opus', action='store_true', help='Rip songs to Ogg Opus encoding instead of MP3')
     parser.add_argument('-Q', '--quality', choices=['160', '320', '96'], help='Spotify stream bitrate preference [Default=320]')
@@ -142,25 +143,28 @@ def main(prog_args=sys.argv[1:]):
 
     if args.flac:
         args.output_type = "flac"
-    elif args.aac:
-        args.output_type = "m4a"
-        if args.vbr == "0": args.vbr = "500"
     elif args.vorbis:
         args.output_type = "ogg"
         if args.vbr == "0": args.vbr = "10"
     elif args.opus:
         args.output_type = "opus"
         if args.vbr == "0": args.vbr = "320"
+    elif args.aac:
+        args.output_type = "aac"
+    elif args.mp4:
+        args.output_type = "m4a"
+        if args.vbr == "0": args.vbr = "500"
     else:
         args.output_type = "mp3"
 
     # check that encoder tool is available
     encoders = {
         "flac": "flac",
+        "aac": "faac",
         "ogg": "oggenc",
         "opus": "opusenc",
         "mp3": "lame",
-        "m4a": "faac"
+        "m4a": "fdkaac"
     }
     encoder = encoders[args.output_type]
     if which(encoder) is None:
@@ -183,6 +187,8 @@ def main(prog_args=sys.argv[1:]):
                 codec = "MP3"
             elif args.output_type == "m4a":
                 codec = "MPEG4 AAC"
+            elif args.output_type == "aac":
+                codec = "AAC"
 
             if args.cbr:
                 return codec + " CBR " + args.bitrate + " kbps"
