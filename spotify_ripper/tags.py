@@ -96,6 +96,38 @@ def set_metadata_tags(args, audio_file, track):
 
             audio.save()
 
+        # aac is not well supported
+        def set_id3_tags_raw(audio_file):
+            try:
+                id3_dict = id3.ID3(audio_file)
+            except id3.ID3NoHeaderError:
+                id3_dict = id3.ID3()
+
+            if image is not None:
+                image.load()
+                id3_dict.add(
+                    id3.APIC(
+                        encoding=3,
+                        mime='image/jpeg',
+                        type=3,
+                        desc='Front Cover',
+                        data=image.data
+                    )
+                )
+
+            if album is not None: id3_dict.add(id3.TALB(text=[tag_to_ascii(track.album.name, album)], encoding=3))
+            id3_dict.add(id3.TIT2(text=[tag_to_ascii(track.name, title)], encoding=3))
+            id3_dict.add(id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)], encoding=3))
+            id3_dict.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
+            id3_dict.add(id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)], encoding=3))
+            id3_dict.add(id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)], encoding=3))
+            if genres is not None and genres:
+                tcon_tag = id3.TCON(encoding=3)
+                tcon_tag.genres = genres if args.ascii_path_only else genres_ascii
+                id3_dict.add(tcon_tag)
+
+            id3_dict.save(audio_file)
+
         def set_vorbis_comments(audio):
             # add Vorbis comment block if it doesn't exist
             if audio.tags is None:
@@ -161,6 +193,7 @@ def set_metadata_tags(args, audio_file, track):
             set_vorbis_comments(audio)
         elif args.output_type == "aac":
             audio = aac.AAC(audio_file)
+            set_id3_tags_raw(audio_file)
         elif args.output_type == "m4a":
             audio = m4a.M4A(audio_file)
             set_m4a_tags(audio)
