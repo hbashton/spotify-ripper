@@ -160,7 +160,7 @@ def main(prog_args=sys.argv[1:]):
         "ogg": "oggenc",
         "opus": "opusenc",
         "mp3": "lame",
-        "m4a": "fdkaac"
+        "m4a": "faac"
     }
     encoder = encoders[args.output_type]
     if which(encoder) is None:
