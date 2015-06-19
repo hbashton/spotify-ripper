@@ -144,7 +144,7 @@ def main(prog_args=sys.argv[1:]):
         args.output_type = "flac"
     elif args.aac:
         args.output_type = "m4a"
-        if args.vbr == "0": args.vbr = "5"
+        if args.vbr == "0": args.vbr = "500"
     elif args.vorbis:
         args.output_type = "ogg"
         if args.vbr == "0": args.vbr = "10"
