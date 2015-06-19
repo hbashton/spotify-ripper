@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-from mutagen import mp3, id3, flac, oggvorbis, oggopus, mp4, aac
+from mutagen import mp3, id3, flac, oggvorbis, oggopus, m4a, aac
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
@@ -129,6 +129,27 @@ def set_metadata_tags(args, audio_file, track):
 
             audio.save()
 
+        def set_m4a_tags(audio):
+            # add M4A tags if it doesn't exist
+            audio.add_tags()
+
+            if image is not None:
+                image.load()
+                audio.tags[str("covr")] = m4a.M4ACover(image.data)
+
+            if album is not None: audio.tags[b"\xa9alb"] = tag_to_ascii(track.album.name, album)
+            audio[b"\xa9nam"] = tag_to_ascii(track.name, title)
+            audio.tags[b"\xa9ART"] = tag_to_ascii(track.artists[0].name, artist)
+            audio.tags[b"\xa9day"] = str(track.album.year)
+            audio.tags[str("disk")] = (track.disc, num_discs)
+            audio.tags[str("trkn")] = (track.index, num_tracks)
+
+            if genres is not None and genres:
+                _genres = genres if args.ascii_path_only else genres_ascii
+                audio.tags[b"\xa9gen"] = ", ".join(_genres)
+
+            audio.save()
+
         if args.output_type == "flac":
             audio = flac.FLAC(audio_file)
             set_vorbis_comments(audio)
@@ -141,7 +162,8 @@ def set_metadata_tags(args, audio_file, track):
         elif args.output_type == "aac":
             audio = aac.AAC(audio_file)
         elif args.output_type == "m4a":
-            audio = mp4.MP4(audio_file)
+            audio = m4a.M4A(audio_file)
+            set_m4a_tags(audio)
         elif args.output_type == "mp3":
             audio = mp3.MP3(audio_file, ID3=id3.ID3)
             set_id3_tags(audio)
