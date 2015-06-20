@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-from mutagen import mp3, id3, flac, oggvorbis, oggopus, m4a, aac
+from mutagen import mp3, id3, flac, oggvorbis, oggopus, m4a, mp4, aac
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
@@ -97,7 +97,7 @@ def set_metadata_tags(args, audio_file, track):
             audio.save()
 
         # aac is not well supported
-        def set_id3_tags_raw(audio_file):
+        def set_id3_tags_raw(audio, audio_file):
             try:
                 id3_dict = id3.ID3(audio_file)
             except id3.ID3NoHeaderError:
@@ -127,6 +127,7 @@ def set_metadata_tags(args, audio_file, track):
                 id3_dict.add(tcon_tag)
 
             id3_dict.save(audio_file)
+            audio.tags = id3_dict
 
         def set_vorbis_comments(audio):
             # add Vorbis comment block if it doesn't exist
@@ -193,10 +194,11 @@ def set_metadata_tags(args, audio_file, track):
             set_vorbis_comments(audio)
         elif args.output_type == "aac":
             audio = aac.AAC(audio_file)
-            set_id3_tags_raw(audio_file)
+            set_id3_tags_raw(audio, audio_file)
         elif args.output_type == "m4a":
             audio = m4a.M4A(audio_file)
             set_m4a_tags(audio)
+            audio = mp4.MP4(audio_file)
         elif args.output_type == "mp3":
             audio = mp3.MP3(audio_file, ID3=id3.ID3)
             set_id3_tags(audio)
@@ -233,7 +235,7 @@ def set_metadata_tags(args, audio_file, track):
         if genres is not None and genres: print(Fore.YELLOW + "Setting genres: " + " / ".join(genres_ascii) + Fore.RESET)
         if image is not None: print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
         if args.output_type == "flac":
-            bit_rate = (audio.info.bits_per_sample * audio.info.total_samples) / audio.info.length
+            bit_rate = (audio.info.bits_per_sample * audio.info.total_samples) / audio.info.length / audio.info.channels
             print("Time: " + format_time(audio.info.length) + "\tFree Lossless Audio Codec"+
                 "\t[ " + bit_rate_str(bit_rate / 1000) + " @ " + str(audio.info.sample_rate) +
                 " Hz - " + channel_str(audio.info.channels) + " ]")
@@ -261,6 +263,23 @@ def set_metadata_tags(args, audio_file, track):
             id3_version = "v%d.%d" % (audio.tags.version[0], audio.tags.version[1])
             print("ID3 " + id3_version + ": " + str(len(audio.tags.values())) + " frames")
             print(Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
+            print("-" * 79)
+        elif args.output_type == "aac":
+            print("Time: " + format_time(audio.info.length) + "\tAdvanced Audio Coding" +
+                "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
+                " @ " + str(audio.info.sample_rate) + " Hz - " + channel_str(audio.info.channels) + " ]")
+            print("-" * 79)
+            id3_version = "v%d.%d" % (audio.tags.version[0], audio.tags.version[1])
+            print("ID3 " + id3_version + ": " + str(len(audio.tags.values())) + " frames")
+            print(Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
+            print("-" * 79)
+        elif args.output_type == "m4a":
+            bit_rate = (audio.info.bits_per_sample * audio.info.sample_rate) / audio.info.channels
+            print("Time: " + format_time(audio.info.length) + "\tMPEG-4 Part 14 Audio" +
+                "\t[ " + bit_rate_str(bit_rate / 1000) +
+                " @ " + str(audio.info.sample_rate) + " Hz - " + channel_str(audio.info.channels) + " ]")
+            print("-" * 79)
+            print(Fore.YELLOW + "Writing Apple iTunes metadata - " + str(audio.info.codec) + Fore.RESET)
             print("-" * 79)
 
     except id3.error:
