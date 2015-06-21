@@ -58,6 +58,7 @@ def main(prog_args=sys.argv[1:]):
     defaults = {
         "bitrate": "320",
         "quality": "320",
+        "comp": "10",
         "vbr": "0",
     }
     defaults = load_config(args, defaults)
@@ -95,6 +96,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]')
     parser.add_argument('-b', '--bitrate', help='CBR bitrate [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='CBR encoding [Default=VBR]')
+    parser.add_argument('--comp', default="10", help='compression complexity for flac and opus [Default=Max]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     encoding_group.add_argument('--flac', action='store_true', help='Rip songs to lossless FLAC encoding instead of MP3')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
@@ -113,6 +115,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-Q', '--quality', choices=['160', '320', '96'], help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-V', '--version', action='version', version=prog_version)
+    encoding_group.add_argument('--wav', action='store_true', help='Rip songs to uncompressed WAV instead of MP3')
     encoding_group.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('-x', '--exclude-appears-on', action='store_true', help='Exclude albums that an artist \'appears on\' when passing a Spotify artist URI')
@@ -141,8 +144,11 @@ def main(prog_args=sys.argv[1:]):
 
     if args.ascii_path_only is True: args.ascii = True
 
-    if args.flac:
+    if args.wav:
+        args.output_type = "wav"
+    elif args.flac:
         args.output_type = "flac"
+        if args.comp == "10": args.comp = "8"
     elif args.vorbis:
         args.output_type = "ogg"
         if args.vbr == "0": args.vbr = "10"
@@ -165,11 +171,13 @@ def main(prog_args=sys.argv[1:]):
         "ogg": "oggenc",
         "opus": "opusenc",
         "mp3": "lame",
-        "m4a": "fdkaac"
+        "m4a": "fdkaac",
+        "wav": "sox",
     }
     encoder = encoders[args.output_type]
     if which(encoder) is None:
         print(Fore.RED + "Missing dependency '" + encoder + "'.  Please install and add to path..." + Fore.RESET)
+        print("...try " + Fore.YELLOW + "sudo apt-get install " + encoder + Fore.RESET)
         sys.exit(1)
 
     # print some settings
@@ -177,10 +185,12 @@ def main(prog_args=sys.argv[1:]):
 
 
     def encoding_output_str():
-        if args.output_type == "flac":
-            return "FLAC"
+        if args.output_type == "wav":
+            return "WAV, Stereo 16bit 44100Hz"
         else:
-            if args.output_type == "ogg":
+            if args.output_type == "flac":
+                return "FLAC, Compression Level: " + args.comp
+            elif args.output_type == "ogg":
                 codec = "Ogg Vorbis"
             elif args.output_type == "opus":
                 codec = "Opus"
@@ -190,11 +200,10 @@ def main(prog_args=sys.argv[1:]):
                 codec = "MPEG4 AAC"
             elif args.output_type == "aac":
                 codec = "AAC"
-
             if args.cbr:
-                return codec + " CBR " + args.bitrate + " kbps"
+                return codec + ", CBR " + args.bitrate + " kbps"
             else:
-                return codec + " VBR " + args.vbr
+                return codec + ", VBR " + args.vbr
         return ""
 
     print(Fore.YELLOW + "  Encoding output:\t" + Fore.RESET + encoding_output_str())
