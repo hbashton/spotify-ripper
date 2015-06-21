@@ -172,7 +172,7 @@ def main(prog_args=sys.argv[1:]):
         "opus": "opusenc",
         "mp3": "lame",
         "m4a": "fdkaac",
-        "wav": "wav",
+        "wav": "sox",
     }
     encoder = encoders[args.output_type]
     if which(encoder) is None:
