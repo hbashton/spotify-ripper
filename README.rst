@@ -210,8 +210,7 @@ Optional Encoding Formats
 
 In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, MP4/M4A, Ogg Vorbis and Opus.  However, additional encoding tools need to be installed for each codec you wish to use.
 
-Mac OS X
---------
+**Mac OS X**
 
 .. code:: bash
 
@@ -230,8 +229,7 @@ Mac OS X
     # Opus
     $ brew install opus-tools
 
-Ubuntu/Debian
---------
+**Ubuntu/Debian**
 
 .. code:: bash
 
