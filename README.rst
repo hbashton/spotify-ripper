@@ -6,7 +6,7 @@ A fork of
 uses `pyspotify <https://github.com/mopidy/pyspotify>`__ v2.x
 
 Spotify-ripper is a small ripper script for Spotify that rips Spotify
-URIs to audio files and includes ID3 tags and cover art.  By default spotify-ripper will encode to MP3 files, but includes the ability to rip to FLAC, Ogg Vorbis, Opus, FLAC, ACC, and MP4/M4A.
+URIs to audio files and includes ID3 tags and cover art.  By default spotify-ripper will encode to MP3 files, but includes the ability to rip to FLAC, Ogg Vorbis, Opus, AAC, and MP4/M4A.
 
 **Note that stream ripping violates the libspotify's ToS**
 
