@@ -6,7 +6,7 @@ A fork of
 uses `pyspotify <https://github.com/mopidy/pyspotify>`__ v2.x
 
 Spotify-ripper is a small ripper script for Spotify that rips Spotify
-URIs to audio files and includes ID3 tags and cover art.  By default spotify-ripper will encode to MP3 files, but includes the ability to rip to FLAC, Ogg Vorbis, Opus, AAC, and MP4/M4A.
+URIs to audio files and includes ID3 tags and cover art.  By default spotify-ripper will encode to MP3 files, but includes the ability to rip to WAV, FLAC, Ogg Vorbis, Opus, AAC, and MP4/M4A.
 
 **Note that stream ripping violates the libspotify's ToS**
 
@@ -64,7 +64,7 @@ Command Line
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
                           [-d DIRECTORY] [--flac] [-f] [-F] [-g {artist,album}]
                           [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o]
-                          [--opus] [-s] [-v VBR] [-V] [--vorbis] [-r] [-x]
+                          [--opus] [-s] [-v VBR] [-V] [--wav] [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -220,6 +220,9 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
 
 .. code:: bash
 
+    # WAV
+    $ brew install sox
+
     # FLAC
     $ brew install flac
 
@@ -238,6 +241,9 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
 **Ubuntu/Debian**
 
 .. code:: bash
+
+    # WAV
+    $ sudo apt-get install sox
 
     # FLAC
     $ sudo apt-get install flac
