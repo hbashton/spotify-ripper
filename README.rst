@@ -83,6 +83,7 @@ Command Line
       -b --bitrate
                             CBR bitrate [Default=320]
       -c, --cbr             CBR encoding instead of VBR [Default=VBR]
+      --comp COMP           compression complexity for FLAC and Opus [Default=Max]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
       --flac                Rip songs to lossless FLAC codec instead of MP3

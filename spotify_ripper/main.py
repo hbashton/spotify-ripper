@@ -96,7 +96,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-A', '--ascii-path-only', action='store_true', help='Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]')
     parser.add_argument('-b', '--bitrate', help='CBR bitrate [Default=320]')
     parser.add_argument('-c', '--cbr', action='store_true', help='CBR encoding [Default=VBR]')
-    parser.add_argument('--comp', default="10", help='compression complexity for flac and opus [Default=Max]')
+    parser.add_argument('--comp', default="10", help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     encoding_group.add_argument('--flac', action='store_true', help='Rip songs to lossless FLAC encoding instead of MP3')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
