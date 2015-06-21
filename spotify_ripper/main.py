@@ -177,6 +177,7 @@ def main(prog_args=sys.argv[1:]):
     encoder = encoders[args.output_type]
     if which(encoder) is None:
         print(Fore.RED + "Missing dependency '" + encoder + "'.  Please install and add to path..." + Fore.RESET)
+        print("try " + Fore.YELLOW + "sudo apt-get install " + encoder + Fore.RESET + " ...")
         sys.exit(1)
 
     # print some settings
