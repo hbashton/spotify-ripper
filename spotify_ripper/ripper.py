@@ -420,9 +420,9 @@ class Ripper(threading.Thread):
                 self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "opus":
             if args.cbr:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", args.comp, "--cvbr", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", str(args.comp), "--cvbr", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
             else:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", args.comp, "--vbr", "--bitrate", args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", str(args.comp), "--vbr", "--bitrate", args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
         elif args.output_type == "aac":
             if self.dev_null is None: self.dev_null = open(os.devnull, 'wb')
             if args.cbr:
