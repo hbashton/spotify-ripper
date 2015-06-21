@@ -185,10 +185,12 @@ def main(prog_args=sys.argv[1:]):
 
 
     def encoding_output_str():
-        if args.output_type == "flac":
-            return "FLAC, Compression Level: " + args.comp
+        if args.output_type == "wav":
+            return "WAV, Stereo 16bit 44100Hz"
         else:
-            if args.output_type == "ogg":
+            if args.output_type == "flac":
+                return "FLAC, Compression Level: " + args.comp
+            elif args.output_type == "ogg":
                 codec = "Ogg Vorbis"
             elif args.output_type == "opus":
                 codec = "Opus"
@@ -198,8 +200,6 @@ def main(prog_args=sys.argv[1:]):
                 codec = "MPEG4 AAC"
             elif args.output_type == "aac":
                 codec = "AAC"
-            elif args.output_type == "wav":
-                codec = "WAV, Stereo 16bit 44100Hz"
             if args.cbr:
                 return codec + ", CBR " + args.bitrate + " kbps"
             else:
