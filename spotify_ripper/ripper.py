@@ -412,7 +412,7 @@ class Ripper(threading.Thread):
         print("Track Download Size: " + format_size(file_size))
 
         if args.output_type == "flac":
-            self.rip_proc = Popen(["flac", "-f", "--best", "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.audio_file, "-"], stdin=PIPE)
+            self.rip_proc = Popen(["flac", "-f", "-",args.comp, "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "ogg":
             if args.cbr:
                 self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
@@ -420,9 +420,9 @@ class Ripper(threading.Thread):
                 self.rip_proc = Popen(["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "opus":
             if args.cbr:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--cvbr", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", args.comp, "--cvbr", "--bitrate", str(int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
             else:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--vbr", "--bitrate", args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", args.comp, "--vbr", "--bitrate", args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
         elif args.output_type == "aac":
             if self.dev_null is None: self.dev_null = open(os.devnull, 'wb')
             if args.cbr:
