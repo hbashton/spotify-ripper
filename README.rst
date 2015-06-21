@@ -205,6 +205,58 @@ Download an application key file ``spotify_appkey.key`` from
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
 the ``-k | --key`` option).
 
+Optional Encoding Formats
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, MP4/M4A, Ogg Vorbis and Opus.  However, additional encoding tools need to be installed for each codec you wish to use.
+
+Mac OS X
+--------
+
+.. code:: bash
+
+    # FLAC
+    $ brew install flac
+
+    # AAC
+    $ brew install faac
+
+    # MP4/M4A
+    $ brew install fdkaac
+
+    # Ogg Vorbis
+    $ brew install vorbis-tools
+
+    # Opus
+    $ brew install opus-tools
+
+Ubuntu/Debian
+--------
+
+.. code:: bash
+
+    # FLAC
+    $ sudo apt-get install flac
+
+    # AAC
+    $ sudo apt-get install faac
+
+    # MP4/M4A (need to compile fdkaac from source)
+    $ sudo apt-get install libfdk-aac-dev automake autoconf
+    $ wget https://github.com/nu774/fdkaac/archive/v0.6.2.tar.gz
+    $ tar xvf v0.6.2.tar.gz
+    $ cd fdkaac-0.6.2
+    $ autoreconf -i
+    $ ./configure
+    $ sudo make install
+
+    # Ogg Vorbis
+    $ sudo apt-get install vorbis-tools
+
+    # Opus
+    $ sudo apt-get install opus-tools
+
+
 Upgrade
 ~~~~~~~
 
