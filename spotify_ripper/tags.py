@@ -235,7 +235,7 @@ def set_metadata_tags(args, audio_file, track):
         if genres is not None and genres: print(Fore.YELLOW + "Setting genres: " + " / ".join(genres_ascii) + Fore.RESET)
         if image is not None: print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
         if args.output_type == "flac":
-            bit_rate = (audio.info.bits_per_sample * audio.info.total_samples) / audio.info.length / audio.info.channels
+            bit_rate = (audio.info.bits_per_sample * audio.info.sample_rate) * audio.info.channels
             print("Time: " + format_time(audio.info.length) + "\tFree Lossless Audio Codec"+
                 "\t[ " + bit_rate_str(bit_rate / 1000) + " @ " + str(audio.info.sample_rate) +
                 " Hz - " + channel_str(audio.info.channels) + " ]")
@@ -274,7 +274,7 @@ def set_metadata_tags(args, audio_file, track):
             print(Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "m4a":
-            bit_rate = (audio.info.bits_per_sample * audio.info.sample_rate) / audio.info.channels
+            bit_rate = (audio.info.bits_per_sample * audio.info.sample_rate) * audio.info.channels
             print("Time: " + format_time(audio.info.length) + "\tMPEG-4 Part 14 Audio" +
                 "\t[ " + bit_rate_str(bit_rate / 1000) +
                 " @ " + str(audio.info.sample_rate) + " Hz - " + channel_str(audio.info.channels) + " ]")
