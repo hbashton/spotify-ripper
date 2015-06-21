@@ -6,16 +6,16 @@ A fork of
 uses `pyspotify <https://github.com/mopidy/pyspotify>`__ v2.x
 
 Spotify-ripper is a small ripper script for Spotify that rips Spotify
-URIs to MP3 files and includes ID3 tags and cover art.
+URIs to audio files and includes ID3 tags and cover art.  By default spotify-ripper will encode to MP3 files, but includes the ability to rip to FLAC, Ogg Vorbis, Opus, FLAC, ACC, and MP4/M4A.
 
 **Note that stream ripping violates the libspotify's ToS**
 
 Features
 --------
 
--  real-time VBR or CBR ripping from spotify PCM stream
+-  real-time VBR or CBR ripping from Spotify PCM stream
 
--  writes id3 tags (including album covers)
+-  writes ID3v2/metadata tags (including album covers)
 
 -  rips files into the following directory structure: ``artist/album/artist - song.mp3`` by default or optionally into a flat directory structure using the ``-f`` or ``-F`` options
 
@@ -46,7 +46,7 @@ Features
 
 -  option to rip to AAC instead of MP3 (requires extra ``faac`` dependency)
 
--  option to rip to MP4 instead of MP3 (requires compiling fdk-aac)
+-  option to rip to MP4/M4A instead of MP3 (requires compiling ``fdkaac``)
 
 Usage
 -----
@@ -95,7 +95,7 @@ Command Line
       -l, --last            Use last login credentials
       -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
       -m, --pcm             Saves a .pcm file with the raw PCM data
-      --mp4                 Rip songs to MP4 with the nonfree Fraunhofer FDK MPEG4-AAC Encoder
+      --mp4                 Rip songs to MP4/M4A with the nonfree Fraunhofer FDK MPEG4-AAC Encoder
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs with Opus Codec instead of MP3
       -q VBR, --vbr VBR     VBR encoding quality setting or target bitrate for Opus [Default=Max]
@@ -158,7 +158,7 @@ Prerequisites
 
 -  (optional) `faac <http://www.audiocoding.com/downloads.html>`__
 
--  (optional) `fdk-aac <https://github.com/nu774/fdkaac>`__
+-  (optional) `fdkaac <https://github.com/nu774/fdkaac>`__
 
 Mac OS X
 ~~~~~~~~
