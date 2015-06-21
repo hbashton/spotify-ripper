@@ -38,6 +38,8 @@ Features
 
 -  helpful progress bar to gauge the time remaining until completion
 
+-  option to rip to uncompressed WAV instead of MP3 (requires extra ``sox`` dependency)
+
 -  option to rip to FLAC, a loseless codec, instead of MP3 (requires extra ``flac`` dependency)
 
 -  option to rip to Ogg Vorbis instead of MP3 (requires extra ``vorbis-tools`` dependency)
@@ -47,6 +49,7 @@ Features
 -  option to rip to AAC instead of MP3 (requires extra ``faac`` dependency)
 
 -  option to rip to MP4/M4A instead of MP3 (requires compiling ``fdkaac``)
+
 
 Usage
 -----
@@ -82,7 +85,7 @@ Command Line
       -c, --cbr             CBR encoding instead of VBR [Default=VBR]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
-      --flac                Rip songs to lossless FLAC encoding instead of MP3
+      --flac                Rip songs to lossless FLAC codec instead of MP3
       -f, --flat            Save all songs to a single directory instead of organizing by album/artist/song
       -F, --flat-with-index
                             Similar to --flat [-f] but includes the playlist index at the start of the song file
@@ -103,6 +106,7 @@ Command Line
       -s, --strip-colors    Strip coloring from output[Default=colors]
       -V, --version         show program's version number and exit
       --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3
+      --wav                 Rip songs to uncompressed WAV file instead of MP3
       -r, --remove-from-playlist
                             Delete tracks from playlist after successful ripping [Default=no]
       -x, --exclude-appears-on
@@ -159,6 +163,8 @@ Prerequisites
 -  (optional) `faac <http://www.audiocoding.com/downloads.html>`__
 
 -  (optional) `fdkaac <https://github.com/nu774/fdkaac>`__
+
+-  (optional) `sox <http://sox.sourceforge.net/sox.html>`__
 
 Mac OS X
 ~~~~~~~~
