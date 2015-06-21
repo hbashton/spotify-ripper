@@ -11,6 +11,10 @@ import requests
 import base64
 
 def set_metadata_tags(args, audio_file, track):
+    if args.output_type == "wav":
+        print(Fore.YELLOW + "Skipping metadata tagging for WAV encoding...")
+        return
+
     # ensure everything is loaded still
     if not track.is_loaded: track.load()
     if not track.album.is_loaded: track.album.load()
