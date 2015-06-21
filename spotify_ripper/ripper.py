@@ -411,7 +411,9 @@ class Ripper(threading.Thread):
         file_size = calc_file_size(self.args, track)
         print("Track Download Size: " + format_size(file_size))
 
-        if args.output_type == "flac":
+        if args.output_type == "wav":
+            self.rip_proc = Popen(["sox", "-t", "raw", "-r", "44100", "-e", "signed", "-b", "16", "-c", "2", "-", self.audio_file], stdin=PIPE)
+        elif args.output_type == "flac":
             self.rip_proc = Popen(["flac", "-f", str("-"+args.comp), "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "ogg":
             if args.cbr:
