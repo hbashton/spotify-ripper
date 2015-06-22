@@ -38,8 +38,6 @@ Features
 
 -  helpful progress bar to gauge the time remaining until completion
 
--  option to rip to uncompressed WAV instead of MP3 (requires extra ``sox`` dependency)
-
 -  option to rip to FLAC, a loseless codec, instead of MP3 (requires extra ``flac`` dependency)
 
 -  option to rip to Ogg Vorbis instead of MP3 (requires extra ``vorbis-tools`` dependency)
@@ -165,8 +163,6 @@ Prerequisites
 
 -  (optional) `fdkaac <https://github.com/nu774/fdkaac>`__
 
--  (optional) `sox <http://sox.sourceforge.net/sox.html>`__
-
 Mac OS X
 ~~~~~~~~
 
@@ -221,9 +217,6 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
 
 .. code:: bash
 
-    # WAV
-    $ brew install sox
-
     # FLAC
     $ brew install flac
 
@@ -242,9 +235,6 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
 **Ubuntu/Debian**
 
 .. code:: bash
-
-    # WAV
-    $ sudo apt-get install sox
 
     # FLAC
     $ sudo apt-get install flac

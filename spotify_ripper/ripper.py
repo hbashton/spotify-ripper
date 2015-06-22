@@ -14,6 +14,7 @@ import spotify
 import getpass
 import itertools
 import requests
+import wave
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
@@ -23,6 +24,7 @@ class BitRate(spotify.utils.IntEnum):
 class Ripper(threading.Thread):
     audio_file = None
     pcm_file = None
+    wav_file = None
     rip_proc = None
     pipe = None
     ripping = False
@@ -416,7 +418,8 @@ class Ripper(threading.Thread):
         print("Track Download Size: " + format_size(file_size))
 
         if args.output_type == "wav":
-            self.rip_proc = Popen(["sox", "-t", "raw", "-r", "44100", "-e", "signed", "-b", "16", "-c", "2", "-", self.audio_file], stdin=PIPE)
+            self.wav_file = wave.open(self.audio_file, "wb")
+            self.wav_file.setparams((2, 2, 44100, 0, 'NONE', 'not compressed'))
         elif args.output_type == "flac":
             self.rip_proc = Popen(["flac", "-f", str("-"+args.comp), "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "ogg":
@@ -445,7 +448,10 @@ class Ripper(threading.Thread):
                 self.rip_proc = Popen(["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.audio_file], stdin=PIPE)
             else:
                 self.rip_proc = Popen(["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.audio_file], stdin=PIPE)
-        self.pipe = self.rip_proc.stdin
+
+        if self.rip_proc is not None:
+            self.pipe = self.rip_proc.stdin
+
         if args.pcm:
             pcm_file_name = self.audio_file[:-(len(args.output_type) + 1)] + ".pcm"
             self.pcm_file = open(pcm_file_name, 'w')
@@ -464,6 +470,11 @@ class Ripper(threading.Thread):
                 print(Fore.YELLOW + "Warning: encoder returned non-zero error code " + str(ret_code) + Fore.RESET)
             self.rip_proc = None
             self.pipe = None
+
+        if self.wav_file is not None:
+            self.wav_file.close()
+            self.wav_file = None
+
         if self.args.pcm:
             self.pcm_file.flush()
             os.fsync(self.pcm_file.fileno())
@@ -474,7 +485,12 @@ class Ripper(threading.Thread):
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:
             self.progress.update_progress(num_frames, audio_format)
-            self.pipe.write(frame_bytes);
+            if self.pipe is not None:
+                self.pipe.write(frame_bytes);
+
+            if self.wav_file is not None:
+                self.wav_file.writeframes(frame_bytes)
+
             if self.args.pcm:
               self.pcm_file.write(frame_bytes)
 

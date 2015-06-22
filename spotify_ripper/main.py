@@ -172,15 +172,15 @@ def main(prog_args=sys.argv[1:]):
         "opus": ("opusenc", "opus-tools"),
         "mp3": ("lame", "lame"),
         "m4a": ("fdkaac", "fdkaac"),
-        "wav": ("sox", "sox"),
     }
-    encoder = encoders[args.output_type][0]
-    if which(encoder) is None:
-        print(Fore.RED + "Missing dependency '" + encoder + "'.  Please install and add to path..." + Fore.RESET)
-        # assumes OS X or Ubuntu/Debian
-        command_help = "brew install " if sys.platform == "darwin" else "sudo apt-get install "
-        print("...try " + Fore.YELLOW + command_help + encoders[args.output_type][1] + Fore.RESET)
-        sys.exit(1)
+    if args.output_type in encoders.keys():
+        encoder = encoders[args.output_type][0]
+        if which(encoder) is None:
+            print(Fore.RED + "Missing dependency '" + encoder + "'.  Please install and add to path..." + Fore.RESET)
+            # assumes OS X or Ubuntu/Debian
+            command_help = "brew install " if sys.platform == "darwin" else "sudo apt-get install "
+            print("...try " + Fore.YELLOW + command_help + encoders[args.output_type][1] + Fore.RESET)
+            sys.exit(1)
 
     # print some settings
     print(Fore.GREEN + "Spotify Ripper - v" + prog_version + Fore.RESET)
