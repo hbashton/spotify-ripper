@@ -28,6 +28,7 @@ class Ripper(threading.Thread):
     ripping = False
     finished = False
     current_playlist = None
+    album_artist = None
     tracks_to_remove = []
     end_of_track = threading.Event()
     idx_digits = 3
@@ -209,6 +210,7 @@ class Ripper(threading.Thread):
             album_browser = album.browse()
             print('Loading album browser...')
             album_browser.load()
+            self.album_artist = album.artist.name
             return iter(album_browser.tracks)
         elif link.type == spotify.LinkType.ARTIST:
             artist = link.as_artist()
@@ -367,7 +369,8 @@ class Ripper(threading.Thread):
         args = self.args
         base_dir = norm_path(args.directory[0]) if args.directory != None else os.getcwd()
 
-        artist = to_ascii(args, escape_filename_part(track.artists[0].name))
+        track_artist = to_ascii(args, escape_filename_part(track.artists[0].name))
+        album_artist = self.album_artist if self.album_artist is not None else track_artist
         album = to_ascii(args, escape_filename_part(track.album.name))
         track_name = to_ascii(args, escape_filename_part(track.name))
         extension = "." + args.output_type
@@ -384,15 +387,16 @@ class Ripper(threading.Thread):
             file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + extension
             audio_file = to_ascii(args, os.path.join(base_dir, file_name))
         else:
-            artist_t = truncate(artist, 255)
+            track_artist_t = truncate(track_artist, 255)
+            album_artist_t = truncate(album_artist, 255)
             album_t = truncate(album, 255)
-            file_name = truncate(artist + " - " + track_name, 251) + extension
-            audio_file = to_ascii(args, os.path.join(base_dir, artist_t, album_t, file_name))
+            file_name = truncate(track_artist + " - " + track_name, 251) + extension
+            audio_file = to_ascii(args, os.path.join(base_dir, album_artist_t, album_t, file_name))
 
         # create directory if it doesn't exist
-        mp3_path = os.path.dirname(audio_file)
-        if not os.path.exists(mp3_path):
-            os.makedirs(mp3_path)
+        audio_path = os.path.dirname(audio_file)
+        if not os.path.exists(audio_path):
+            os.makedirs(audio_path)
 
         return audio_file
 

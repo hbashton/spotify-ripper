@@ -11,6 +11,9 @@ import requests
 import base64
 
 def set_metadata_tags(args, audio_file, track):
+    # log completed file
+    print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) + Style.NORMAL + "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) + " ]" + Fore.RESET)
+
     if args.output_type == "wav":
         print(Fore.YELLOW + "Skipping metadata tagging for WAV encoding...")
         return
@@ -228,7 +231,6 @@ def set_metadata_tags(args, audio_file, track):
                 return ""
 
         # log id3 tags
-        print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) + Style.NORMAL + "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) + " ]" + Fore.RESET)
         print("-" * 79)
         print(Fore.YELLOW + "Setting artist: " + artist + Fore.RESET)
         if album is not None: print(Fore.YELLOW + "Setting album: " + album + Fore.RESET)
