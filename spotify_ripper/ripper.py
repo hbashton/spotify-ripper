@@ -382,11 +382,11 @@ class Ripper(threading.Thread):
             return (_str[:max_size].strip() if len(_str) > max_size else _str)
 
         if args.flat:
-            file_name = truncate(artist + " - " + track_name, 251) + extension
+            file_name = truncate(track_artist + " - " + track_name, 251) + extension
             audio_file = to_ascii(args, os.path.join(base_dir, file_name))
         elif args.flat_with_index:
             filled_idx = str(idx).zfill(self.idx_digits)
-            file_name = truncate(filled_idx + " - " + artist + " - " + track_name, 251) + extension
+            file_name = truncate(filled_idx + " - " + track_artist + " - " + track_name, 251) + extension
             audio_file = to_ascii(args, os.path.join(base_dir, file_name))
         else:
             track_artist_t = truncate(track_artist, 255)
