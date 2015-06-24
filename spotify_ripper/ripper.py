@@ -150,7 +150,7 @@ class Ripper(threading.Thread):
                         print(Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
                         continue
 
-                    self.audio_file = self.track_path(idx, track)
+                    self.audio_file = self.format_track_path(idx, track)
 
                     if not args.overwrite and os.path.exists(self.audio_file):
                         print(Fore.YELLOW + "Skipping " + track.link.uri + Fore.RESET)
@@ -366,6 +366,71 @@ class Ripper(threading.Thread):
             self.session.logout()
             self.logged_out.wait()
         self.event_loop.stop()
+
+    def format_track_path(self, idx, track):
+        args = self.args
+        base_dir = norm_path(args.directory[0]) if args.directory != None else os.getcwd()
+
+        track_artist = to_ascii(args, escape_filename_part(track.artists[0].name))
+        album_artist = self.album_artist if self.album_artist is not None else track_artist
+        album = to_ascii(args, escape_filename_part(track.album.name))
+        track_name = to_ascii(args, escape_filename_part(track.name))
+        year = str(track.album.year)
+        extension = args.output_type
+        idx_str = str(idx).zfill(self.idx_digits)
+
+        # TODO: move to beginning?
+        audio_file = args.format[0].strip().replace("\\", "/")
+        tags = {
+            "track_artist": track_artist,
+            "album_artist": album_artist,
+            "artist": track_artist,
+            "album": album,
+            "track_name": track_name,
+            "track": track_name,
+            "year": year,
+            "ext": extension,
+            "extension": extension,
+            "idx": idx_str,
+            "index": idx_str,
+        }
+        for tag in tags.keys():
+            audio_file = audio_file.replace("{" + tag + "}", tags[tag])
+
+        # in case the file name is too long
+        def truncate(_str, max_size):
+            return (_str[:max_size].strip() if len(_str) > max_size else _str)
+
+        def truncate_dir_path(dir_path):
+            path_tokens = dir_path.split("/")
+            path_tokens = [truncate(token, 255) for token in path_tokens]
+            return "/".join(path_tokens)
+
+        def trunacte_file_name(file_name):
+            tokens = file_name.rsplit(".", 1)
+            if len(tokens) > 1:
+                tokens[0] = truncate(tokens[0], 255 - len(tokens[1]) - 1)
+            else:
+                tokens[0] = truncate(tokens[0])
+            return ".".join(tokens)
+
+        # ensure each component in path is no more than 255 chars long
+        tokens = audio_file.rsplit("/", 1)
+        if len(tokens) > 1:
+            audio_file = os.path.join(truncate_dir_path(tokens[0]), trunacte_file_name(tokens[1]))
+        else:
+            audio_file = trunacte_file_name(tokens[0])
+
+        # prepend base_dir
+        audio_file = to_ascii(args, os.path.join(base_dir, audio_file))
+
+        # create directory if it doesn't exist
+        audio_path = os.path.dirname(audio_file)
+        if not os.path.exists(audio_path):
+            os.makedirs(audio_path)
+
+        return audio_file
+
 
     def track_path(self, idx, track):
         args = self.args

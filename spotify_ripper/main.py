@@ -99,6 +99,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('--comp', default="10", help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     encoding_group.add_argument('--flac', action='store_true', help='Rip songs to lossless FLAC encoding instead of MP3')
+    parser.add_argument('--format', nargs=1, help='Save songs using this path and filename structure (see README)')
     parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
     parser.add_argument('-F', '--flat-with-index', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
     parser.add_argument('-g', '--genres', nargs=1, choices=['artist', 'album'], help='Attempt to retrieve genre information from Spotify\'s Web API [Default=skip]')
