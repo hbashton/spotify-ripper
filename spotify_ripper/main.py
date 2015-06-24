@@ -116,7 +116,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-Q', '--quality', choices=['160', '320', '96'], help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument('-s', '--strip-colors', action='store_true', help='Strip coloring from output[Default=colors]')
     parser.add_argument('-V', '--version', action='version', version=prog_version)
-    encoding_group.add_argument('--wav', action='store_true', help='Rip songs to uncompressed WAV instead of MP3')
+    encoding_group.add_argument('--wav', action='store_true', help='Rip songs to uncompressed WAV file instead of MP3')
     encoding_group.add_argument('--vorbis', action='store_true', help='Rip songs to Ogg Vorbis encoding instead of MP3')
     parser.add_argument('-r', '--remove-from-playlist', action='store_true', help='Delete tracks from playlist after successful ripping [Default=no]')
     parser.add_argument('-x', '--exclude-appears-on', action='store_true', help='Exclude albums that an artist \'appears on\' when passing a Spotify artist URI')

@@ -17,7 +17,7 @@ Features
 
 -  writes ID3v2/metadata tags (including album covers)
 
--  rips files into the following directory structure: ``artist/album/artist - song.mp3`` by default or optionally into a flat directory structure using the ``-f`` or ``-F`` options
+-  rips files into the following directory structure: ``artist/album/artist - song.mp3`` by default or optionally into a user-specified structure (see `Format String`_ section below)
 
 -  option to skip or overwrite existing files
 
@@ -26,7 +26,7 @@ Features
 -  search for tracks using Spotify queries
 
 -  options for interactive login (no password in shell history) and
-   relogin using previous credentials
+   to relogin using previous credentials
 
 -  option to remove tracks from playlist after successful ripping
 
@@ -59,10 +59,12 @@ Command Line
 
 .. code::
 
-    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [-A] [-b {160,320,96}] [-c]
-                          [-d DIRECTORY] [--flac] [-f] [-F] [-g {artist,album}]
-                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m] [-o]
-                          [--opus] [-s] [-v VBR] [-V] [--wav] [--vorbis] [-r] [-x]
+    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [-A] [-b BITRATE] [-c]
+                          [--comp COMP] [-d DIRECTORY] [--flac] [-f FORMAT]
+                          [--flat] [--flat-with-index] [-g {artist,album}]
+                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m]
+                          [--mp4] [-o] [--opus] [-q VBR] [-Q {160,320,96}] [-s]
+                          [-V] [--wav] [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -75,19 +77,20 @@ Command Line
       -S SETTINGS, --settings SETTINGS
                             Path to settings, config and temp files directory [Default=~/.spotify-ripper]
       -a, --ascii           Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]
-      --aac                 Rip songs to AAC with the LGPL Free AAC Encoder
+      --aac                 Rip songs to AAC format with FreeAAC instead of MP3
       -A, --ascii-path-only
                             Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]
-      -b --bitrate
+      -b BITRATE, --bitrate BITRATE
                             CBR bitrate [Default=320]
-      -c, --cbr             CBR encoding instead of VBR [Default=VBR]
+      -c, --cbr             CBR encoding [Default=VBR]
       --comp COMP           compression complexity for FLAC and Opus [Default=Max]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
-      --flac                Rip songs to lossless FLAC codec instead of MP3
-      -f, --flat            Save all songs to a single directory instead of organizing by album/artist/song
-      -F, --flat-with-index
-                            Similar to --flat [-f] but includes the playlist index at the start of the song file
+      --flac                Rip songs to lossless FLAC encoding instead of MP3
+      -f FORMAT, --format FORMAT
+                            Save songs using this path and filename structure (see README)
+      --flat                Save all songs to a single directory (overrides --format option)
+      --flat-with-index     Similar to --flat [-f] but includes the playlist index at the start of the song file
       -g {artist,album}, --genres {artist,album}
                             Attempt to retrieve genre information from Spotify's Web API [Default=skip]
       -k KEY, --key KEY     Path to Spotify application key file [Default=cwd]
@@ -97,15 +100,16 @@ Command Line
       -l, --last            Use last login credentials
       -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
       -m, --pcm             Saves a .pcm file with the raw PCM data
-      --mp4                 Rip songs to MP4/M4A with the nonfree Fraunhofer FDK MPEG4-AAC Encoder
+      --mp4                 Rip songs to MP4 format with Fraunhofer FDK AAC codec instead of MP3
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
-      --opus                Rip songs with Opus Codec instead of MP3
-      -q VBR, --vbr VBR     VBR encoding quality setting or target bitrate for Opus [Default=Max]
-      -Q {160,320,96}       Bitrate / Quality of Spotify stream [Default=Extreme/320kbit]
+      --opus                Rip songs to Opus encoding instead of MP3
+      -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
+      -Q {160,320,96}, --quality {160,320,96}
+                            Spotify stream bitrate preference [Default=320]
       -s, --strip-colors    Strip coloring from output[Default=colors]
       -V, --version         show program's version number and exit
-      --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3
       --wav                 Rip songs to uncompressed WAV file instead of MP3
+      --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3
       -r, --remove-from-playlist
                             Delete tracks from playlist after successful ripping [Default=no]
       -x, --exclude-appears-on
@@ -120,7 +124,7 @@ Command Line
 Config File
 ~~~~~~~~~~~
 
-For options that you want set on every run, you can use a config file named ``config.ini`` in the settings folder (defaults to ``~/.spotify-ripper``).  The options in the config file use the same name as the command line options with the exception that dashes are tranlated to ``snake_case``.  Any option specified in the command line will overwrite any setting in the config file.  Please put all options under a ``[main]`` section.
+For options that you want set on every run, you can use a config file named ``config.ini`` in the settings folder (defaults to ``~/.spotify-ripper``).  The options in the config file use the same name as the command line options with the exception that dashes are translated to ``snake_case``.  Any option specified in the command line will overwrite any setting in the config file.  Please put all options under a ``[main]`` section.
 
 Here is an example config file
 
@@ -132,6 +136,43 @@ Here is an example config file
     flat = True
     last = True
     remove_from_playlist = True
+
+Format String
+-------------
+
+The format string dictates how ``spotify-ripper`` will organize your ripped files.  This is controlled through the ``-f | --format`` option.  The string should include the format of the file name and optionally a directory structure.   If you do not include a format string, the default format will be used ``{album_artist}/{album}/{track_num}. {artist} - {track_name}.{ext}``.
+
+The ``--flat`` option is shorthand for using the ``{artist} - {track_name}.{ext}`` format string and the ``--flat-with-index`` option is shorthand for using the ``{idx} - {artist} - {track_name}.{ext}`` format string.  The use of these options will override any ``--format`` string option given.
+
+Your format string can include the following variables names, which are case-sensitive and wrapped in curly braces, if you want your file/path name to be overwritten with Spotify metadata
+
++-----------------------------------------+-----------------------------------------------+
+| Variable Names and Aliases              | Description                                   |
++=========================================+===============================================+
+| {track_artist}, {artist}                | The track's artist                            |
++-----------------------------------------+-----------------------------------------------+
+| {album_artist}                          | When passing an album, the album's artist     |
+|                                         | (e.g. "Various Artists").  If no album artist |
+|                                         | exists the track artist is used instead       |
++-----------------------------------------+-----------------------------------------------+
+| {album}                                 | Album name                                    |
++-----------------------------------------+-----------------------------------------------+
+| {track_name}, {track}                   | Track name                                    |
++-----------------------------------------+-----------------------------------------------+
+| {year}                                  | Release year of the album                     |
++-----------------------------------------+-----------------------------------------------+
+| {ext}, {extension}                      | Filename extension (e.g. "mp3", "ogg", "flac",|
+|                                         | ...)                                          |
++-----------------------------------------+-----------------------------------------------+
+| {idx}, {index}                          | Playlist index filled to 3 digits (e.g. "001",|
+|                                         | "002", ...)                                   |
++-----------------------------------------+-----------------------------------------------+
+| {track_num}, {track_idx}, {track_index} | The track number in album                     |
++-----------------------------------------+-----------------------------------------------+
+| {disc_num}, {disc_idx}, {disc_index}    | The disc number in album                      |
++-----------------------------------------+-----------------------------------------------+
+
+Any substring in the format string that does not match above will be passed through to the file/path name without changes.
 
 Installation
 ------------
