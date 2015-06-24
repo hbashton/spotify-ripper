@@ -24,7 +24,7 @@ def load_config(args, defaults):
             if not config.has_section("main"): return defaults
             config_items = dict(config.items("main"))
 
-            to_array_options = ["directory", "key", "user", "password", "log", "genres"]
+            to_array_options = ["directory", "key", "user", "password", "log", "genres", "format"]
 
             # coerce boolean and none types
             for _key in config_items:
@@ -99,9 +99,9 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('--comp', default="10", help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument('-d', '--directory', nargs=1, help='Base directory where ripped MP3s are saved [Default=cwd]')
     encoding_group.add_argument('--flac', action='store_true', help='Rip songs to lossless FLAC encoding instead of MP3')
-    parser.add_argument('--format', nargs=1, help='Save songs using this path and filename structure (see README)')
-    parser.add_argument('-f', '--flat', action='store_true', help='Save all songs to a single directory instead of organizing by album/artist/song')
-    parser.add_argument('-F', '--flat-with-index', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
+    parser.add_argument('-f', '--format', nargs=1, help='Save songs using this path and filename structure (see README)')
+    parser.add_argument('--flat', action='store_true', help='Save all songs to a single directory (overrides --format option)')
+    parser.add_argument('--flat-with-index', action='store_true', help='Similar to --flat [-f] but includes the playlist index at the start of the song file')
     parser.add_argument('-g', '--genres', nargs=1, choices=['artist', 'album'], help='Attempt to retrieve genre information from Spotify\'s Web API [Default=skip]')
     parser.add_argument('-k', '--key', nargs=1, help='Path to Spotify application key file [Default=cwd]')
     group.add_argument('-u', '--user', nargs=1, help='Spotify username')
@@ -183,9 +183,16 @@ def main(prog_args=sys.argv[1:]):
             print("...try " + Fore.YELLOW + command_help + encoders[args.output_type][1] + Fore.RESET)
             sys.exit(1)
 
+    # format string
+    if args.flat:
+        args.format = ["{artist} - {track_name}.{ext}"]
+    elif args.flat_with_index:
+        args.format = ["{idx} - {artist} - {track_name}.{ext}"]
+    elif args.format is None:
+        args.format = ["{album_artist}/{album}/{artist} - {track_name}.{ext}"]
+
     # print some settings
     print(Fore.GREEN + "Spotify Ripper - v" + prog_version + Fore.RESET)
-
 
     def encoding_output_str():
         if args.output_type == "wav":
@@ -224,16 +231,7 @@ def main(prog_args=sys.argv[1:]):
     print(Fore.YELLOW + "  Output directory:\t" + Fore.RESET + (norm_path(args.directory[0]) if args.directory != None else os.getcwd()))
     print(Fore.YELLOW + "  Settings directory:\t" + Fore.RESET + (norm_path(args.settings[0]) if args.settings != None else default_settings_dir()))
 
-    def export_org_str():
-        if args.flat:
-            return "Single directory"
-        elif args.flat_with_index:
-            return "Single directory (with playlist index)"
-        else:
-            return "Artist/album/song"
-
-
-    print(Fore.YELLOW + "  Export Organization:\t" + Fore.RESET + export_org_str())
+    print(Fore.YELLOW + "  Format String:\t" + Fore.RESET + args.format[0])
     print(Fore.YELLOW + "  Overwrite files:\t" + Fore.RESET + ("Yes" if args.overwrite else "No"))
 
     ripper = Ripper(args)
