@@ -140,11 +140,11 @@ Here is an example config file
 Format String
 -------------
 
-The format string dictates how ``spotify-ripper`` will organize your ripped files.  This is controlled through the ``-f | --format`` option.  The string should include the format of the file name and optionally a directory structure.   If you do not include a format string, the default format will be used ``{album_artist}/{album}/{track_num}. {artist} - {track_name}.{ext}``.
+The format string dictates how ``spotify-ripper`` will organize your ripped files.  This is controlled through the ``-f | --format`` option.  The string should include the format of the file name and optionally a directory structure.   If you do not include a format string, the default format will be used: ``{album_artist}/{album}/{artist} - {track_name}.{ext}``.
 
-The ``--flat`` option is shorthand for using the ``{artist} - {track_name}.{ext}`` format string and the ``--flat-with-index`` option is shorthand for using the ``{idx} - {artist} - {track_name}.{ext}`` format string.  The use of these options will override any ``--format`` string option given.
+The ``--flat`` option is shorthand for using the format string: ``{artist} - {track_name}.{ext}``, and the ``--flat-with-index`` option is shorthand for using the format string: ``{idx} - {artist} - {track_name}.{ext}``.  The use of these shorthand options will override any ``--format`` string option given.
 
-Your format string can include the following variables names, which are case-sensitive and wrapped in curly braces, if you want your file/path name to be overwritten with Spotify metadata
+Your format string can include the following variables names, which are case-sensitive and wrapped in curly braces, if you want your file/path name to be overwritten with Spotify metadata.
 
 +-----------------------------------------+-----------------------------------------------+
 | Variable Names and Aliases              | Description                                   |
@@ -153,7 +153,7 @@ Your format string can include the following variables names, which are case-sen
 +-----------------------------------------+-----------------------------------------------+
 | {album_artist}                          | When passing an album, the album's artist     |
 |                                         | (e.g. "Various Artists").  If no album artist |
-|                                         | exists the track artist is used instead       |
+|                                         | exists, the track artist is used instead      |
 +-----------------------------------------+-----------------------------------------------+
 | {album}                                 | Album name                                    |
 +-----------------------------------------+-----------------------------------------------+
@@ -161,18 +161,18 @@ Your format string can include the following variables names, which are case-sen
 +-----------------------------------------+-----------------------------------------------+
 | {year}                                  | Release year of the album                     |
 +-----------------------------------------+-----------------------------------------------+
-| {ext}, {extension}                      | Filename extension (e.g. "mp3", "ogg", "flac",|
+| {ext}, {extension}                      | Filename extension (i.e. "mp3", "ogg", "flac",|
 |                                         | ...)                                          |
 +-----------------------------------------+-----------------------------------------------+
-| {idx}, {index}                          | Playlist index filled to 3 digits (e.g. "001",|
+| {idx}, {index}                          | Playlist index filled to 3 digits (i.e. "001",|
 |                                         | "002", ...)                                   |
 +-----------------------------------------+-----------------------------------------------+
-| {track_num}, {track_idx}, {track_index} | The track number in album                     |
+| {track_num}, {track_idx}, {track_index} | The track number of the disc                  |
 +-----------------------------------------+-----------------------------------------------+
-| {disc_num}, {disc_idx}, {disc_index}    | The disc number in album                      |
+| {disc_num}, {disc_idx}, {disc_index}    | The disc number of the album                  |
 +-----------------------------------------+-----------------------------------------------+
 
-Any substring in the format string that does not match above will be passed through to the file/path name without changes.
+Any substring in the format string that does not match a variable above will be passed through to the file/path name unchanged.
 
 Installation
 ------------
