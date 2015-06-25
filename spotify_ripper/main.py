@@ -10,7 +10,10 @@ import os, sys
 import time
 import argparse
 import pkg_resources
-import ConfigParser
+if sys.version_info >= (3, 0):
+    import configparser as ConfigParser
+else:
+    import ConfigParser
 import schedule
 import signal
 

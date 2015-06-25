@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-from mutagen import mp3, id3, flac, oggvorbis, oggopus, m4a, mp4, aac
+from mutagen import mp3, id3, flac, oggvorbis, oggopus, aac
 from stat import ST_SIZE
 from spotify_ripper.utils import *
 import os, sys
@@ -169,6 +169,30 @@ def set_metadata_tags(args, audio_file, track):
 
             audio.save()
 
+        # only called by Python 3
+        def set_mp4_tags(audio):
+            # add MP4 tags if it doesn't exist
+            if audio.tags is None:
+                audio.add_tags()
+
+            # TODO: crash
+            # if image is not None:
+            #     image.load()
+            #     audio.tags[str("covr")] = mp4.MP4Cover(bytes(image.data))
+
+            if album is not None: audio.tags["\xa9alb"] = tag_to_ascii(track.album.name, album)
+            audio["\xa9nam"] = tag_to_ascii(track.name, title)
+            audio.tags["\xa9ART"] = tag_to_ascii(track.artists[0].name, artist)
+            audio.tags["\xa9day"] = str(track.album.year)
+            audio.tags[str("disk")] = [(track.disc, num_discs)]
+            audio.tags[str("trkn")] = [(track.index, num_tracks)]
+
+            if genres is not None and genres:
+                _genres = genres if args.ascii_path_only else genres_ascii
+                audio.tags[b"\xa9gen"] = ", ".join(_genres)
+
+            audio.save()
+
         def set_m4a_tags(audio):
             # add M4A tags if it doesn't exist
             audio.add_tags()
@@ -203,9 +227,15 @@ def set_metadata_tags(args, audio_file, track):
             audio = aac.AAC(audio_file)
             set_id3_tags_raw(audio, audio_file)
         elif args.output_type == "m4a":
-            audio = m4a.M4A(audio_file)
-            set_m4a_tags(audio)
-            audio = mp4.MP4(audio_file)
+            if sys.version_info >= (3, 0):
+                from mutagen import mp4
+                audio = mp4.MP4(audio_file)
+                set_mp4_tags(audio)
+            else:
+                from mutagen import m4a, mp4
+                audio = m4a.M4A(audio_file)
+                set_m4a_tags(audio)
+                audio = mp4.MP4(audio_file)
         elif args.output_type == "mp3":
             audio = mp3.MP3(audio_file, ID3=id3.ID3)
             set_id3_tags(audio)
