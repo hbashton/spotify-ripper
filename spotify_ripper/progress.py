@@ -101,12 +101,9 @@ class Progress(object):
 
     def handle_resize(self, signum=None, frame=None):
         try:
-            if sys.version_info >= (3, 0):
-                h = "h"
-                null_str = ("\0" * 8)
-            else:
-                h = "h".encode("ascii", "ignore")
-                null_str = ("\0" * 8).encode("ascii", "ignore")
+            _to_ascii = lambda s: s.encode("ascii", "ignore") if sys.version_info < (3, 0) else s
+            h = _to_ascii("h")
+            null_str = _to_ascii("\0" * 8)
             h, w = array(h, ioctl(sys.stdout, termios.TIOCGWINSZ, null_str))[:2]
             self.term_width = w
         except (NameError, IOError):

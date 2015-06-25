@@ -175,21 +175,20 @@ def set_metadata_tags(args, audio_file, track):
             if audio.tags is None:
                 audio.add_tags()
 
-            # TODO: crash
-            # if image is not None:
-            #     image.load()
-            #     audio.tags[str("covr")] = mp4.MP4Cover(bytes(image.data))
+            if image is not None:
+                image.load()
+                audio.tags["covr"] = mp4.MP4Cover(image.data)
 
             if album is not None: audio.tags["\xa9alb"] = tag_to_ascii(track.album.name, album)
             audio["\xa9nam"] = tag_to_ascii(track.name, title)
             audio.tags["\xa9ART"] = tag_to_ascii(track.artists[0].name, artist)
             audio.tags["\xa9day"] = str(track.album.year)
-            audio.tags[str("disk")] = [(track.disc, num_discs)]
-            audio.tags[str("trkn")] = [(track.index, num_tracks)]
+            audio.tags["disk"] = [(track.disc, num_discs)]
+            audio.tags["trkn"] = [(track.index, num_tracks)]
 
             if genres is not None and genres:
                 _genres = genres if args.ascii_path_only else genres_ascii
-                audio.tags[b"\xa9gen"] = ", ".join(_genres)
+                audio.tags["\xa9gen"] = ", ".join(_genres)
 
             audio.save()
 
