@@ -109,7 +109,7 @@ def main(prog_args=sys.argv[1:]):
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-L', '--log', nargs=1, help='Log in a log-friendly format to a file (use - to log to stdout)')
     parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
-    encoding_group.add_argument('--mp4', action='store_true', help='Rip songs to MP4 format with Fraunhofer FDK AAC codec instead of MP3')
+    encoding_group.add_argument('--mp4', action='store_true', help='Rip songs to MP4/M4A format with Fraunhofer FDK AAC codec instead of MP3')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument('--opus', action='store_true', help='Rip songs to Opus encoding instead of MP3')
     parser.add_argument('-q', '--vbr', help='VBR quality setting or target bitrate for Opus [Default=0]')

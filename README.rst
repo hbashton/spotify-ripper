@@ -100,7 +100,7 @@ Command Line
       -l, --last            Use last login credentials
       -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
       -m, --pcm             Saves a .pcm file with the raw PCM data
-      --mp4                 Rip songs to MP4 format with Fraunhofer FDK AAC codec instead of MP3
+      --mp4                 Rip songs to MP4/M4A format with Fraunhofer FDK AAC codec instead of MP3
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs to Opus encoding instead of MP3
       -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
@@ -145,6 +145,8 @@ The format string dictates how ``spotify-ripper`` will organize your ripped file
 The ``--flat`` option is shorthand for using the format string: ``{artist} - {track_name}.{ext}``, and the ``--flat-with-index`` option is shorthand for using the format string: ``{idx} - {artist} - {track_name}.{ext}``.  The use of these shorthand options will override any ``--format`` string option given.
 
 Your format string can include the following variables names, which are case-sensitive and wrapped in curly braces, if you want your file/path name to be overwritten with Spotify metadata.
+
+**Format String Variables**
 
 +-----------------------------------------+-----------------------------------------------+
 | Variable Names and Aliases              | Description                                   |
