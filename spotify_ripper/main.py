@@ -72,7 +72,7 @@ def patch_bug_in_mutagen():
                 b"data", struct.pack(">2I", imageformat, 0) + bytes(cover)))
         return Atom.render(_key2name(key), b"".join(atom_data))
 
-    print(Fore.RED + "Monkey-patching Python 3/MP4 bug in Mutagen" + Fore.RESET)
+    print(Fore.RED + "Monkey-patching MP4/Python 3.x bug in Mutagen" + Fore.RESET)
     MP4Tags.__fixed_render_cover = __fixed_render_cover
     MP4Tags._MP4Tags__atoms[b"covr"] = (MP4Tags._MP4Tags__parse_cover, MP4Tags.__fixed_render_cover)
 
