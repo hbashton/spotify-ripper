@@ -173,7 +173,7 @@ Format String Variables
 | ``{track_num}``, ``{track_idx}``,       | The track number of the disc                  |
 | ``{track_index}``                       |                                               |
 +-----------------------------------------+-----------------------------------------------+
-| ``{disc_num}``, ``{disc_idx},           | The disc number of the album                  |
+| ``{disc_num}``, ``{disc_idx}``,         | The disc number of the album                  |
 | ``{disc_index}``                        |                                               |
 +-----------------------------------------+-----------------------------------------------+
 
