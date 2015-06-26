@@ -1,3 +1,5 @@
 pyspotify==2.0.0b4
 colorama>=0.3.3
-mutagen==1.28
+mutagen==1.29
+requests>=2.3.0
+schedule>=0.3.1
