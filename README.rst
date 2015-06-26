@@ -146,32 +146,35 @@ The ``--flat`` option is shorthand for using the format string: ``{artist} - {tr
 
 Your format string can include the following variables names, which are case-sensitive and wrapped in curly braces, if you want your file/path name to be overwritten with Spotify metadata.
 
-**Format String Variables**
+Format String Variables
+~~~~~~~~~~~~~~~~~~~~~~~
 
 +-----------------------------------------+-----------------------------------------------+
-| Variable Names and Aliases              | Description                                   |
+| Names and Aliases                       | Description                                   |
 +=========================================+===============================================+
-| {track_artist}, {artist}                | The track's artist                            |
+| ``{track_artist}``, ``{artist}``        | The track's artist                            |
 +-----------------------------------------+-----------------------------------------------+
-| {album_artist}                          | When passing an album, the album's artist     |
+| ``{album_artist}``                      | When passing an album, the album's artist     |
 |                                         | (e.g. "Various Artists").  If no album artist |
 |                                         | exists, the track artist is used instead      |
 +-----------------------------------------+-----------------------------------------------+
-| {album}                                 | Album name                                    |
+| ``{album}``                             | Album name                                    |
 +-----------------------------------------+-----------------------------------------------+
-| {track_name}, {track}                   | Track name                                    |
+| ``{track_name}``, ``{track}``           | Track name                                    |
 +-----------------------------------------+-----------------------------------------------+
-| {year}                                  | Release year of the album                     |
+| ``{year}``                              | Release year of the album                     |
 +-----------------------------------------+-----------------------------------------------+
-| {ext}, {extension}                      | Filename extension (i.e. "mp3", "ogg", "flac",|
+| ``{ext}``, ``{extension}``              | Filename extension (i.e. "mp3", "ogg", "flac",|
 |                                         | ...)                                          |
 +-----------------------------------------+-----------------------------------------------+
-| {idx}, {index}                          | Playlist index filled to 3 digits (i.e. "001",|
+| ``{idx}``, ``{index}``                  | Playlist index filled to 3 digits (i.e. "001",|
 |                                         | "002", ...)                                   |
 +-----------------------------------------+-----------------------------------------------+
-| {track_num}, {track_idx}, {track_index} | The track number of the disc                  |
+| ``{track_num}``, ``{track_idx}``,       | The track number of the disc                  |
+| ``{track_index}``                       |                                               |
 +-----------------------------------------+-----------------------------------------------+
-| {disc_num}, {disc_idx}, {disc_index}    | The disc number of the album                  |
+| ``{disc_num}``, ``{disc_idx},           | The disc number of the album                  |
+| ``{disc_index}``                        |                                               |
 +-----------------------------------------+-----------------------------------------------+
 
 Any substring in the format string that does not match a variable above will be passed through to the file/path name unchanged.
