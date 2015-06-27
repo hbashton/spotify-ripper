@@ -3,9 +3,12 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-import os, sys, errno
+import os
+import sys
+import errno
 import re
 import math
+
 
 def print_str(args, _str):
     """print without newline"""
@@ -13,9 +16,11 @@ def print_str(args, _str):
         sys.stdout.write(_str)
         sys.stdout.flush()
 
+
 def norm_path(path):
     """normalize path"""
     return os.path.normpath(os.path.realpath(path))
+
 
 # borrowed from AndersTornkvist's fork
 def escape_filename_part(part):
@@ -25,6 +30,7 @@ def escape_filename_part(part):
     part = part.strip()
     part = re.sub(r"(^\.+\s*|(?<=\.)\.+|\s*\.+$)", r'', part)
     return part
+
 
 def to_ascii(args, _str, on_error='ignore'):
     """convert unicode to ascii if necessary"""
@@ -44,20 +50,25 @@ def to_ascii(args, _str, on_error='ignore'):
         else:
             return _str
 
+
 def rm_file(file_name):
     try:
         os.remove(file_name)
     except OSError as e:
         # don't need to print a warning if the file doesn't exist
         if e.errno != errno.ENOENT:
-            print(Fore.YELLOW + "Warning: error while trying to remove file " + file_name + Fore.RESET)
+            print(
+                Fore.YELLOW + "Warning: error while trying to remove file " + file_name + Fore.RESET)
             print(str(e))
+
 
 def default_settings_dir():
     return norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
 
+
 def calc_file_size(args, track):
     return (int(args.quality) / 8) * track.duration
+
 
 # returns path of executable
 def which(program):
@@ -91,6 +102,8 @@ GB_UNIT = "GB"
 '''Gigabytes abbreviation'''
 
 # borrowed from eyeD3
+
+
 def format_size(size, short=False):
     '''Format ``size`` (nuber of bytes) into string format doing KB, MB, or GB
     conversion where necessary.
@@ -133,6 +146,7 @@ def format_size(size, short=False):
         else:
             str_value = str_value[:3]
         return "{0:>3s}{1}".format(str_value, suffix)
+
 
 # borrowed from eyeD3
 def format_time(seconds, total=None, short=False):

@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 
 from colorama import Cursor
 from spotify_ripper.utils import *
-import os, sys
+import os
+import sys
 import time
 import schedule
 
@@ -14,6 +15,7 @@ try:
     import termios
 except ImportError:
     pass
+
 
 class Progress(object):
 
@@ -57,9 +59,11 @@ class Progress(object):
         # some duplicate work here, maybe cache this info beforehand?
         for idx, track in enumerate(tracks):
             track.load()
-            if track.availability != 1: continue
+            if track.availability != 1:
+                continue
             audio_file = self.ripper.format_track_path(idx, track)
-            if not self.args.overwrite and os.path.exists(audio_file): continue
+            if not self.args.overwrite and os.path.exists(audio_file):
+                continue
             self.total_duration += track.duration
             file_size = calc_file_size(self.args, track)
             self.total_size += file_size
@@ -83,28 +87,34 @@ class Progress(object):
 
         if self.ripper.ripping:
             if self.stat_prev is not None:
-                rate = (self.song_position - self.stat_prev[0]) / (time.time() - self.stat_prev[1])
+                rate = (
+                    self.song_position - self.stat_prev[0]) / (time.time() - self.stat_prev[1])
                 if rate > 0.00000001:
 
                     # calc new average rate using an EMA
                     self.ema_rate = calc_rate(rate, self.ema_rate, 0.005)
 
                     # calc song eta
-                    self.song_eta = calc(self.song_position, self.song_duration, self.ema_rate, self.song_eta)
+                    self.song_eta = calc(
+                        self.song_position, self.song_duration, self.ema_rate, self.song_eta)
 
                     # calc total eta
                     if self.show_total:
-                        total_position = (self.total_position + self.song_position)
-                        self.total_eta = calc(total_position, self.total_duration, self.ema_rate, self.total_eta)
+                        total_position = (
+                            self.total_position + self.song_position)
+                        self.total_eta = calc(
+                            total_position, self.total_duration, self.ema_rate, self.total_eta)
 
             self.stat_prev = (self.song_position, time.time())
 
     def handle_resize(self, signum=None, frame=None):
         try:
-            _to_ascii = lambda s: s.encode("ascii", "ignore") if sys.version_info < (3, 0) else s
+            _to_ascii = lambda s: s.encode(
+                "ascii", "ignore") if sys.version_info < (3, 0) else s
             h = _to_ascii("h")
             null_str = _to_ascii("\0" * 8)
-            h, w = array(h, ioctl(sys.stdout, termios.TIOCGWINSZ, null_str))[:2]
+            h, w = array(
+                h, ioctl(sys.stdout, termios.TIOCGWINSZ, null_str))[:2]
             self.term_width = w
         except (NameError, IOError):
             self.term_width = int(os.environ.get('COLUMNS', 120)) - 1
@@ -124,7 +134,8 @@ class Progress(object):
         self.end_progress()
 
     def update_progress(self, num_frames, audio_format):
-        if self.args.has_log: return
+        if self.args.has_log:
+            return
 
         # log output until we run out of space on this line
         def output_what_fits(init, output_strings):
@@ -167,7 +178,8 @@ class Progress(object):
             " " + format_time(pos_seconds, dur_seconds)
         ]
         if self.song_eta is not None:
-            _str = "\t(~" + format_time(self.song_eta, short=True) + " remaining)"
+            _str = "\t(~" + \
+                format_time(self.song_eta, short=True) + " remaining)"
             output_strings.append(_str.expandtabs())
 
         output_what_fits("\r\033[2K", output_strings)
@@ -183,11 +195,13 @@ class Progress(object):
             # total output text
             output_strings = [
                 "Total:",
-                "    [" + ("=" * total_x) + (" " * (prog_width - total_x)) + "]",
+                "    [" + ("=" * total_x) +
+                (" " * (prog_width - total_x)) + "]",
                 " " + format_time(total_pos_seconds, total_dur_seconds)
             ]
             if self.total_eta is not None:
-                _str = "\t(~" + format_time(self.total_eta, short=True) + " remaining)"
+                _str = "\t(~" + format_time(self.total_eta,
+                                            short=True) + " remaining)"
                 output_strings.append(_str.expandtabs())
 
             output_what_fits("\n\033[2K", output_strings)
