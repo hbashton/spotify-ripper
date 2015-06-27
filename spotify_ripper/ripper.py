@@ -203,10 +203,19 @@ class Ripper(threading.Thread):
             self.current_playlist.load()
             return iter(self.current_playlist.tracks)
         elif link.type == spotify.LinkType.STARRED:
-            starred = link.as_playlist()
-            print('Loading starred playlist...')
-            starred.load()
-            return iter(starred.tracks)
+            link_user = link.as_user()
+            if link_user is not None:
+                starred = self.session.get_starred(link_user.canonical_name)
+            else:
+                starred = self.session.get_starred()
+
+            if starred is not None:
+                print('Loading starred playlist...')
+                starred.load()
+                return iter(starred.tracks)
+            else:
+                print(Fore.RED + "Could not load starred playlist..." + Fore.RESET)
+                return iter([])
         elif link.type == spotify.LinkType.ALBUM:
             album = link.as_album()
             album_browser = album.browse()
