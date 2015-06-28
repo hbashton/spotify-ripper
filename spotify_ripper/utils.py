@@ -89,6 +89,7 @@ def which(program):
 
     return None
 
+
 KB_BYTES = 1024
 '''Number of bytes per KB (2^10)'''
 MB_BYTES = 1048576
@@ -168,6 +169,7 @@ def format_time(seconds, total=None, short=False):
     If ``total`` is not None it will also be formatted and
     appended to the result separated by ' / '.
     """
+
     def time_tuple(ts):
         if ts is None or ts < 0:
             ts = 0

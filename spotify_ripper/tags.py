@@ -46,8 +46,8 @@ def set_metadata_tags(args, audio_file, track):
         item = track.artists[0] if args.genres[0] == "artist" else track.album
         uri_tokens = item.link.uri.split(':')
         if len(uri_tokens) == 3:
-            url = 'https://api.spotify.com/v1/' + \
-                args.genres[0] + 's/' + uri_tokens[2]
+            url = ('https://api.spotify.com/v1/' +
+                   args.genres[0] + 's/' + uri_tokens[2])
             print(
                 Fore.GREEN + "Attempting to retrieve genres "
                              "from Spotify's Web API" + Fore.RESET)
@@ -269,10 +269,12 @@ def set_metadata_tags(args, audio_file, track):
         elif args.output_type == "m4a":
             if sys.version_info >= (3, 0):
                 from mutagen import mp4
+
                 audio = mp4.MP4(audio_file)
                 set_mp4_tags(audio)
             else:
                 from mutagen import m4a, mp4
+
                 audio = m4a.M4A(audio_file)
                 set_m4a_tags(audio)
                 audio = mp4.MP4(audio_file)

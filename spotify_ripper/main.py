@@ -11,6 +11,7 @@ import sys
 import time
 import argparse
 import pkg_resources
+
 if sys.version_info >= (3, 0):
     import configparser as ConfigParser
 else:
@@ -395,6 +396,7 @@ def main(prog_args=sys.argv[1:]):
         print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
         ripper.abort()
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

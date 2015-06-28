@@ -18,7 +18,6 @@ except ImportError:
 
 
 class Progress(object):
-
     # song progress
     current_track = None
     song_position = 0
@@ -182,7 +181,7 @@ class Progress(object):
         ]
         if self.song_eta is not None:
             _str = "\t(~" + \
-                format_time(self.song_eta, short=True) + " remaining)"
+                   format_time(self.song_eta, short=True) + " remaining)"
             output_strings.append(_str.expandtabs())
 
         output_what_fits("\r\033[2K", output_strings)

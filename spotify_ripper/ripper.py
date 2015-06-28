@@ -122,7 +122,7 @@ class Ripper(threading.Thread):
         if not self.login_success:
             print(
                 Fore.RED + "Encountered issue while logging into "
-                "Spotify, aborting..." + Fore.RESET)
+                           "Spotify, aborting..." + Fore.RESET)
             self.finished = True
             return
 
@@ -132,8 +132,8 @@ class Ripper(threading.Thread):
                 tracks = itertools.chain(
                     *[self.load_link(line.strip()) for line in open(uri)])
             elif uri.startswith("spotify:"):
-                if args.exclude_appears_on and \
-                   uri.startswith("spotify:artist:"):
+                if (args.exclude_appears_on and
+                        uri.startswith("spotify:artist:")):
                     album_uris = self.load_artist_albums(uri)
                     tracks = itertools.chain(
                         *[self.load_link(album_uri) for
@@ -336,8 +336,10 @@ class Ripper(threading.Thread):
                 def hyphen_range(hyphen_string):
                     x = [int(x) - 1 for x in hyphen_string.split('-')]
                     return range(x[0], x[-1] + 1)
+
                 return itertools.chain(
                     *[hyphen_range(r) for r in comma_string.split(',')])
+
             picks = sorted(set(list(range_string(pick))))
             return itertools.chain(*[get_track(p) for p in picks])
 
@@ -569,7 +571,7 @@ class Ripper(threading.Thread):
 
         if args.pcm:
             pcm_file_name = self.audio_file[
-                :-(len(args.output_type) + 1)] + ".pcm"
+                            :-(len(args.output_type) + 1)] + ".pcm"
             self.pcm_file = open(pcm_file_name, 'w')
         self.ripping = True
 
