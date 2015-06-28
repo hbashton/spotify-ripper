@@ -427,7 +427,7 @@ class Ripper(threading.Thread):
             if len(tokens) > 1:
                 tokens[0] = truncate(tokens[0], 255 - len(tokens[1]) - 1)
             else:
-                tokens[0] = truncate(tokens[0])
+                tokens[0] = truncate(tokens[0], 255)
             return os.extsep.join(tokens)
 
         # ensure each component in path is no more than 255 chars long
