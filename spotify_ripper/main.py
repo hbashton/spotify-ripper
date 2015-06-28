@@ -35,6 +35,7 @@ def load_config(args, defaults):
                 if item == 'True': config_items[_key] = True
                 elif item == 'False': config_items[_key] = False
                 elif item == 'None': config_items[_key] = None
+                else: config_items[_key] = item.strip("'\"")
 
                 # certain options need to be in array (nargs=1)
                 if _key in to_array_options:
