@@ -56,13 +56,16 @@ class Progress(object):
 
         # some duplicate work here, maybe cache this info beforehand?
         for idx, track in enumerate(tracks):
-            track.load()
-            if track.availability != 1: continue
-            audio_file = self.ripper.format_track_path(idx, track)
-            if not self.args.overwrite and os.path.exists(audio_file): continue
-            self.total_duration += track.duration
-            file_size = calc_file_size(self.args, track)
-            self.total_size += file_size
+            try:
+                track.load(timeout=2)
+                if track.availability != 1: continue
+                audio_file = self.ripper.format_track_path(idx, track)
+                if not self.args.overwrite and os.path.exists(audio_file): continue
+                self.total_duration += track.duration
+                file_size = calc_file_size(self.args, track)
+                self.total_size += file_size
+            except spotify.Error as e:
+                continue
 
     def eta_calc(self):
         # exponential moving average
