@@ -245,8 +245,8 @@ def main(prog_args=sys.argv[1:]):
     # to a file instead of stdout.  Taken from initialise.py in colorama
     def wrap_stream(stream, convert, strip, autoreset, wrap):
         if wrap:
-            wrapper = AnsiToWin32(stream,
-                                  convert=convert, strip=strip, autoreset=autoreset)
+            wrapper = AnsiToWin32(stream, convert=convert,
+                                  strip=strip, autoreset=autoreset)
             if wrapper.should_wrap():
                 stream = wrapper.stream
         return stream
@@ -304,7 +304,8 @@ def main(prog_args=sys.argv[1:]):
             print(Fore.RED + "Missing dependency '" + encoder +
                   "'.  Please install and add to path..." + Fore.RESET)
             # assumes OS X or Ubuntu/Debian
-            command_help = "brew install " if sys.platform == "darwin" else "sudo apt-get install "
+            command_help = ("brew install " if sys.platform == "darwin"
+                            else "sudo apt-get install ")
             print("...try " + Fore.YELLOW + command_help +
                   encoders[args.output_type][1] + Fore.RESET)
             sys.exit(1)
