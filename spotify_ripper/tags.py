@@ -14,8 +14,8 @@ def set_metadata_tags(args, audio_file, track):
     # log completed file
     print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) + Style.NORMAL + "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) + " ]" + Fore.RESET)
 
-    if args.output_type == "wav":
-        print(Fore.YELLOW + "Skipping metadata tagging for WAV encoding...")
+    if args.output_type == "wav" or args.output_type == "pcm":
+        print(Fore.YELLOW + "Skipping metadata tagging for " + args.output_type + " encoding...")
         return
 
     # ensure everything is loaded still

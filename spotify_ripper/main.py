@@ -138,7 +138,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument('-p', '--password', nargs=1, help='Spotify password [Default=ask interactively]')
     group.add_argument('-l', '--last', action='store_true', help='Use last login credentials')
     parser.add_argument('-L', '--log', nargs=1, help='Log in a log-friendly format to a file (use - to log to stdout)')
-    parser.add_argument('-m', '--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data')
+    encoding_group.add_argument('--pcm', action='store_true', help='Saves a .pcm file with the raw PCM data instead of MP3')
     encoding_group.add_argument('--mp4', action='store_true', help='Rip songs to MP4/M4A format with Fraunhofer FDK AAC codec instead of MP3')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument('--opus', action='store_true', help='Rip songs to Opus encoding instead of MP3')
@@ -177,6 +177,8 @@ def main(prog_args=sys.argv[1:]):
 
     if args.wav:
         args.output_type = "wav"
+    elif args.pcm:
+        args.output_type = "pcm"
     elif args.flac:
         args.output_type = "flac"
         if args.comp == "10": args.comp = "8"
@@ -227,6 +229,8 @@ def main(prog_args=sys.argv[1:]):
     def encoding_output_str():
         if args.output_type == "wav":
             return "WAV, Stereo 16bit 44100Hz"
+        elif args.output_type == "pcm":
+            return "Raw Headerless PCM, Stereo 16bit 44100Hz"
         else:
             if args.output_type == "flac":
                 return "FLAC, Compression Level: " + args.comp
@@ -240,11 +244,13 @@ def main(prog_args=sys.argv[1:]):
                 codec = "MPEG4 AAC"
             elif args.output_type == "aac":
                 codec = "AAC"
+            else:
+                codec = "Unknown"
+
             if args.cbr:
                 return codec + ", CBR " + args.bitrate + " kbps"
             else:
                 return codec + ", VBR " + args.vbr
-        return ""
 
     print(Fore.YELLOW + "  Encoding output:\t" + Fore.RESET + encoding_output_str())
     print(Fore.YELLOW + "  Spotify bitrate:\t" + Fore.RESET + args.quality + " kbps")

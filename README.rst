@@ -62,7 +62,7 @@ Command Line
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [-A] [-b BITRATE] [-c]
                           [--comp COMP] [-d DIRECTORY] [--flac] [-f FORMAT]
                           [--flat] [--flat-with-index] [-g {artist,album}]
-                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [-m]
+                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm]
                           [--mp4] [-o] [--opus] [-q VBR] [-Q {160,320,96}] [-s]
                           [-V] [--wav] [--vorbis] [-r] [-x]
                           uri [uri ...]
@@ -99,7 +99,7 @@ Command Line
                             Spotify password [Default=ask interactively]
       -l, --last            Use last login credentials
       -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
-      -m, --pcm             Saves a .pcm file with the raw PCM data
+      --pcm                 Saves a .pcm file with the raw PCM data instead of MP3
       --mp4                 Rip songs to MP4/M4A format with Fraunhofer FDK AAC codec instead of MP3
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs to Opus encoding instead of MP3

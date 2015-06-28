@@ -465,6 +465,8 @@ class Ripper(threading.Thread):
         if args.output_type == "wav":
             self.wav_file = wave.open(self.audio_file, "wb")
             self.wav_file.setparams((2, 2, 44100, 0, 'NONE', 'not compressed'))
+        elif args.output_type == "pcm":
+            self.pcm_file = open(self.audio_file, 'wb')
         elif args.output_type == "flac":
             self.rip_proc = Popen(["flac", "-f", str("-"+args.comp), "--silent", "--endian", "little", "--channels", "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "ogg":
@@ -497,9 +499,6 @@ class Ripper(threading.Thread):
         if self.rip_proc is not None:
             self.pipe = self.rip_proc.stdin
 
-        if args.pcm:
-            pcm_file_name = self.audio_file[:-(len(args.output_type) + 1)] + ".pcm"
-            self.pcm_file = open(pcm_file_name, 'w')
         self.ripping = True
 
     def finish_rip(self, track):
@@ -517,14 +516,17 @@ class Ripper(threading.Thread):
             self.pipe = None
 
         if self.wav_file is not None:
+            self.wav_file.flush()
+            os.fsync(self.wav_file.fileno())
             self.wav_file.close()
             self.wav_file = None
 
-        if self.args.pcm:
+        if self.pcm_file is not None:
             self.pcm_file.flush()
             os.fsync(self.pcm_file.fileno())
             self.pcm_file.close()
             self.pcm_file = None
+
         self.ripping = False
 
     def rip(self, session, audio_format, frame_bytes, num_frames):
@@ -536,7 +538,7 @@ class Ripper(threading.Thread):
             if self.wav_file is not None:
                 self.wav_file.writeframes(frame_bytes)
 
-            if self.args.pcm:
+            if self.pcm_file is not None:
               self.pcm_file.write(frame_bytes)
 
     def abort(self):
