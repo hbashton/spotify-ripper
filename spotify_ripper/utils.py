@@ -3,9 +3,12 @@
 from __future__ import unicode_literals
 
 from colorama import Fore, Style
-import os, sys, errno
+import os
+import sys
+import errno
 import re
 import math
+
 
 def print_str(args, _str):
     """print without newline"""
@@ -13,9 +16,11 @@ def print_str(args, _str):
         sys.stdout.write(_str)
         sys.stdout.flush()
 
+
 def norm_path(path):
     """normalize path"""
     return os.path.normpath(os.path.realpath(path))
+
 
 # borrowed from AndersTornkvist's fork
 def escape_filename_part(part):
@@ -25,6 +30,7 @@ def escape_filename_part(part):
     part = part.strip()
     part = re.sub(r"(^\.+\s*|(?<=\.)\.+|\s*\.+$)", r'', part)
     return part
+
 
 def to_ascii(args, _str, on_error='ignore'):
     """convert unicode to ascii if necessary"""
@@ -44,20 +50,26 @@ def to_ascii(args, _str, on_error='ignore'):
         else:
             return _str
 
+
 def rm_file(file_name):
     try:
         os.remove(file_name)
     except OSError as e:
         # don't need to print a warning if the file doesn't exist
         if e.errno != errno.ENOENT:
-            print(Fore.YELLOW + "Warning: error while trying to remove file " + file_name + Fore.RESET)
+            print(
+                Fore.YELLOW + "Warning: error while trying to remove file " +
+                file_name + Fore.RESET)
             print(str(e))
+
 
 def default_settings_dir():
     return norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
 
+
 def calc_file_size(args, track):
     return (int(args.quality) / 8) * track.duration
+
 
 # returns path of executable
 def which(program):
@@ -77,6 +89,7 @@ def which(program):
 
     return None
 
+
 KB_BYTES = 1024
 '''Number of bytes per KB (2^10)'''
 MB_BYTES = 1048576
@@ -91,8 +104,10 @@ GB_UNIT = "GB"
 '''Gigabytes abbreviation'''
 
 # borrowed from eyeD3
+
+
 def format_size(size, short=False):
-    '''Format ``size`` (nuber of bytes) into string format doing KB, MB, or GB
+    """Format ``size`` (number of bytes) into string format doing KB, MB, or GB
     conversion where necessary.
 
     When ``short`` is False (the default) the format is smallest unit of
@@ -102,7 +117,7 @@ def format_size(size, short=False):
         256b
         64k
         1.1G
-    '''
+    """
     if not short:
         unit = "Bytes"
         if size >= GB_BYTES:
@@ -134,9 +149,10 @@ def format_size(size, short=False):
             str_value = str_value[:3]
         return "{0:>3s}{1}".format(str_value, suffix)
 
+
 # borrowed from eyeD3
 def format_time(seconds, total=None, short=False):
-    '''
+    """
     Format ``seconds`` (number of seconds) as a string representation.
     When ``short`` is False (the default) the format is:
 
@@ -151,8 +167,9 @@ def format_time(seconds, total=None, short=False):
         15s
 
     If ``total`` is not None it will also be formatted and
-    appended to the result seperated by ' / '.
-    '''
+    appended to the result separated by ' / '.
+    """
+
     def time_tuple(ts):
         if ts is None or ts < 0:
             ts = 0
