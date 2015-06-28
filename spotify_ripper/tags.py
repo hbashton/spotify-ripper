@@ -14,8 +14,9 @@ import base64
 
 def set_metadata_tags(args, audio_file, track):
     # log completed file
-    print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) + Style.NORMAL +
-          "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) + " ]" + Fore.RESET)
+    print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) +
+          Style.NORMAL + "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) +
+          " ]" + Fore.RESET)
 
     if args.output_type == "wav":
         print(Fore.YELLOW + "Skipping metadata tagging for WAV encoding...")
@@ -33,7 +34,8 @@ def set_metadata_tags(args, audio_file, track):
     num_discs = 0
     num_tracks = 0
     for track_browse in album_browser.tracks:
-        if track_browse.disc == track.disc and track_browse.index > track.index:
+        if (track_browse.disc == track.disc and
+                track_browse.index > track.index):
             num_tracks = track_browse.index
         if track_browse.disc > num_discs:
             num_discs = track_browse.disc
@@ -47,7 +49,8 @@ def set_metadata_tags(args, audio_file, track):
             url = 'https://api.spotify.com/v1/' + \
                 args.genres[0] + 's/' + uri_tokens[2]
             print(
-                Fore.GREEN + "Attempting to retrieve genres from Spotify's Web API" + Fore.RESET)
+                Fore.GREEN + "Attempting to retrieve genres "
+                             "from Spotify's Web API" + Fore.RESET)
             print(Fore.CYAN + url + Fore.RESET)
             req = requests.get(url)
             if req.status_code == 200:
@@ -100,19 +103,26 @@ def set_metadata_tags(args, audio_file, track):
 
             if album is not None:
                 audio.tags.add(
-                    id3.TALB(text=[tag_to_ascii(track.album.name, album)], encoding=3))
+                    id3.TALB(text=[tag_to_ascii(track.album.name, album)],
+                             encoding=3))
             audio.tags.add(
-                id3.TIT2(text=[tag_to_ascii(track.name, title)], encoding=3))
+                id3.TIT2(text=[tag_to_ascii(track.name, title)],
+                         encoding=3))
             audio.tags.add(
-                id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)], encoding=3))
-            audio.tags.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
+                id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)],
+                         encoding=3))
+            audio.tags.add(id3.TDRL(text=[str(track.album.year)],
+                                    encoding=3))
             audio.tags.add(
-                id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)], encoding=3))
+                id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)],
+                         encoding=3))
             audio.tags.add(
-                id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)], encoding=3))
+                id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)],
+                         encoding=3))
             if genres is not None and genres:
                 tcon_tag = id3.TCON(encoding=3)
-                tcon_tag.genres = genres if args.ascii_path_only else genres_ascii
+                tcon_tag.genres = genres if args.ascii_path_only \
+                    else genres_ascii
                 audio.tags.add(tcon_tag)
 
             audio.save()
@@ -138,19 +148,26 @@ def set_metadata_tags(args, audio_file, track):
 
             if album is not None:
                 id3_dict.add(
-                    id3.TALB(text=[tag_to_ascii(track.album.name, album)], encoding=3))
+                    id3.TALB(text=[tag_to_ascii(track.album.name, album)],
+                             encoding=3))
             id3_dict.add(
-                id3.TIT2(text=[tag_to_ascii(track.name, title)], encoding=3))
+                id3.TIT2(text=[tag_to_ascii(track.name, title)],
+                         encoding=3))
             id3_dict.add(
-                id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)], encoding=3))
-            id3_dict.add(id3.TDRL(text=[str(track.album.year)], encoding=3))
+                id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)],
+                         encoding=3))
+            id3_dict.add(id3.TDRL(text=[str(track.album.year)],
+                                  encoding=3))
             id3_dict.add(
-                id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)], encoding=3))
+                id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)],
+                         encoding=3))
             id3_dict.add(
-                id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)], encoding=3))
+                id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)],
+                         encoding=3))
             if genres is not None and genres:
                 tcon_tag = id3.TCON(encoding=3)
-                tcon_tag.genres = genres if args.ascii_path_only else genres_ascii
+                tcon_tag.genres = genres if args.ascii_path_only \
+                    else genres_ascii
                 id3_dict.add(tcon_tag)
 
             id3_dict.save(audio_file)
@@ -301,18 +318,22 @@ def set_metadata_tags(args, audio_file, track):
         if image is not None:
             print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
         if args.output_type == "flac":
-            bit_rate = (
-                audio.info.bits_per_sample * audio.info.sample_rate) * audio.info.channels
-            print("Time: " + format_time(audio.info.length) + "\tFree Lossless Audio Codec" +
-                  "\t[ " + bit_rate_str(bit_rate / 1000) + " @ " + str(audio.info.sample_rate) +
+            bit_rate = ((audio.info.bits_per_sample * audio.info.sample_rate) *
+                        audio.info.channels)
+            print("Time: " + format_time(audio.info.length) +
+                  "\tFree Lossless Audio Codec" +
+                  "\t[ " + bit_rate_str(bit_rate / 1000) + " @ " +
+                  str(audio.info.sample_rate) +
                   " Hz - " + channel_str(audio.info.channels) + " ]")
             print("-" * 79)
             print(Fore.YELLOW + "Writing Vorbis comments - " +
                   audio.tags.vendor + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "ogg":
-            print("Time: " + format_time(audio.info.length) + "\tOgg Vorbis Codec" +
-                  "\t[ " + bit_rate_str(audio.info.bitrate / 1000) + " @ " + str(audio.info.sample_rate) +
+            print("Time: " + format_time(audio.info.length) +
+                  "\tOgg Vorbis Codec" +
+                  "\t[ " + bit_rate_str(audio.info.bitrate / 1000) + " @ " +
+                  str(audio.info.sample_rate) +
                   " Hz - " + channel_str(audio.info.channels) + " ]")
             print("-" * 79)
             print(Fore.YELLOW + "Writing Vorbis comments - " +
@@ -326,35 +347,44 @@ def set_metadata_tags(args, audio_file, track):
                   audio.tags.vendor + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "mp3":
-            print("Time: " + format_time(audio.info.length) + "\tMPEG" + str(audio.info.version) +
-                  ", Layer " + ("I" * audio.info.layer) + "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
-                  " @ " + str(audio.info.sample_rate) + " Hz - " + mode_str(audio.info.mode) + " ]")
+            print("Time: " + format_time(audio.info.length) + "\tMPEG" +
+                  str(audio.info.version) +
+                  ", Layer " + ("I" * audio.info.layer) + "\t[ " +
+                  bit_rate_str(audio.info.bitrate / 1000) +
+                  " @ " + str(audio.info.sample_rate) + " Hz - " +
+                  mode_str(audio.info.mode) + " ]")
             print("-" * 79)
             id3_version = "v%d.%d" % (
                 audio.tags.version[0], audio.tags.version[1])
             print("ID3 " + id3_version + ": " +
                   str(len(audio.tags.values())) + " frames")
             print(
-                Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
+                Fore.YELLOW + "Writing ID3 version " +
+                id3_version + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "aac":
-            print("Time: " + format_time(audio.info.length) + "\tAdvanced Audio Coding" +
+            print("Time: " + format_time(audio.info.length) +
+                  "\tAdvanced Audio Coding" +
                   "\t[ " + bit_rate_str(audio.info.bitrate / 1000) +
-                  " @ " + str(audio.info.sample_rate) + " Hz - " + channel_str(audio.info.channels) + " ]")
+                  " @ " + str(audio.info.sample_rate) + " Hz - " +
+                  channel_str(audio.info.channels) + " ]")
             print("-" * 79)
             id3_version = "v%d.%d" % (
                 audio.tags.version[0], audio.tags.version[1])
             print("ID3 " + id3_version + ": " +
                   str(len(audio.tags.values())) + " frames")
             print(
-                Fore.YELLOW + "Writing ID3 version " + id3_version + Fore.RESET)
+                Fore.YELLOW + "Writing ID3 version " +
+                id3_version + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "m4a":
-            bit_rate = (
-                audio.info.bits_per_sample * audio.info.sample_rate) * audio.info.channels
-            print("Time: " + format_time(audio.info.length) + "\tMPEG-4 Part 14 Audio" +
+            bit_rate = ((audio.info.bits_per_sample * audio.info.sample_rate) *
+                        audio.info.channels)
+            print("Time: " + format_time(audio.info.length) +
+                  "\tMPEG-4 Part 14 Audio" +
                   "\t[ " + bit_rate_str(bit_rate / 1000) +
-                  " @ " + str(audio.info.sample_rate) + " Hz - " + channel_str(audio.info.channels) + " ]")
+                  " @ " + str(audio.info.sample_rate) + " Hz - " +
+                  channel_str(audio.info.channels) + " ]")
             print("-" * 79)
             print(Fore.YELLOW + "Writing Apple iTunes metadata - " +
                   str(audio.info.codec) + Fore.RESET)

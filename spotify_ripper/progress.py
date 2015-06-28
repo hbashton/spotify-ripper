@@ -74,7 +74,8 @@ class Progress(object):
             if avg_rate is None:
                 return rate
             else:
-                return (smoothing_factor * rate) + ((1.0 - smoothing_factor) * avg_rate)
+                return (smoothing_factor * rate) + \
+                       ((1.0 - smoothing_factor) * avg_rate)
 
         def calc(pos, dur, rate, old_eta):
             new_eta = (dur - pos) / rate
@@ -87,8 +88,8 @@ class Progress(object):
 
         if self.ripper.ripping:
             if self.stat_prev is not None:
-                rate = (
-                    self.song_position - self.stat_prev[0]) / (time.time() - self.stat_prev[1])
+                rate = (self.song_position - self.stat_prev[0]) / \
+                       (time.time() - self.stat_prev[1])
                 if rate > 0.00000001:
 
                     # calc new average rate using an EMA
@@ -96,14 +97,16 @@ class Progress(object):
 
                     # calc song eta
                     self.song_eta = calc(
-                        self.song_position, self.song_duration, self.ema_rate, self.song_eta)
+                        self.song_position, self.song_duration,
+                        self.ema_rate, self.song_eta)
 
                     # calc total eta
                     if self.show_total:
                         total_position = (
                             self.total_position + self.song_position)
                         self.total_eta = calc(
-                            total_position, self.total_duration, self.ema_rate, self.total_eta)
+                            total_position, self.total_duration,
+                            self.ema_rate, self.total_eta)
 
             self.stat_prev = (self.song_position, time.time())
 

@@ -68,8 +68,10 @@ class Ripper(threading.Thread):
 
             app_key_path = os.path.join(default_dir, "spotify_appkey.key")
             if not os.path.exists(app_key_path):
-                print("\n" + Fore.YELLOW + "Please copy your spotify_appkey.key to " + default_dir +
-                      ", or use the --key|-k option" + Fore.RESET)
+                print("\n" + Fore.YELLOW +
+                      "Please copy your spotify_appkey.key to " +
+                      default_dir + ", or use the --key|-k option" +
+                      Fore.RESET)
                 sys.exit(1)
 
             config.load_application_key_file(app_key_path)
@@ -111,7 +113,7 @@ class Ripper(threading.Thread):
         print("Logging in...")
         if args.last:
             self.login_as_last()
-        elif args.user != None and args.password == None:
+        elif args.user is not None and args.password is None:
             password = getpass.getpass()
             self.login(args.user[0], password)
         else:
@@ -119,7 +121,8 @@ class Ripper(threading.Thread):
 
         if not self.login_success:
             print(
-                Fore.RED + "Encountered issue while logging into Spotify, aborting..." + Fore.RESET)
+                Fore.RED + "Encountered issue while logging into "
+                "Spotify, aborting..." + Fore.RESET)
             self.finished = True
             return
 
@@ -129,10 +132,12 @@ class Ripper(threading.Thread):
                 tracks = itertools.chain(
                     *[self.load_link(line.strip()) for line in open(uri)])
             elif uri.startswith("spotify:"):
-                if args.exclude_appears_on and uri.startswith("spotify:artist:"):
+                if args.exclude_appears_on and \
+                   uri.startswith("spotify:artist:"):
                     album_uris = self.load_artist_albums(uri)
                     tracks = itertools.chain(
-                        *[self.load_link(album_uri) for album_uri in album_uris])
+                        *[self.load_link(album_uri) for
+                          album_uri in album_uris])
                 else:
                     tracks = self.load_link(uri)
             else:
@@ -146,7 +151,8 @@ class Ripper(threading.Thread):
 
             if self.progress.total_size > 0:
                 print(
-                    "Total Download Size: " + format_size(self.progress.total_size))
+                    "Total Download Size: " +
+                    format_size(self.progress.total_size))
 
             # ripping loop
             for idx, track in enumerate(tracks):
@@ -155,14 +161,16 @@ class Ripper(threading.Thread):
                     track.load()
                     if track.availability != 1:
                         print(
-                            Fore.RED + 'Track is not available, skipping...' + Fore.RESET)
+                            Fore.RED + 'Track is not available, '
+                                       'skipping...' + Fore.RESET)
                         continue
 
                     self.audio_file = self.format_track_path(idx, track)
 
                     if not args.overwrite and os.path.exists(self.audio_file):
                         print(
-                            Fore.YELLOW + "Skipping " + track.link.uri + Fore.RESET)
+                            Fore.YELLOW + "Skipping " +
+                            track.link.uri + Fore.RESET)
                         print(Fore.CYAN + self.audio_file + Fore.RESET)
                         self.queue_remove_from_playlist(idx)
                         continue
@@ -225,7 +233,8 @@ class Ripper(threading.Thread):
                 return iter(starred.tracks)
             else:
                 print(
-                    Fore.RED + "Could not load starred playlist..." + Fore.RESET)
+                    Fore.RED + "Could not load starred playlist..." +
+                    Fore.RESET)
                 return iter([])
         elif link.type == spotify.LinkType.ALBUM:
             album = link.as_album()
@@ -246,10 +255,12 @@ class Ripper(threading.Thread):
     def load_artist_albums(self, uri):
         def get_albums_json(offset):
             url = 'https://api.spotify.com/v1/artists/' + \
-                uri_tokens[
-                    2] + '/albums/?=album_type=album,single,compilation' + '&limit=50&offset=' + str(offset)
+                  uri_tokens[2] + \
+                  '/albums/?=album_type=album,single,compilation' + \
+                  '&limit=50&offset=' + str(offset)
             print(
-                Fore.GREEN + "Attempting to retrieve albums from Spotify's Web API" + Fore.RESET)
+                Fore.GREEN + "Attempting to retrieve albums "
+                             "from Spotify's Web API" + Fore.RESET)
             print(Fore.CYAN + url + Fore.RESET)
             req = requests.get(url)
             if req.status_code == 200:
@@ -268,7 +279,7 @@ class Ripper(threading.Thread):
         offset = 0
         album_uris = []
         total = None
-        while (total is None or offset < total):
+        while total is None or offset < total:
             try:
                 # rate limit if not first request
                 if total is None:
@@ -301,8 +312,11 @@ class Ripper(threading.Thread):
         # list tracks
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
-            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET + " [" + to_ascii(args, track.album.name) + "] " + to_ascii(
-                args, track.artists[0].name) + " - " + to_ascii(args, track.name) + " (" + str(track.popularity) + ")")
+            print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET +
+                  " [" + to_ascii(args, track.album.name) + "] " +
+                  to_ascii(args, track.artists[0].name) + " - " +
+                  to_ascii(args, track.name) +
+                  " (" + str(track.popularity) + ")")
 
         pick = raw_input("Pick track(s) (ex 1-3,5): ")
 
@@ -322,7 +336,8 @@ class Ripper(threading.Thread):
                 def hyphen_range(hyphen_string):
                     x = [int(x) - 1 for x in hyphen_string.split('-')]
                     return range(x[0], x[-1] + 1)
-                return itertools.chain(*[hyphen_range(r) for r in comma_string.split(',')])
+                return itertools.chain(
+                    *[hyphen_range(r) for r in comma_string.split(',')])
             picks = sorted(set(list(range_string(pick))))
             return itertools.chain(*[get_track(p) for p in picks])
 
@@ -335,7 +350,8 @@ class Ripper(threading.Thread):
             print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
             rm_file(self.audio_file)
 
-    def on_music_delivery(self, session, audio_format, frame_bytes, num_frames):
+    def on_music_delivery(self, session, audio_format,
+                          frame_bytes, num_frames):
         self.rip(session, audio_format, frame_bytes, num_frames)
         return num_frames
 
@@ -377,12 +393,12 @@ class Ripper(threading.Thread):
         self.end_of_track.set()
 
     def login(self, user, password):
-        "login into Spotify"
+        """login into Spotify"""
         self.session.login(user, password, remember_me=True)
         self.logged_in.wait()
 
     def login_as_last(self):
-        "login as the previous logged in user"
+        """login as the previous logged in user"""
         try:
             self.session.relogin()
             self.logged_in.wait()
@@ -390,7 +406,7 @@ class Ripper(threading.Thread):
             print(str(e))
 
     def logout(self):
-        "logout from Spotify"
+        """logout from Spotify"""
         if self.logged_in.is_set():
             print('Logging out...')
             self.session.logout()
@@ -400,7 +416,7 @@ class Ripper(threading.Thread):
     def format_track_path(self, idx, track):
         args = self.args
         base_dir = norm_path(
-            args.directory[0]) if args.directory != None else os.getcwd()
+            args.directory[0]) if args.directory is not None else os.getcwd()
 
         track_artist = to_ascii(
             args, escape_filename_part(track.artists[0].name))
@@ -438,7 +454,7 @@ class Ripper(threading.Thread):
 
         # in case the file name is too long
         def truncate(_str, max_size):
-            return (_str[:max_size].strip() if len(_str) > max_size else _str)
+            return _str[:max_size].strip() if len(_str) > max_size else _str
 
         def truncate_dir_path(dir_path):
             path_tokens = dir_path.split(os.pathsep)
@@ -450,7 +466,7 @@ class Ripper(threading.Thread):
             if len(tokens) > 1:
                 tokens[0] = truncate(tokens[0], 255 - len(tokens[1]) - 1)
             else:
-                tokens[0] = truncate(tokens[0])
+                tokens[0] = truncate(tokens[0], 255)
             return os.extsep.join(tokens)
 
         # ensure each component in path is no more than 255 chars long
@@ -491,45 +507,62 @@ class Ripper(threading.Thread):
             self.wav_file = wave.open(self.audio_file, "wb")
             self.wav_file.setparams((2, 2, 44100, 0, 'NONE', 'not compressed'))
         elif args.output_type == "flac":
-            self.rip_proc = Popen(["flac", "-f", str("-" + args.comp), "--silent", "--endian", "little", "--channels",
-                                   "2", "--bps", "16", "--sample-rate", "44100", "--sign", "signed", "-o", self.audio_file, "-"], stdin=PIPE)
+            self.rip_proc = Popen(
+                ["flac", "-f", str("-" + args.comp), "--silent", "--endian",
+                 "little", "--channels", "2", "--bps", "16", "--sample-rate",
+                 "44100", "--sign", "signed", "-o", self.audio_file, "-"],
+                stdin=PIPE)
         elif args.output_type == "ogg":
             if args.cbr:
                 self.rip_proc = Popen(
-                    ["oggenc", "--quiet", "--raw", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
+                    ["oggenc", "--quiet", "--raw", "-b", args.bitrate, "-o",
+                     self.audio_file, "-"], stdin=PIPE)
             else:
                 self.rip_proc = Popen(
-                    ["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
+                    ["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o",
+                     self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "opus":
             if args.cbr:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", args.comp, "--cvbr", "--bitrate", str(
-                    int(args.bitrate) / 2), "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(
+                    ["opusenc", "--quiet", "--comp", args.comp, "--cvbr",
+                     "--bitrate", str(int(args.bitrate) / 2), "--raw",
+                     "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
             else:
-                self.rip_proc = Popen(["opusenc", "--quiet", "--comp", args.comp, "--vbr", "--bitrate",
-                                       args.vbr, "--raw", "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                self.rip_proc = Popen(
+                    ["opusenc", "--quiet", "--comp", args.comp, "--vbr",
+                     "--bitrate", args.vbr, "--raw", "--raw-rate", "44100",
+                     "-", self.audio_file], stdin=PIPE)
         elif args.output_type == "aac":
             if self.dev_null is None:
                 self.dev_null = open(os.devnull, 'wb')
             if args.cbr:
-                self.rip_proc = Popen(["faac", "-P", "-X", "-b", args.bitrate, "-o",
-                                       self.audio_file, "-"], stdin=PIPE, stdout=self.dev_null, stderr=self.dev_null)
+                self.rip_proc = Popen(
+                    ["faac", "-P", "-X", "-b", args.bitrate, "-o",
+                     self.audio_file, "-"], stdin=PIPE,
+                    stdout=self.dev_null, stderr=self.dev_null)
             else:
                 self.rip_proc = Popen(
-                    ["faac", "-P", "-X", "-q", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE, stdout=self.dev_null, stderr=self.dev_null)
+                    ["faac", "-P", "-X", "-q", args.vbr, "-o",
+                     self.audio_file, "-"], stdin=PIPE,
+                    stdout=self.dev_null, stderr=self.dev_null)
         elif args.output_type == "m4a":
             if args.cbr:
                 self.rip_proc = Popen(
-                    ["fdkaac", "-S", "-R", "-w", "200000", "-b", args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
+                    ["fdkaac", "-S", "-R", "-w", "200000", "-b",
+                     args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
             else:
                 self.rip_proc = Popen(
-                    ["fdkaac", "-S", "-R", "-w", "200000", "-m", args.vbr, "-o", self.audio_file, "-"], stdin=PIPE)
+                    ["fdkaac", "-S", "-R", "-w", "200000", "-m", args.vbr,
+                     "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "mp3":
             if args.cbr:
                 self.rip_proc = Popen(
-                    ["lame", "--silent", "-cbr", "-b", args.bitrate, "-h", "-r", "-", self.audio_file], stdin=PIPE)
+                    ["lame", "--silent", "-cbr", "-b", args.bitrate, "-h",
+                     "-r", "-", self.audio_file], stdin=PIPE)
             else:
                 self.rip_proc = Popen(
-                    ["lame", "--silent", "-V", args.vbr, "-h", "-r", "-", self.audio_file], stdin=PIPE)
+                    ["lame", "--silent", "-V", args.vbr, "-h", "-r", "-",
+                     self.audio_file], stdin=PIPE)
 
         if self.rip_proc is not None:
             self.pipe = self.rip_proc.stdin
@@ -551,7 +584,8 @@ class Ripper(threading.Thread):
             ret_code = self.rip_proc.wait()
             if ret_code != 0:
                 print(
-                    Fore.YELLOW + "Warning: encoder returned non-zero error code " + str(ret_code) + Fore.RESET)
+                    Fore.YELLOW + "Warning: encoder returned non-zero "
+                                  "error code " + str(ret_code) + Fore.RESET)
             self.rip_proc = None
             self.pipe = None
 
@@ -591,16 +625,21 @@ class Ripper(threading.Thread):
                 if self.current_playlist.owner.canonical_name == self.session.user.canonical_name:
                     self.tracks_to_remove.append(idx)
                 else:
-                    print(Fore.RED + "This track will not be removed from playlist " +
-                          self.current_playlist.name + " since " + self.session.user.canonical_name +
+                    print(Fore.RED +
+                          "This track will not be removed from playlist " +
+                          self.current_playlist.name + " since " +
+                          self.session.user.canonical_name +
                           " is not the playlist owner..." + Fore.RESET)
             else:
-                print(Fore.RED + "No playlist specified to remove this track from. " +
+                print(Fore.RED +
+                      "No playlist specified to remove this track from. " +
                       "Did you use '-r' without a playlist link?" + Fore.RESET)
 
     def remove_tracks_from_playlist(self):
-        if self.args.remove_from_playlist and self.current_playlist and len(self.tracks_to_remove) > 0:
-            print(Fore.YELLOW + "Removing successfully ripped tracks from playlist " +
+        if self.args.remove_from_playlist and \
+                self.current_playlist and len(self.tracks_to_remove) > 0:
+            print(Fore.YELLOW +
+                  "Removing successfully ripped tracks from playlist " +
                   self.current_playlist.name + "..." + Fore.RESET)
 
             self.current_playlist.remove_tracks(self.tracks_to_remove)
