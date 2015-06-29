@@ -142,7 +142,7 @@ Format String
 
 The format string dictates how ``spotify-ripper`` will organize your ripped files.  This is controlled through the ``-f | --format`` option.  The string should include the format of the file name and optionally a directory structure.   If you do not include a format string, the default format will be used: ``{album_artist}/{album}/{artist} - {track_name}.{ext}``.
 
-The ``--flat`` option is shorthand for using the format string: ``{artist} - {track_name}.{ext}``, and the ``--flat-with-index`` option is shorthand for using the format string: ``{idx} - {artist} - {track_name}.{ext}``.  The use of these shorthand options will override any ``--format`` string option given.
+The ``--flat`` option is shorthand for using the format string: ``{artist} - {track_name}.{ext}``, and the ``--flat-with-index`` option is shorthand for using the format string: ``{idx:3} - {artist} - {track_name}.{ext}``.  The use of these shorthand options will override any ``--format`` string option given.
 
 Your format string can include the following variables names, which are case-sensitive and wrapped in curly braces, if you want your file/path name to be overwritten with Spotify metadata.
 
@@ -167,8 +167,8 @@ Format String Variables
 | ``{ext}``, ``{extension}``              | Filename extension (i.e. "mp3", "ogg", "flac",|
 |                                         | ...)                                          |
 +-----------------------------------------+-----------------------------------------------+
-| ``{idx}``, ``{index}``                  | Playlist index filled to 3 digits (i.e. "001",|
-|                                         | "002", ...)                                   |
+| ``{idx}``, ``{index}``                  | Playlist index                                |
+|                                         |                                               |
 +-----------------------------------------+-----------------------------------------------+
 | ``{track_num}``, ``{track_idx}``,       | The track number of the disc                  |
 | ``{track_index}``                       |                                               |
@@ -178,6 +178,11 @@ Format String Variables
 +-----------------------------------------+-----------------------------------------------+
 
 Any substring in the format string that does not match a variable above will be passed through to the file/path name unchanged.
+
+Zero-Filled Variables
+~~~~~~~~~~~~~~~~~~~~~
+
+Index-based format variables can be optionally zero-filled by suffixing a number inside the curly braces sepearated by a colon. The variables that accept this option include ``{idx}``, ``{track_num}``, and ``{disc_num}`` and thier aliases.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, ...  If no number is provided, no zero-filling will occur (e.g. 8, 9, 10, 11, ...)
 
 Installation
 ------------

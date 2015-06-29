@@ -16,7 +16,7 @@ import getpass
 import itertools
 import requests
 import wave
-
+import re
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
@@ -427,7 +427,7 @@ class Ripper(threading.Thread):
         track_name = to_ascii(args, escape_filename_part(track.name))
         year = str(track.album.year)
         extension = args.output_type
-        idx_str = str(idx).zfill(self.idx_digits)
+        idx_str = str(idx)
         track_num = str(track.index)
         disc_num = str(track.disc)
 
@@ -451,8 +451,18 @@ class Ripper(threading.Thread):
             "disc_idx": disc_num,
             "disc_index": disc_num,
         }
+        fill_tags = set(["idx", "index", "track_num", "track_idx",
+                         "track_index", "disc_num", "disc_idx", "disc_index"])
         for tag in tags.keys():
             audio_file = audio_file.replace("{" + tag + "}", tags[tag])
+            if tag in fill_tags:
+                match = re.search(r"\{" + tag + r":\d+\}", audio_file)
+                if match:
+                    tokens = audio_file[match.start():match.end()]\
+                        .strip("{}").split(":")
+                    tag_filled = tags[tag].zfill(int(tokens[1]))
+                    audio_file = audio_file[:match.start()] + tag_filled + \
+                        audio_file[match.end():]
 
         # in case the file name is too long
         def truncate(_str, max_size):

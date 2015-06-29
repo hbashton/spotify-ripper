@@ -319,7 +319,7 @@ def main(prog_args=sys.argv[1:]):
     if args.flat:
         args.format = ["{artist} - {track_name}.{ext}"]
     elif args.flat_with_index:
-        args.format = ["{idx} - {artist} - {track_name}.{ext}"]
+        args.format = ["{idx:3} - {artist} - {track_name}.{ext}"]
     elif args.format is None:
         args.format = ["{album_artist}/{album}/{artist} - {track_name}.{ext}"]
 

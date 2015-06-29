@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import schedule
+import spotify
 
 try:
     from fcntl import ioctl
@@ -58,7 +59,7 @@ class Progress(object):
         # some duplicate work here, maybe cache this info beforehand?
         for idx, track in enumerate(tracks):
             try:
-                track.load(timeout=2)
+                track.load()
                 if track.availability != 1:
                     continue
                 audio_file = self.ripper.format_track_path(idx, track)
