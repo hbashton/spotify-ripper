@@ -179,10 +179,10 @@ Format String Variables
 
 Any substring in the format string that does not match a variable above will be passed through to the file/path name unchanged.
 
-Zero-Filled Variables
-~~~~~~~~~~~~~~~~~~~~~
+Zero-Filled Padding
+~~~~~~~~~~~~~~~~~~~
 
-Format variables that represent an index can be zero-filled to a user specific length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filling will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, and ``{disc_num}`` and thier aliases.
+Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filling will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, and ``{disc_num}`` and thier aliases.
 
 Installation
 ------------
