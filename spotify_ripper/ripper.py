@@ -415,7 +415,7 @@ class Ripper(threading.Thread):
             self.logged_out.wait()
         self.event_loop.stop()
 
-    def album_artist_web(self, uri):
+    def album_artists_web(self, uri):
         def get_album_json(album_id):
             url = 'https://api.spotify.com/v1/albums/' + album_id
             print(
@@ -449,16 +449,20 @@ class Ripper(threading.Thread):
 
         track_artist = to_ascii(
             args, escape_filename_part(track.artists[0].name))
-        album_artist = self.current_album.artist.name \
-            if self.current_album is not None else track_artist
-        album_artist_web = album_artist
+        track_artists = to_ascii(args, ", ".join(
+            [artist.name for artist in track.artists]))
+        album_artist = to_ascii(
+            args,
+            self.current_album.artist.name
+            if self.current_album is not None else track_artist)
+        album_artists_web = track_artists
 
         # only retrieve album_artist_web if it exists in the format string
         if (self.current_album is not None and
-                audio_file.find("{album_artist_web}") >= 0):
-            artist_array = self.album_artist_web(self.current_album.link.uri)
+                audio_file.find("{album_artists_web}") >= 0):
+            artist_array = self.album_artists_web(self.current_album.link.uri)
             if artist_array is not None:
-                album_artist_web = ", ".join(artist_array)
+                album_artists_web = to_ascii(args, ", ".join(artist_array))
 
         album = to_ascii(args, escape_filename_part(track.album.name))
         track_name = to_ascii(args, escape_filename_part(track.name))
@@ -470,9 +474,11 @@ class Ripper(threading.Thread):
 
         tags = {
             "track_artist": track_artist,
+            "track_artists": track_artists,
             "album_artist": album_artist,
-            "album_artist_web": album_artist_web,
+            "album_artists_web": album_artists_web,
             "artist": track_artist,
+            "artists": track_artists,
             "album": album,
             "track_name": track_name,
             "track": track_name,
