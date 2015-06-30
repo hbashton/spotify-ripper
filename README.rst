@@ -158,6 +158,12 @@ Format String Variables
 |                                         | (e.g. "Various Artists").  If no album artist |
 |                                         | exists, the track artist is used instead      |
 +-----------------------------------------+-----------------------------------------------+
+| ``{album_artist_web}``                  | Similar to ``{album_artist}`` but retrieves   |
+|                                         | artist information from Spotify's Web API.    |
+|                                         | Unlike ``{album_artist}``, multiple album     |
+|                                         | artists can be retrieved and will be joined   |
+|                                         | with a comma (e.g. "artist 1, artist 2")      |
++-----------------------------------------+-----------------------------------------------+
 | ``{album}``                             | Album name                                    |
 +-----------------------------------------+-----------------------------------------------+
 | ``{track_name}``, ``{track}``           | Track name                                    |

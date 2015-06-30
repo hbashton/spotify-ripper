@@ -33,7 +33,7 @@ class Ripper(threading.Thread):
     ripping = False
     finished = False
     current_playlist = None
-    album_artist = None
+    current_album = None
     tracks_to_remove = []
     end_of_track = threading.Event()
     idx_digits = 3
@@ -241,7 +241,7 @@ class Ripper(threading.Thread):
             album_browser = album.browse()
             print('Loading album browser...')
             album_browser.load()
-            self.album_artist = album.artist.name
+            self.current_album = album
             return iter(album_browser.tracks)
         elif link.type == spotify.LinkType.ARTIST:
             artist = link.as_artist()
@@ -415,14 +415,51 @@ class Ripper(threading.Thread):
             self.logged_out.wait()
         self.event_loop.stop()
 
+    def album_artist_web(self, uri):
+        def get_album_json(album_id):
+            url = 'https://api.spotify.com/v1/albums/' + album_id
+            print(
+                Fore.GREEN + "Attempting to retrieve album "
+                             "from Spotify's Web API" + Fore.RESET)
+            print(Fore.CYAN + url + Fore.RESET)
+            req = requests.get(url)
+            if req.status_code == 200:
+                return req.json()
+            else:
+                print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
+                      str(req.status_code) + Fore.RESET)
+            return None
+
+        # extract album id from uri
+        uri_tokens = uri.split(':')
+        if len(uri_tokens) != 3:
+            return None
+
+        album = get_album_json(uri_tokens[2])
+        if album is None:
+            return None
+
+        return [artist['name'] for artist in album['artists']]
+
     def format_track_path(self, idx, track):
         args = self.args
         base_dir = norm_path(
             args.directory[0]) if args.directory is not None else os.getcwd()
+        audio_file = args.format[0].strip()
 
         track_artist = to_ascii(
             args, escape_filename_part(track.artists[0].name))
-        album_artist = self.album_artist if self.album_artist is not None else track_artist
+        album_artist = self.current_album.artist.name \
+            if self.current_album is not None else track_artist
+        album_artist_web = album_artist
+
+        # only retrieve album_artist_web if it exists in the format string
+        if (self.current_album is not None and
+                audio_file.find("{album_artist_web}") >= 0):
+            artist_array = self.album_artist_web(self.current_album.link.uri)
+            if artist_array is not None:
+                album_artist_web = ", ".join(artist_array)
+
         album = to_ascii(args, escape_filename_part(track.album.name))
         track_name = to_ascii(args, escape_filename_part(track.name))
         year = str(track.album.year)
@@ -431,10 +468,10 @@ class Ripper(threading.Thread):
         track_num = str(track.index)
         disc_num = str(track.disc)
 
-        audio_file = args.format[0].strip()
         tags = {
             "track_artist": track_artist,
             "album_artist": album_artist,
+            "album_artist_web": album_artist_web,
             "artist": track_artist,
             "album": album,
             "track_name": track_name,
@@ -451,8 +488,8 @@ class Ripper(threading.Thread):
             "disc_idx": disc_num,
             "disc_index": disc_num,
         }
-        fill_tags = set(["idx", "index", "track_num", "track_idx",
-                         "track_index", "disc_num", "disc_idx", "disc_index"])
+        fill_tags = {"idx", "index", "track_num", "track_idx",
+                     "track_index", "disc_num", "disc_idx", "disc_index"}
         for tag in tags.keys():
             audio_file = audio_file.replace("{" + tag + "}", tags[tag])
             if tag in fill_tags:
@@ -507,7 +544,8 @@ class Ripper(threading.Thread):
 
         if self.progress.total_tracks > 1:
             print(Fore.GREEN + "[ " + str(idx + 1) + " / " + str(
-                self.progress.total_tracks) + " ] Ripping " + track.link.uri + Fore.RESET)
+                self.progress.total_tracks) + " ] Ripping " +
+                  track.link.uri + Fore.RESET)
         else:
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.audio_file + Fore.RESET)
