@@ -21,9 +21,8 @@ import signal
 
 
 def load_config(args, defaults):
-    settings_dir = (args.settings[0] if args.settings is not None
-                    else default_settings_dir())
-    config_file = os.path.join(settings_dir, "config.ini")
+    _settings_dir = settings_dir(args)
+    config_file = os.path.join(_settings_dir, "config.ini")
     if os.path.exists(config_file):
         try:
             config = ConfigParser.SafeConfigParser()
@@ -191,7 +190,7 @@ def main(prog_args=sys.argv[1:]):
              'Web API [Default=skip]')
     parser.add_argument(
         '-k', '--key', nargs=1,
-        help='Path to Spotify application key file [Default=cwd]')
+        help='Path to Spotify application key file [Default=Settings Directory]')
     group.add_argument(
         '-u', '--user', nargs=1,
         help='Spotify username')
@@ -372,11 +371,9 @@ def main(prog_args=sys.argv[1:]):
     print(Fore.YELLOW + "  Unicode support:\t" +
           Fore.RESET + unicode_support_str())
     print(Fore.YELLOW + "  Output directory:\t" + Fore.RESET +
-          (norm_path(args.directory[0])
-           if args.directory is not None else os.getcwd()))
+          base_dir(args))
     print(Fore.YELLOW + "  Settings directory:\t" + Fore.RESET +
-          (norm_path(args.settings[0])
-           if args.settings is not None else default_settings_dir()))
+          settings_dir(args))
 
     print(Fore.YELLOW + "  Format String:\t" + Fore.RESET + args.format[0])
     print(Fore.YELLOW + "  Overwrite files:\t" +

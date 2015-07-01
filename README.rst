@@ -104,7 +104,7 @@ Command Line
       --flat-with-index     Similar to --flat [-f] but includes the playlist index at the start of the song file
       -g {artist,album}, --genres {artist,album}
                             Attempt to retrieve genre information from Spotify's Web API [Default=skip]
-      -k KEY, --key KEY     Path to Spotify application key file [Default=cwd]
+      -k KEY, --key KEY     Path to Spotify application key file [Default=Settings Directory]
       -u USER, --user USER  Spotify username
       -p PASSWORD, --password PASSWORD
                             Spotify password [Default=ask interactively]

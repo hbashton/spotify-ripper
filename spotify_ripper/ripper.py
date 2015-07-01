@@ -63,6 +63,9 @@ class Ripper(threading.Thread):
         # create a log file for rip failures
         if args.fail_log is not None:
             _base_dir = base_dir(args)
+            if not os.path.exists(_base_dir):
+                os.makedirs(_base_dir)
+
             self.fail_log_file = open(os.path.join(
                 _base_dir, args.fail_log[0]), 'w')
 
@@ -70,6 +73,9 @@ class Ripper(threading.Thread):
         if args.key is not None:
             config.load_application_key_file(args.key[0])
         else:
+            if not os.path.exists(default_dir):
+                os.makedirs(default_dir)
+
             app_key_path = os.path.join(default_dir, "spotify_appkey.key")
             if not os.path.exists(app_key_path):
                 print("\n" + Fore.YELLOW +
