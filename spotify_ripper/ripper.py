@@ -132,9 +132,10 @@ class Ripper(threading.Thread):
                             track = self.session.get_track(uri)
                             track.load()
                             print(" • " + track.artists[0].name + " - " +
-                                  track.name + "\n")
+                                  track.name)
                         except spotify.Error as e:
-                            print(" • " + uri + "\n")
+                            print(" • " + uri)
+                print("")
             else:
                 rm_file(file_name)
 
