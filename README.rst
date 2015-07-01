@@ -70,11 +70,11 @@ Command Line
 .. code::
 
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [-A] [-b BITRATE] [-c]
-                          [--comp COMP] [-d DIRECTORY] [--flac] [-f FORMAT]
-                          [--flat] [--flat-with-index] [-g {artist,album}]
-                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm]
-                          [--mp4] [-o] [--opus] [-q VBR] [-Q {160,320,96}] [-s]
-                          [-V] [--wav] [--vorbis] [-r] [-x]
+                          [--comp COMP] [-d DIRECTORY] [--fail-log FAIL_LOG]
+                          [--flac] [-f FORMAT] [--flat] [--flat-with-index]
+                          [-g {artist,album}] [-k KEY] [-u USER] [-p PASSWORD]
+                          [-l] [-L LOG] [--pcm] [--mp4] [-o] [--opus] [-q VBR]
+                          [-Q {160,320,96}] [-s] [-V] [--wav] [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -96,6 +96,7 @@ Command Line
       --comp COMP           compression complexity for FLAC and Opus [Default=Max]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
+      --fail-log FAIL_LOG   Logs the list of track URIs that failed to rip
       --flac                Rip songs to lossless FLAC encoding instead of MP3
       -f FORMAT, --format FORMAT
                             Save songs using this path and filename structure (see README)
