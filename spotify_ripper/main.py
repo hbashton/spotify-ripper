@@ -166,6 +166,10 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument(
         '-d', '--directory', nargs=1,
         help='Base directory where ripped MP3s are saved [Default=cwd]')
+    parser.add_argument(
+        '--fail-log', nargs=1,
+        help="Logs the list of track URIs that failed to rip"
+    )
     encoding_group.add_argument(
         '--flac', action='store_true',
         help='Rip songs to lossless FLAC encoding instead of MP3')

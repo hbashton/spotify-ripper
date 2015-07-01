@@ -40,6 +40,7 @@ class Ripper(threading.Thread):
     login_success = False
     progress = None
     dev_null = None
+    fail_log_file = None
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -59,13 +60,16 @@ class Ripper(threading.Thread):
 
         default_dir = default_settings_dir()
 
+        # create a log file for rip failures
+        if args.fail_log is not None:
+            _base_dir = base_dir(args)
+            self.fail_log_file = open(os.path.join(
+                _base_dir, args.fail_log[0]), 'w')
+
         # application key location
         if args.key is not None:
             config.load_application_key_file(args.key[0])
         else:
-            if not os.path.exists(default_dir):
-                os.makedirs(default_dir)
-
             app_key_path = os.path.join(default_dir, "spotify_appkey.key")
             if not os.path.exists(app_key_path):
                 print("\n" + Fore.YELLOW +
@@ -105,6 +109,34 @@ class Ripper(threading.Thread):
 
         self.event_loop = spotify.EventLoop(self.session)
         self.event_loop.start()
+
+    def log_failure(self, uri):
+        if self.fail_log_file is not None:
+            self.fail_log_file.write(uri + "\n")
+
+    def end_failure_log(self):
+        if self.fail_log_file is not None:
+            file_name = self.fail_log_file.name
+            self.fail_log_file.flush()
+            os.fsync(self.fail_log_file.fileno())
+            self.fail_log_file.close()
+            self.fail_log_file = None
+
+            if os.path.getsize(file_name) > 0:
+                print(Fore.RED + "\nFailures Summary\n" + ("-" * 79) +
+                      Fore.RESET)
+                with open(file_name, 'r') as f:
+                    failures = [uri.strip() for uri in f.readlines()]
+                    for uri in failures:
+                        try:
+                            track = self.session.get_track(uri)
+                            track.load()
+                            print(" • " + track.artists[0].name + " - " +
+                                  track.name + "\n")
+                        except spotify.Error as e:
+                            print(" • " + uri + "\n")
+            else:
+                rm_file(file_name)
 
     def run(self):
         args = self.args
@@ -163,6 +195,7 @@ class Ripper(threading.Thread):
                         print(
                             Fore.RED + 'Track is not available, '
                                        'skipping...' + Fore.RESET)
+                        self.log_failure(track.link.uri)
                         continue
 
                     self.audio_file = self.format_track_path(idx, track)
@@ -197,12 +230,14 @@ class Ripper(threading.Thread):
                     print("Skipping to next track...")
                     self.session.player.play(False)
                     self.clean_up_partial()
+                    self.log_failure(track.link.uri)
                     continue
 
             # actually removing the tracks from playlist
             self.remove_tracks_from_playlist()
 
         # logout, we are done
+        self.end_failure_log()
         self.logout()
         self.finished = True
 
@@ -443,8 +478,7 @@ class Ripper(threading.Thread):
 
     def format_track_path(self, idx, track):
         args = self.args
-        base_dir = norm_path(
-            args.directory[0]) if args.directory is not None else os.getcwd()
+        _base_dir = base_dir(args)
         audio_file = args.format[0].strip()
 
         track_artist = to_ascii(
@@ -533,7 +567,7 @@ class Ripper(threading.Thread):
             audio_file = truncate_file_name(tokens[0])
 
         # prepend base_dir
-        audio_file = to_ascii(args, os.path.join(base_dir, audio_file))
+        audio_file = to_ascii(args, os.path.join(_base_dir, audio_file))
 
         # create directory if it doesn't exist
         audio_path = os.path.dirname(audio_file)
@@ -673,6 +707,7 @@ class Ripper(threading.Thread):
         self.session.player.play(False)
         self.clean_up_partial()
         self.remove_tracks_from_playlist()
+        self.end_failure_log()
         self.logout()
         self.finished = True
 

@@ -64,8 +64,20 @@ def rm_file(file_name):
 
 
 def default_settings_dir():
-    return norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
+    default_dir = norm_path(os.path.join(os.path.expanduser("~"),
+                                         ".spotify-ripper"))
+    # create directory if it doesn't exist
+    if not os.path.exists(default_dir):
+        os.makedirs(default_dir)
+    return default_dir
 
+def base_dir(args):
+    _base_dir = norm_path(args.directory[0]) if args.directory is not None \
+        else os.getcwd()
+    # create directory if it doesn't exist
+    if not os.path.exists(_base_dir):
+        os.makedirs(_base_dir)
+    return _base_dir
 
 def calc_file_size(args, track):
     return (int(args.quality) / 8) * track.duration
