@@ -211,6 +211,9 @@ def main(prog_args=sys.argv[1:]):
         help='Rip songs to MP4/M4A format with Fraunhofer FDK AAC codec '
              'instead of MP3')
     parser.add_argument(
+        '--normalize', action='store_true',
+        help='Normalize volume levels of tracks')
+    parser.add_argument(
         '-o', '--overwrite', action='store_true',
         help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument(
@@ -224,7 +227,7 @@ def main(prog_args=sys.argv[1:]):
         help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument(
         '-s', '--strip-colors', action='store_true',
-        help='Strip coloring from output[Default=colors]')
+        help='Strip coloring from output [Default=colors]')
     parser.add_argument(
         '-V', '--version', action='version', version=prog_version)
     encoding_group.add_argument(

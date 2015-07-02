@@ -98,6 +98,7 @@ class Ripper(threading.Thread):
             config.cache_location = default_dir
 
         self.session = spotify.Session(config=config)
+        self.session.volume_normalization = args.normalize
 
         bit_rates = dict([
             ('160', BitRate.BITRATE_160K),

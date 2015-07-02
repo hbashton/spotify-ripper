@@ -73,8 +73,9 @@ Command Line
                           [--comp COMP] [-d DIRECTORY] [--fail-log FAIL_LOG]
                           [--flac] [-f FORMAT] [--flat] [--flat-with-index]
                           [-g {artist,album}] [-k KEY] [-u USER] [-p PASSWORD]
-                          [-l] [-L LOG] [--pcm] [--mp4] [-o] [--opus] [-q VBR]
-                          [-Q {160,320,96}] [-s] [-V] [--wav] [--vorbis] [-r] [-x]
+                          [-l] [-L LOG] [--pcm] [--mp4] [--normalize] [-o]
+                          [--opus] [-q VBR] [-Q {160,320,96}] [-s] [-V] [--wav]
+                          [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -112,6 +113,7 @@ Command Line
       -L LOG, --log LOG     Log in a log-friendly format to a file (use - to log to stdout)
       --pcm                 Saves a .pcm file with the raw PCM data instead of MP3
       --mp4                 Rip songs to MP4/M4A format with Fraunhofer FDK AAC codec instead of MP3
+      --normalize           Normalize volume levels of tracks
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs to Opus encoding instead of MP3
       -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
