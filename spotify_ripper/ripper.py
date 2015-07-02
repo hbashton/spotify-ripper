@@ -41,6 +41,8 @@ class Ripper(threading.Thread):
     progress = None
     dev_null = None
     fail_log_file = None
+    success_tracks = []
+    failure_tracks = []
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -116,9 +118,10 @@ class Ripper(threading.Thread):
         self.event_loop = spotify.EventLoop(self.session)
         self.event_loop.start()
 
-    def log_failure(self, uri):
+    def log_failure(self, track):
+        self.failure_tracks.append(track)
         if self.fail_log_file is not None:
-            self.fail_log_file.write(uri + "\n")
+            self.fail_log_file.write(track.link.uri + "\n")
 
     def end_failure_log(self):
         if self.fail_log_file is not None:
@@ -128,22 +131,31 @@ class Ripper(threading.Thread):
             self.fail_log_file.close()
             self.fail_log_file = None
 
-            if os.path.getsize(file_name) > 0:
-                print(Fore.RED + "\nFailures Summary\n" + ("-" * 79) +
-                      Fore.RESET)
-                with open(file_name, 'r') as f:
-                    failures = [uri.strip() for uri in f.readlines()]
-                    for uri in failures:
-                        try:
-                            track = self.session.get_track(uri)
-                            track.load()
-                            print(" • " + track.artists[0].name + " - " +
-                                  track.name)
-                        except spotify.Error as e:
-                            print(" • " + uri)
-                print("")
-            else:
+            if os.path.getsize(file_name) == 0:
                 rm_file(file_name)
+
+    def print_summary(self):
+        if len(self.success_tracks) + len(self.failure_tracks) <= 1:
+            return
+
+        def log_tracks(tracks):
+            for track in tracks:
+                try:
+                    track.load()
+                    print(" • " + track.artists[0].name + " - " +
+                          track.name)
+                except spotify.Error as e:
+                    print(" • " + track.link.uri)
+            print("")
+
+        if len(self.success_tracks) > 0:
+            print(Fore.GREEN + "\nSuccess Summary\n" + ("-" * 79) +
+                  Fore.RESET)
+            log_tracks(self.success_tracks)
+        if len(self.failure_tracks) > 0:
+            print(Fore.RED + "\nFailure Summary\n" + ("-" * 79) +
+                  Fore.RESET)
+            log_tracks(self.failure_tracks)
 
     def run(self):
         args = self.args
@@ -202,7 +214,7 @@ class Ripper(threading.Thread):
                         print(
                             Fore.RED + 'Track is not available, '
                                        'skipping...' + Fore.RESET)
-                        self.log_failure(track.link.uri)
+                        self.log_failure(track)
                         continue
 
                     self.audio_file = self.format_track_path(idx, track)
@@ -237,7 +249,7 @@ class Ripper(threading.Thread):
                     print("Skipping to next track...")
                     self.session.player.play(False)
                     self.clean_up_partial()
-                    self.log_failure(track.link.uri)
+                    self.log_failure(track)
                     continue
 
             # actually removing the tracks from playlist
@@ -245,6 +257,7 @@ class Ripper(threading.Thread):
 
         # logout, we are done
         self.end_failure_log()
+        self.print_summary()
         self.logout()
         self.finished = True
 
@@ -697,6 +710,7 @@ class Ripper(threading.Thread):
             self.pcm_file = None
 
         self.ripping = False
+        self.success_tracks.append(track)
 
     def rip(self, session, audio_format, frame_bytes, num_frames):
         if self.ripping:
@@ -715,6 +729,7 @@ class Ripper(threading.Thread):
         self.clean_up_partial()
         self.remove_tracks_from_playlist()
         self.end_failure_log()
+        self.print_summary()
         self.logout()
         self.finished = True
 
