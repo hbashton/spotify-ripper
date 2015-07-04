@@ -70,6 +70,8 @@ def set_metadata_tags(args, audio_file, track):
         album = to_ascii(args, track.album.name, on_error)
         artist = to_ascii(args, track.artists[0].name, on_error)
         title = to_ascii(args, track.name, on_error)
+        if args.comment is not None:
+            comment = to_ascii(args, args.comment[0], on_error)
         if genres is not None and genres:
             genres_ascii = [to_ascii(args, genre) for genre in genres]
 
@@ -119,6 +121,10 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags.add(
                 id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)],
                          encoding=3))
+            if args.comment is not None:
+                audio.tags.add(
+                    id3.COMM(text=[tag_to_ascii(args.comment[0], comment)],
+                             encoding=3))
             if genres is not None and genres:
                 tcon_tag = id3.TCON(encoding=3)
                 tcon_tag.genres = genres if args.ascii_path_only \
@@ -164,6 +170,10 @@ def set_metadata_tags(args, audio_file, track):
             id3_dict.add(
                 id3.TRCK(text=[idx_of_total_str(track.index, num_tracks)],
                          encoding=3))
+            if args.comment is not None:
+                id3_dict.add(
+                    id3.COMM(text=[tag_to_ascii(args.comment[0], comment)],
+                             encoding=3))
             if genres is not None and genres:
                 tcon_tag = id3.TCON(encoding=3)
                 tcon_tag.genres = genres if args.ascii_path_only \
@@ -200,6 +210,8 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags["DISCTOTAL"] = str(num_discs)
             audio.tags["TRACKNUMBER"] = str(track.index)
             audio.tags["TRACKTOTAL"] = str(num_tracks)
+            if args.comment is not None:
+                audio.tags["COMMENT"] = tag_to_ascii(args.comment[0], comment)
 
             if genres is not None and genres:
                 _genres = genres if args.ascii_path_only else genres_ascii
@@ -224,6 +236,8 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags["\xa9day"] = str(track.album.year)
             audio.tags["disk"] = [(track.disc, num_discs)]
             audio.tags["trkn"] = [(track.index, num_tracks)]
+            if args.comment is not None:
+                audio.tags["\xa9cmt"] = tag_to_ascii(args.comment[0], comment)
 
             if genres is not None and genres:
                 _genres = genres if args.ascii_path_only else genres_ascii
@@ -247,6 +261,8 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags[b"\xa9day"] = str(track.album.year)
             audio.tags[str("disk")] = (track.disc, num_discs)
             audio.tags[str("trkn")] = (track.index, num_tracks)
+            if args.comment is not None:
+                audio.tags[b"\xa9cmt"] = tag_to_ascii(args.comment[0], comment)
 
             if genres is not None and genres:
                 _genres = genres if args.ascii_path_only else genres_ascii
@@ -319,6 +335,8 @@ def set_metadata_tags(args, audio_file, track):
                   " / ".join(genres_ascii) + Fore.RESET)
         if image is not None:
             print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
+        if args.comment is not None:
+            print(Fore.YELLOW + "Adding comment: " + comment + Fore.RESET)
         if args.output_type == "flac":
             bit_rate = ((audio.info.bits_per_sample * audio.info.sample_rate) *
                         audio.info.channels)

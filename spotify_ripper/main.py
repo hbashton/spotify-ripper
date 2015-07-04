@@ -163,6 +163,9 @@ def main(prog_args=sys.argv[1:]):
         '--comp', default="10",
         help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument(
+        '--comment', nargs=1,
+        help='Add custom metadata comment to all songs')
+    parser.add_argument(
         '-d', '--directory', nargs=1,
         help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument(

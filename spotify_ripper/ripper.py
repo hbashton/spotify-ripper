@@ -50,7 +50,7 @@ class Ripper(threading.Thread):
         # set to a daemon thread
         self.daemon = True
 
-        # initalize progress meter
+        # initialize progress meter
         self.progress = Progress(args, self)
 
         self.args = args
