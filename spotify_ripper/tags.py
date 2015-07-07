@@ -87,21 +87,31 @@ def set_metadata_tags(args, audio_file, track):
             else:
                 return "%d" % (_idx)
 
+        def save_cover_file():
+            cover_path = os.path.dirname(audio_file)
+            cover_file = os.path.join(cover_path, args.cover_file[0])
+            if not os.path.exists(cover_file):
+                with open(cover_file, "wb") as f:
+                    f.write(image.data)
+
         def set_id3_tags(audio):
             # add ID3 tag if it doesn't exist
             audio.add_tags()
 
             if image is not None:
                 image.load()
-                audio.tags.add(
-                    id3.APIC(
-                        encoding=3,
-                        mime='image/jpeg',
-                        type=3,
-                        desc='Front Cover',
-                        data=image.data
+                if args.cover_file is not None:
+                    save_cover_file()
+                else:
+                    audio.tags.add(
+                        id3.APIC(
+                            encoding=3,
+                            mime='image/jpeg',
+                            type=3,
+                            desc='Front Cover',
+                            data=image.data
+                        )
                     )
-                )
 
             if album is not None:
                 audio.tags.add(
@@ -142,15 +152,18 @@ def set_metadata_tags(args, audio_file, track):
 
             if image is not None:
                 image.load()
-                id3_dict.add(
-                    id3.APIC(
-                        encoding=3,
-                        mime='image/jpeg',
-                        type=3,
-                        desc='Front Cover',
-                        data=image.data
+                if args.cover_file is not None:
+                    save_cover_file()
+                else:
+                    id3_dict.add(
+                        id3.APIC(
+                            encoding=3,
+                            mime='image/jpeg',
+                            type=3,
+                            desc='Front Cover',
+                            data=image.data
+                        )
                     )
-                )
 
             if album is not None:
                 id3_dict.add(
@@ -190,16 +203,19 @@ def set_metadata_tags(args, audio_file, track):
 
             if image is not None:
                 image.load()
-                pic = flac.Picture()
-                pic.type = 3
-                pic.mime = "image/jpeg"
-                pic.desc = "Front Cover"
-                pic.data = image.data
-                if args.output_type == "flac":
-                    audio.add_picture(pic)
+                if args.cover_file is not None:
+                    save_cover_file()
                 else:
-                    data = base64.b64encode(pic.write())
-                    audio["METADATA_BLOCK_PICTURE"] = [data.decode("ascii")]
+                    pic = flac.Picture()
+                    pic.type = 3
+                    pic.mime = "image/jpeg"
+                    pic.desc = "Front Cover"
+                    pic.data = image.data
+                    if args.output_type == "flac":
+                        audio.add_picture(pic)
+                    else:
+                        data = base64.b64encode(pic.write())
+                        audio["METADATA_BLOCK_PICTURE"] = [data.decode("ascii")]
 
             if album is not None:
                 audio.tags["ALBUM"] = tag_to_ascii(track.album.name, album)
@@ -227,7 +243,10 @@ def set_metadata_tags(args, audio_file, track):
 
             if image is not None:
                 image.load()
-                audio.tags["covr"] = mp4.MP4Cover(image.data)
+                if args.cover_file is not None:
+                    save_cover_file()
+                else:
+                    audio.tags["covr"] = mp4.MP4Cover(image.data)
 
             if album is not None:
                 audio.tags["\xa9alb"] = tag_to_ascii(track.album.name, album)
@@ -251,7 +270,10 @@ def set_metadata_tags(args, audio_file, track):
 
             if image is not None:
                 image.load()
-                audio.tags[str("covr")] = m4a.M4ACover(image.data)
+                if args.cover_file is not None:
+                    save_cover_file()
+                else:
+                    audio.tags[str("covr")] = m4a.M4ACover(image.data)
 
             if album is not None:
                 audio.tags[b"\xa9alb"] = tag_to_ascii(track.album.name, album)

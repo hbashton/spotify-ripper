@@ -166,6 +166,9 @@ def main(prog_args=sys.argv[1:]):
         '--comment', nargs=1,
         help='Add custom metadata comment to all songs')
     parser.add_argument(
+        '--cover-file', nargs=1,
+        help='Save album cover image to file name (e.g "cover.jpg") [Default=embed]')
+    parser.add_argument(
         '-d', '--directory', nargs=1,
         help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument(
