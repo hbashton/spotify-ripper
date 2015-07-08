@@ -313,7 +313,7 @@ def main(prog_args=sys.argv[1:]):
         "ogg": ("oggenc", "vorbis-tools"),
         "opus": ("opusenc", "opus-tools"),
         "mp3": ("lame", "lame"),
-        "m4a": ("fdkaac", "fdkaac"),
+        "m4a": ("fdkaac", "fdk-aac-encoder"),
     }
     if args.output_type in encoders.keys():
         encoder = encoders[args.output_type][0]
