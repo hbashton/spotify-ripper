@@ -70,7 +70,8 @@ Command Line
 .. code::
 
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [-A] [-b BITRATE] [-c]
-                          [--comp COMP] [--comment COMMENT] [-d DIRECTORY]
+                          [--comp COMP] [--comment COMMENT]
+                          [--cover-file COVER_FILE] [-d DIRECTORY]
                           [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
                           [--flat-with-index] [-g {artist,album}] [-k KEY]
                           [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
@@ -96,6 +97,8 @@ Command Line
       -c, --cbr             CBR encoding [Default=VBR]
       --comp COMP           compression complexity for FLAC and Opus [Default=Max]
       --comment COMMENT     Add custom metadata comment to all songs
+      --cover-file COVER_FILE
+                            Save album cover image to file name (e.g "cover.jpg") [Default=embed]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
       --fail-log FAIL_LOG   Logs the list of track URIs that failed to rip
