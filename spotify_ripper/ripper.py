@@ -526,6 +526,13 @@ class Ripper(threading.Thread):
         idx_str = str(idx)
         track_num = str(track.index)
         disc_num = str(track.disc)
+        if self.current_playlist is not None:
+            playlist_name = to_ascii(args, self.current_playlist.name)
+            playlist_owner = to_ascii(args, self.current_playlist.owner.display_name)
+        else:
+            playlist_name = "No Playlist"
+            playlist_owner = "No Playlist Owner"
+        user = self.session.user.display_name
 
         tags = {
             "track_artist": track_artist,
@@ -548,6 +555,13 @@ class Ripper(threading.Thread):
             "disc_num": disc_num,
             "disc_idx": disc_num,
             "disc_index": disc_num,
+            "playlist": playlist_name,
+            "playlist_name": playlist_name,
+            "playlist_owner": playlist_owner,
+            "playlist_user": playlist_owner,
+            "playlist_username": playlist_owner,
+            "user": user,
+            "username": user,
         }
         fill_tags = {"idx", "index", "track_num", "track_idx",
                      "track_index", "disc_num", "disc_idx", "disc_index"}

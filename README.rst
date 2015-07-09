@@ -203,6 +203,15 @@ Format String Variables
 | ``{disc_num}``, ``{disc_idx}``,         | The disc number of the album                  |
 | ``{disc_index}``                        |                                               |
 +-----------------------------------------+-----------------------------------------------+
+| ``{playlist}``, ``{playlist_name}``     | Name of playlist if passed a playlist uri,    |
+|                                         | otherwise "No Playlist"                       |
++-----------------------------------------+-----------------------------------------------+
+|``{playlist_owner}``,                    | User name of playlist's owner if passed a     |
+|``{playlist_user}``,                     | a playlist uri, otherwise "No Playlist Owner" |
+|``{playlist_username}``                  |                                               |
++-----------------------------------------+-----------------------------------------------+
+|``{user}``, ``{username}``               | Spotify username of logged-in user            |
++-----------------------------------------+-----------------------------------------------+
 
 Any substring in the format string that does not match a variable above will be passed through to the file/path name unchanged.
 
