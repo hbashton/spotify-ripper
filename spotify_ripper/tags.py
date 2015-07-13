@@ -126,7 +126,7 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags.add(
                 id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)],
                          encoding=3))
-            audio.tags.add(id3.TDRL(text=[str(track.album.year)],
+            audio.tags.add(id3.TDRC(text=[str(track.album.year)],
                                     encoding=3))
             audio.tags.add(
                 id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)],
@@ -176,7 +176,7 @@ def set_metadata_tags(args, audio_file, track):
             id3_dict.add(
                 id3.TPE1(text=[tag_to_ascii(track.artists[0].name, artist)],
                          encoding=3))
-            id3_dict.add(id3.TDRL(text=[str(track.album.year)],
+            id3_dict.add(id3.TDRC(text=[str(track.album.year)],
                                   encoding=3))
             id3_dict.add(
                 id3.TPOS(text=[idx_of_total_str(track.disc, num_discs)],
