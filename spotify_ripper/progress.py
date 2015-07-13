@@ -185,9 +185,11 @@ class Progress(object):
             " " + format_time(pos_seconds, dur_seconds)
         ]
         if self.song_eta is not None:
-            _str = "\t(~" + \
+            _spaces = max(22 - len(output_strings[2]), 1) * " "
+            output_strings.append(_spaces)
+            _str = "(~" + \
                    format_time(self.song_eta, short=True) + " remaining)"
-            output_strings.append(_str.expandtabs())
+            output_strings.append(_str)
 
         output_what_fits("\r\033[2K", output_strings)
 
@@ -207,9 +209,11 @@ class Progress(object):
                 " " + format_time(total_pos_seconds, total_dur_seconds)
             ]
             if self.total_eta is not None:
-                _str = "\t(~" + format_time(self.total_eta,
+                _spaces = max(22 - len(output_strings[2]), 1) * " "
+                output_strings.append(_spaces)
+                _str = "(~" + format_time(self.total_eta,
                                             short=True) + " remaining)"
-                output_strings.append(_str.expandtabs())
+                output_strings.append(_str)
 
             output_what_fits("\n\033[2K", output_strings)
 
