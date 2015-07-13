@@ -132,12 +132,12 @@ class Progress(object):
         self.current_track = track
 
     def end_track(self):
+        self.end_progress()
         self.stat_prev = None
         self.song_eta = None
         self.total_eta = None
         self.total_position += self.current_track.duration
         self.current_track = None
-        self.end_progress()
 
     def update_progress(self, num_frames, audio_format):
         if self.args.has_log:
@@ -164,7 +164,8 @@ class Progress(object):
             prog_width = 40
 
         # song position/progress calculations
-        self.song_position += (num_frames * 1000) / audio_format.sample_rate
+        if num_frames > 0:
+            self.song_position += (num_frames * 1000) / audio_format.sample_rate
         pos_seconds = self.song_position // 1000
         dur_seconds = self.song_duration // 1000
         pct = int(self.song_position * 100 // self.song_duration)
@@ -213,4 +214,7 @@ class Progress(object):
             output_what_fits("\n\033[2K", output_strings)
 
     def end_progress(self):
+        self.song_position = self.song_duration
+        self.eta_calc()
+        self.update_progress(0, None)
         print_str(self.args, "\n")
