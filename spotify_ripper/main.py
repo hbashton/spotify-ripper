@@ -8,6 +8,7 @@ from spotify_ripper.ripper import Ripper
 from spotify_ripper.utils import *
 import os
 import sys
+import codecs
 import time
 import argparse
 import pkg_resources
@@ -273,6 +274,7 @@ def main(prog_args=sys.argv[1:]):
         else:
             log_file = open(args.log[0], 'a')
             sys.stdout = wrap_stream(log_file, None, True, False, True)
+            sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     else:
         init(strip=True if args.strip_colors else None)
 
