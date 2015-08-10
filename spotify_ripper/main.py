@@ -236,6 +236,9 @@ def main(prog_args=sys.argv[1:]):
         '-s', '--strip-colors', action='store_true',
         help='Strip coloring from output [Default=colors]')
     parser.add_argument(
+        '--stereo-mode', choices=['j', 's', 'f', 'd', 'm', 'l', 'r'],
+        help='Advanced stereo settings for Lame MP3 encoder only')
+    parser.add_argument(
         '-V', '--version', action='version', version=prog_version)
     encoding_group.add_argument(
         '--wav', action='store_true',

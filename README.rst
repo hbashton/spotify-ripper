@@ -76,7 +76,8 @@ Command Line
                           [--flat-with-index] [-g {artist,album}] [-k KEY]
                           [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
                           [--normalize] [-o] [--opus] [-q VBR] [-Q {160,320,96}]
-                          [-s] [-V] [--wav] [--vorbis] [-r] [-x]
+                          [-s] [--stereo-mode {j,s,f,d,m,l,r}] [-V] [--wav]
+                          [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -124,6 +125,8 @@ Command Line
       -Q {160,320,96}, --quality {160,320,96}
                             Spotify stream bitrate preference [Default=320]
       -s, --strip-colors    Strip coloring from output[Default=colors]
+      --stereo-mode {j,s,f,d,m,l,r}
+                            Advanced stereo settings for Lame MP3 encoder only
       -V, --version         show program's version number and exit
       --wav                 Rip songs to uncompressed WAV file instead of MP3
       --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3

@@ -682,14 +682,18 @@ class Ripper(threading.Thread):
                     ["fdkaac", "-S", "-R", "-w", "200000", "-m", args.vbr,
                      "-o", self.audio_file, "-"], stdin=PIPE)
         elif args.output_type == "mp3":
+            lame_args = ["lame", "--silent"]
+
+            if args.stereo_mode is not None:
+                lame_args.extend(["-m", args.stereo_mode])
+
             if args.cbr:
-                self.rip_proc = Popen(
-                    ["lame", "--silent", "-cbr", "-b", args.bitrate, "-h",
-                     "-r", "-", self.audio_file], stdin=PIPE)
+                lame_args.extend(["-cbr", "-b", args.bitrate])
             else:
-                self.rip_proc = Popen(
-                    ["lame", "--silent", "-V", args.vbr, "-h", "-r", "-",
-                     self.audio_file], stdin=PIPE)
+                lame_args.extend(["-V", args.vbr])
+
+            lame_args.extend(["-h", "-r", "-", self.audio_file])
+            self.rip_proc = Popen(lame_args, stdin=PIPE)
 
         if self.rip_proc is not None:
             self.pipe = self.rip_proc.stdin
