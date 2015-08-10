@@ -150,12 +150,12 @@ class Ripper(threading.Thread):
             print("")
 
         if len(self.success_tracks) > 0:
-            print(Fore.GREEN + "\nSuccess Summary\n" + ("-" * 79) +
-                  Fore.RESET)
+            print(Fore.GREEN + "\nSuccess Summary (" + str(len(self.success_tracks)) +
+                ")\n" + ("-" * 79) + Fore.RESET)
             log_tracks(self.success_tracks)
         if len(self.failure_tracks) > 0:
-            print(Fore.RED + "\nFailure Summary\n" + ("-" * 79) +
-                  Fore.RESET)
+            print(Fore.RED + "\nFailure Summary (" + str(len(self.failure_tracks)) +
+                ")\n" + ("-" * 79) + Fore.RESET)
             log_tracks(self.failure_tracks)
 
     def run(self):
