@@ -1,4 +1,4 @@
-pyspotify==2.0.0b4
+pyspotify==2.0.2
 colorama>=0.3.3
 mutagen==1.29
 requests>=2.3.0
