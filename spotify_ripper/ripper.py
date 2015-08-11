@@ -139,14 +139,24 @@ class Ripper(threading.Thread):
         if len(self.success_tracks) + len(self.failure_tracks) <= 1:
             return
 
+        def print_with_bullet(_str):
+            if self.args.ascii:
+                print(" * " + _str)
+            else:
+                print(" • " + _str)
+
         def log_tracks(tracks):
             for track in tracks:
                 try:
                     track.load()
-                    print(" • " + track.artists[0].name + " - " +
-                          track.name)
+                    if (len(track.artists) > 0 and track.artists[0].name is not None
+                        and track.name is not None):
+                        print_with_bullet(track.artists[0].name + " - " +
+                            track.name)
+                    else:
+                       print_with_bullet(track.link.uri)
                 except spotify.Error as e:
-                    print(" • " + track.link.uri)
+                    print_with_bullet(track.link.uri)
             print("")
 
         if len(self.success_tracks) > 0:
