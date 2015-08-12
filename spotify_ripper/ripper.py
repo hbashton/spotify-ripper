@@ -168,6 +168,23 @@ class Ripper(threading.Thread):
                 ")\n" + ("-" * 79) + Fore.RESET)
             log_tracks(self.failure_tracks)
 
+    def create_playlist_m3u(self, tracks):
+        args = self.args
+        if self.current_playlist is not None and args.playlist_m3u:
+            _base_dir = base_dir(args)
+            playlist_path = to_ascii(
+                args, os.path.join(_base_dir, self.current_playlist.name + '.m3u')
+            )
+
+            print(Fore.GREEN + "Creating playlist m3u file " + playlist_path + Fore.RESET)
+
+            with open(playlist_path, 'w') as playlist:
+                for idx, track in enumerate(tracks):
+                    _file = self.format_track_path(idx, track)
+                    if os.path.exists(_file):
+                        playlist.write(_file + "\n")
+
+
     def run(self):
         args = self.args
 
@@ -262,6 +279,9 @@ class Ripper(threading.Thread):
                     self.clean_up_partial()
                     self.log_failure(track)
                     continue
+
+            # create playlist m3u file if needed
+            self.create_playlist_m3u(tracks)
 
             # actually removing the tracks from playlist
             self.remove_tracks_from_playlist()

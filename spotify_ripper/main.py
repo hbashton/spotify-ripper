@@ -227,6 +227,9 @@ def main(prog_args=sys.argv[1:]):
         '--opus', action='store_true',
         help='Rip songs to Opus encoding instead of MP3')
     parser.add_argument(
+        '--playlist-m3u', action='store_true',
+        help='create a m3u file when ripping a playlist')
+    parser.add_argument(
         '-q', '--vbr',
         help='VBR quality setting or target bitrate for Opus [Default=0]')
     parser.add_argument(

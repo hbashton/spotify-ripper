@@ -75,9 +75,9 @@ Command Line
                           [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
                           [--flat-with-index] [-g {artist,album}] [-k KEY]
                           [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
-                          [--normalize] [-o] [--opus] [-q VBR] [-Q {160,320,96}]
-                          [-s] [--stereo-mode {j,s,f,d,m,l,r}] [-V] [--wav]
-                          [--vorbis] [-r] [-x]
+                          [--normalize] [-o] [--opus] [--playlist-m3u] [-q VBR]
+                          [-Q {160,320,96}] [-s] [--stereo-mode {j,s,f,d,m,l,r}]
+                          [-V] [--wav] [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -121,6 +121,7 @@ Command Line
       --normalize           Normalize volume levels of tracks
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs to Opus encoding instead of MP3
+      --playlist-m3u        create a m3u file when ripping a playlist
       -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
       -Q {160,320,96}, --quality {160,320,96}
                             Spotify stream bitrate preference [Default=320]
