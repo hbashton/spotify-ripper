@@ -164,11 +164,12 @@ class Progress(object):
             prog_width = 40
 
         # song position/progress calculations
-        if num_frames > 0:
+        if num_frames > 0  and audio_format.sample_rate > 0:
             self.song_position += (num_frames * 1000) / audio_format.sample_rate
         pos_seconds = self.song_position // 1000
         dur_seconds = self.song_duration // 1000
-        pct = int(self.song_position * 100 // self.song_duration)
+        pct = int(self.song_position * 100 // self.song_duration) \
+            if self.song_duration > 0 else 0
         x = int(pct * prog_width // 100)
 
         # don't move cursor on first update
@@ -198,7 +199,8 @@ class Progress(object):
             total_position = self.total_position + self.song_position
             total_pos_seconds = total_position // 1000
             total_dur_seconds = self.total_duration // 1000
-            total_pct = int(total_position * 100 // self.total_duration)
+            total_pct = int(total_position * 100 // self.total_duration) \
+                if self.total_duration > 0 else 0
             total_x = int(total_pct * prog_width // 100)
 
             # total output text
