@@ -164,7 +164,7 @@ class Progress(object):
             prog_width = 40
 
         # song position/progress calculations
-        if num_frames > 0  and audio_format.sample_rate > 0:
+        if num_frames > 0 and audio_format.sample_rate > 0:
             self.song_position += (num_frames * 1000) / audio_format.sample_rate
         pos_seconds = self.song_position // 1000
         dur_seconds = self.song_duration // 1000

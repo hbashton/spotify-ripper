@@ -153,10 +153,10 @@ Here is an example config file
 
     [main]
     ascii = True
-    bitrate = 160
-    flat = True
+    format = {album_artist}/{album}/{artist} - {track_name}.{ext}
+    quality = 160
+    vorbis = True
     last = True
-    remove_from_playlist = True
 
 Format String
 -------------
