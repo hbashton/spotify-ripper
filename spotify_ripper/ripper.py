@@ -205,12 +205,16 @@ class Ripper(threading.Thread):
             self.finished = True
             return
 
+
+        # check if we were passed a file name
+        if len(args.uri) == 1 and os.path.exists(args.uri[0]):
+            uris = [line.strip() for line in open(args.uri[0])]
+        else:
+            uris = args.uri
+
         # create track iterator
-        for uri in args.uri:
-            if os.path.exists(uri):
-                tracks = itertools.chain(
-                    *[self.load_link(line.strip()) for line in open(uri)])
-            elif uri.startswith("spotify:"):
+        for uri in uris:
+            if uri.startswith("spotify:"):
                 if (args.exclude_appears_on and
                         uri.startswith("spotify:artist:")):
                     album_uris = self.load_artist_albums(uri)
