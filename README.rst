@@ -58,6 +58,7 @@ Features
 
 -  option to rip to MP4/M4A instead of MP3 (requires compiling ``fdkaac``)
 
+-  keep local files in sync with a Spotify playlist and m3u playlist file
 
 Usage
 -----
@@ -75,9 +76,10 @@ Command Line
                           [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
                           [--flat-with-index] [-g {artist,album}] [-k KEY]
                           [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
-                          [--normalize] [-o] [--opus] [--playlist-m3u] [-q VBR]
-                          [-Q {160,320,96}] [-s] [--stereo-mode {j,s,f,d,m,l,r}]
-                          [-V] [--wav] [--vorbis] [-r] [-x]
+                          [--normalize] [-o] [--opus] [--playlist-m3u]
+                          [--playlist-sync] [-q VBR] [-Q {160,320,96}] [-s]
+                          [--stereo-mode {j,s,f,d,m,l,r}] [-V] [--wav] [--vorbis]
+                          [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -122,6 +124,7 @@ Command Line
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs to Opus encoding instead of MP3
       --playlist-m3u        create a m3u file when ripping a playlist
+      --playlist-sync       Sync playlist songs (rename and remove old songs)
       -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
       -Q {160,320,96}, --quality {160,320,96}
                             Spotify stream bitrate preference [Default=320]
@@ -223,6 +226,15 @@ Zero-Filled Padding
 ~~~~~~~~~~~~~~~~~~~
 
 Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filled padding will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, and ``{disc_num}`` and thier aliases.
+
+Playlist Sync Option
+~~~~~~~~~~~~~~~~~~~~
+
+By default, other than checking for an overwrite, ``spotify-ripper`` will not keep track of local files once they are ripped from Spotify.  However, if you use the ``--playlist-sync`` option when passing a playlist URI, ``spotify-ripper`` will store a json file in your settings directory that keeps track of location of your ripped files for that playlist.
+
+If at a later time, the playlist is changed on Spotify (i.e. songs reordered, removed or added), ``spotify-ripper`` will try to keep your local files "in sync" the playlist if you rerun the same command.  For example, if your format string is ``{index} {artist} - {track_name}.{ext}``, it will rename is existing files so the index is correct.  Note that with option set, ``spotify-ripper`` will delete a song that was previously on the playlist, but was removed but still exists on your local machine.  It does not affect files outside of the playlist and has no effect on non-playlist URIs.
+
+If you want to redownload a playlist (for example with improved quality), you either need to remove the song files from your local or use the ``--overwrite`` option.
 
 Installation
 ------------
