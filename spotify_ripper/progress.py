@@ -48,11 +48,11 @@ class Progress(object):
             schedule.every(2).seconds.do(self.eta_calc)
 
     def calc_total(self, tracks):
-        self.total_tracks = len(tracks)
-        if self.total_tracks <= 1:
+        if len(tracks) <= 1:
             return
 
         self.show_total = True
+        self.total_tracks = 0
         self.total_duration = 0
         self.total_size = 0
 
@@ -65,6 +65,7 @@ class Progress(object):
                 audio_file = self.ripper.format_track_path(idx, track)
                 if not self.args.overwrite and os.path.exists(audio_file):
                     continue
+                self.total_tracks += 1
                 self.total_duration += track.duration
                 file_size = calc_file_size(self.args, track)
                 self.total_size += file_size

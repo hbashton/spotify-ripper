@@ -7,6 +7,7 @@ from colorama import Fore
 from spotify_ripper.utils import *
 from spotify_ripper.tags import set_metadata_tags
 from spotify_ripper.progress import Progress
+from spotify_ripper.sync import Sync
 import os
 import sys
 import time
@@ -39,6 +40,7 @@ class Ripper(threading.Thread):
     idx_digits = 3
     login_success = False
     progress = None
+    sync = None
     dev_null = None
     fail_log_file = None
     success_tracks = []
@@ -205,7 +207,6 @@ class Ripper(threading.Thread):
             self.finished = True
             return
 
-
         # check if we were passed a file name
         if len(args.uri) == 1 and os.path.exists(args.uri[0]):
             uris = [line.strip() for line in open(args.uri[0])]
@@ -228,6 +229,10 @@ class Ripper(threading.Thread):
 
             if args.flat_with_index and self.current_playlist:
                 self.idx_digits = len(str(len(self.current_playlist.tracks)))
+
+            if args.playlist_sync and self.current_playlist:
+                self.sync = Sync(args, self)
+                self.sync.sync_playlist(self.current_playlist)
 
             tracks = list(tracks)
             self.progress.calc_total(tracks)
