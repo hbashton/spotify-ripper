@@ -14,9 +14,15 @@ class Sync(object):
         self.args = args
         self.ripper = ripper
 
-    def sync_lib_path(self, name):
-        # lib path
+    def sync_lib_path(self, playlist):
         args = self.args
+
+        # get playlist_id
+        uri_tokens = playlist.link.uri.split(':')
+        if len(uri_tokens) != 5:
+            return None
+
+        # lib path
         if args.settings is not None:
             lib_path = os.path.join(norm_path(args.settings[0]), "Sync")
         else:
@@ -25,17 +31,17 @@ class Sync(object):
         if not os.path.exists(lib_path):
             os.makedirs(lib_path)
 
-        return os.path.join(lib_path, name + ".json")
+        return os.path.join(lib_path, uri_tokens[4] + ".json")
 
-    def save_sync_library(self, name, lib):
-        lib_path = self.sync_lib_path(name)
+    def save_sync_library(self, playlist, lib):
+        lib_path = self.sync_lib_path(playlist)
 
         with open(lib_path, 'w') as lib_file:
             lib_file.write(json.dumps(lib, ensure_ascii=self.args.ascii,
                 indent=4, separators=(',', ': ')))
 
-    def load_sync_library(self, name):
-        lib_path = self.sync_lib_path(name)
+    def load_sync_library(self, playlist):
+        lib_path = self.sync_lib_path(playlist)
 
         if os.path.exists(lib_path):
             with open(lib_path, 'r') as lib_file:
@@ -45,11 +51,10 @@ class Sync(object):
 
 
     def sync_playlist(self, playlist):
-        name = playlist.name
-        lib = self.load_sync_library(name)
+        lib = self.load_sync_library(playlist)
         new_lib = {}
 
-        print("Syncing playlist " + name)
+        print("Syncing playlist " + playlist.name)
 
         # remove any missing files from the lib or playlist
         uris = set([t.link.uri for t in playlist.tracks])
@@ -81,4 +86,4 @@ class Sync(object):
                 continue
 
         # save new lib
-        self.save_sync_library(name, new_lib)
+        self.save_sync_library(playlist, new_lib)
