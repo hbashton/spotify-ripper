@@ -327,7 +327,7 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
     $ brew install faac
 
     # MP4/M4A
-    $ brew install fdkaac
+    $ brew install fdk-aac-encoder
 
     # Ogg Vorbis
     $ brew install vorbis-tools
