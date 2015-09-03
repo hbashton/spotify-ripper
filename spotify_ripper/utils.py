@@ -39,14 +39,14 @@ def to_ascii(args, _str, on_error='ignore'):
         if isinstance(_str, bytes) and not args.ascii:
             return str(_str, "utf-8")
         elif isinstance(_str, str) and args.ascii:
-            return _str.encode('ascii', on_error).decode("utf-8")
+            return _str.encode("ascii", on_error).decode("utf-8")
         else:
             return _str
     else:
         if isinstance(_str, str) and not args.ascii:
             return unicode(_str, "utf-8")
         elif isinstance(_str, unicode) and args.ascii:
-            return _str.encode('ascii', on_error).decode("utf-8")
+            return _str.encode("ascii", on_error).decode("utf-8")
         else:
             return _str
 

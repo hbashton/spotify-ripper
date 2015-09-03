@@ -18,6 +18,7 @@ import itertools
 import requests
 import wave
 import re
+import codecs
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
@@ -70,8 +71,9 @@ class Ripper(threading.Thread):
             if not os.path.exists(_base_dir):
                 os.makedirs(_base_dir)
 
-            self.fail_log_file = open(os.path.join(
-                _base_dir, args.fail_log[0]), 'w')
+            encoding = "ascii" if args.ascii else "utf-8"
+            self.fail_log_file = codecs.open(os.path.join(
+                _base_dir, args.fail_log[0]), 'w', encoding)
 
         # application key location
         if args.key is not None:

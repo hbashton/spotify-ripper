@@ -7,6 +7,7 @@ from spotify_ripper.utils import *
 import os
 import sys
 import json
+import codecs
 
 class Sync(object):
 
@@ -34,17 +35,21 @@ class Sync(object):
         return os.path.join(lib_path, uri_tokens[4] + ".json")
 
     def save_sync_library(self, playlist, lib):
+        args = self.args
         lib_path = self.sync_lib_path(playlist)
 
-        with open(lib_path, 'w') as lib_file:
-            lib_file.write(json.dumps(lib, ensure_ascii=self.args.ascii,
+        encoding = "ascii" if args.ascii else "utf-8"
+        with codecs.open(lib_path, 'w', encoding) as lib_file:
+            lib_file.write(json.dumps(lib, ensure_ascii=args.ascii,
                 indent=4, separators=(',', ': ')))
 
     def load_sync_library(self, playlist):
+        args = self.args
         lib_path = self.sync_lib_path(playlist)
 
         if os.path.exists(lib_path):
-            with open(lib_path, 'r') as lib_file:
+            encoding = "ascii" if args.ascii else "utf-8"
+            with codecs.open(lib_path, 'r', encoding) as lib_file:
                 return json.loads(lib_file.read())
         else:
             return {}
@@ -54,7 +59,7 @@ class Sync(object):
         lib = self.load_sync_library(playlist)
         new_lib = {}
 
-        print("Syncing playlist " + playlist.name)
+        print("Syncing playlist " + to_ascii(self.args, playlist.name))
 
         # remove any missing files from the lib or playlist
         uris = set([t.link.uri for t in playlist.tracks])
