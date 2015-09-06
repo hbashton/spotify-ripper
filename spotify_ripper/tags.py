@@ -311,6 +311,18 @@ def set_metadata_tags(args, audio_file, track):
                 audio = m4a.M4A(audio_file)
                 set_m4a_tags(audio)
                 audio = mp4.MP4(audio_file)
+        elif args.output_type == "alac.m4a":
+            if sys.version_info >= (3, 0):
+                from mutagen import mp4
+
+                audio = mp4.MP4(audio_file)
+                set_mp4_tags(audio)
+            else:
+                from mutagen import m4a, mp4
+
+                audio = m4a.M4A(audio_file)
+                set_m4a_tags(audio)
+                audio = mp4.MP4(audio_file)
         elif args.output_type == "mp3":
             audio = mp3.MP3(audio_file, ID3=id3.ID3)
             set_id3_tags(audio)
@@ -364,6 +376,18 @@ def set_metadata_tags(args, audio_file, track):
                   " Hz - " + channel_str(audio.info.channels) + " ]")
             print("-" * 79)
             print(Fore.YELLOW + "Writing Vorbis comments - " +
+                  audio.tags.vendor + Fore.RESET)
+            print("-" * 79)
+        if args.output_type == "alac.m4a":
+            bit_rate = ((audio.info.bits_per_sample * audio.info.sample_rate) *
+                        audio.info.channels)
+            print("Time: " + format_time(audio.info.length) +
+                  "\tApple Lossless" +
+                  "\t[ " + bit_rate_str(bit_rate / 1000) + " @ " +
+                  str(audio.info.sample_rate) +
+                  " Hz - " + channel_str(audio.info.channels) + " ]")
+            print("-" * 79)
+            print(Fore.YELLOW + "Writing Apple iTunes metadata - " +
                   audio.tags.vendor + Fore.RESET)
             print("-" * 79)
         elif args.output_type == "ogg":

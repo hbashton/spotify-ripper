@@ -152,6 +152,9 @@ def main(prog_args=sys.argv[1:]):
     encoding_group.add_argument(
         '--aac', action='store_true',
         help='Rip songs to AAC format with FreeAAC instead of MP3')
+    encoding_group.add_argument(
+        '--alac', action='store_true',
+        help='Rip songs to Apple Lossless format instead of MP3')
     parser.add_argument(
         '-A', '--ascii-path-only', action='store_true',
         help='Convert the file name (but not the metadata tags) to ASCII '
@@ -314,6 +317,8 @@ def main(prog_args=sys.argv[1:]):
         args.output_type = "m4a"
         if args.vbr == "0":
             args.vbr = "5"
+    elif args.alac:
+        args.output_type = "alac.m4a"
     else:
         args.output_type = "mp3"
 
@@ -325,6 +330,7 @@ def main(prog_args=sys.argv[1:]):
         "opus": ("opusenc", "opus-tools"),
         "mp3": ("lame", "lame"),
         "m4a": ("fdkaac", "fdk-aac-encoder"),
+        "alac.m4a": ("avconv", "libav-tools"),
     }
     if args.output_type in encoders.keys():
         encoder = encoders[args.output_type][0]
@@ -357,6 +363,8 @@ def main(prog_args=sys.argv[1:]):
         else:
             if args.output_type == "flac":
                 return "FLAC, Compression Level: " + args.comp
+            elif args.output_type == "alac.m4a":
+                return "Apple Lossless (ALAC)"
             elif args.output_type == "ogg":
                 codec = "Ogg Vorbis"
             elif args.output_type == "opus":

@@ -48,6 +48,8 @@ Features
 
 -  helpful progress bar to gauge the time remaining until completion
 
+-  option to rip to ALAC, a loseless codec, instead of MP3 (requires extra ``avconv`` dependency)
+
 -  option to rip to FLAC, a loseless codec, instead of MP3 (requires extra ``flac`` dependency)
 
 -  option to rip to Ogg Vorbis instead of MP3 (requires extra ``vorbis-tools`` dependency)
@@ -93,6 +95,7 @@ Command Line
                             Path to settings, config and temp files directory [Default=~/.spotify-ripper]
       -a, --ascii           Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]
       --aac                 Rip songs to AAC format with FreeAAC instead of MP3
+      --alac                Rip songs to Apple Lossless format instead of MP3
       -A, --ascii-path-only
                             Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]
       -b BITRATE, --bitrate BITRATE
@@ -323,6 +326,9 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
     # FLAC
     $ brew install flac
 
+    # ALAC
+    $ brew install libav
+
     # AAC
     $ brew install faac
 
@@ -341,6 +347,9 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
 
     # FLAC
     $ sudo apt-get install flac
+
+    # ALAC
+    $ sudo apt-get install libav-tools
 
     # AAC
     $ sudo apt-get install faac
