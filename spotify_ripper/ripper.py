@@ -680,6 +680,10 @@ class Ripper(threading.Thread):
                  "little", "--channels", "2", "--bps", "16", "--sample-rate",
                  "44100", "--sign", "signed", "-o", self.audio_file, "-"],
                 stdin=PIPE)
+        elif args.output_type == "alac.m4a":
+            self.rip_proc = Popen(
+                ["avconv", "-nostats", "-loglevel", "0", "-f", "s16le", "-ar", "44100", "-ac", "2", "-channel_layout", "stereo", "-i", "-", "-acodec", "alac", self.audio_file],
+                stdin=PIPE)
         elif args.output_type == "ogg":
             if args.cbr:
                 self.rip_proc = Popen(
