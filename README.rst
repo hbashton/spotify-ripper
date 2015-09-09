@@ -72,13 +72,13 @@ Command Line
 
 .. code::
 
-    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [-A] [-b BITRATE] [-c]
-                          [--comp COMP] [--comment COMMENT]
+    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [--alac] [-A]
+                          [-b BITRATE] [-c] [--comp COMP] [--comment COMMENT]
                           [--cover-file COVER_FILE] [-d DIRECTORY]
                           [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
-                          [--flat-with-index] [-g {artist,album}] [-k KEY]
-                          [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
-                          [--normalize] [-o] [--opus] [--playlist-m3u]
+                          [--flat-with-index] [-g {artist,album}] [--id3-v23]
+                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm]
+                          [--mp4] [--normalize] [-o] [--opus] [--playlist-m3u]
                           [--playlist-sync] [-q VBR] [-Q {160,320,96}] [-s]
                           [--stereo-mode {j,s,f,d,m,l,r}] [-V] [--wav] [--vorbis]
                           [-r] [-x]
@@ -115,6 +115,7 @@ Command Line
       --flat-with-index     Similar to --flat [-f] but includes the playlist index at the start of the song file
       -g {artist,album}, --genres {artist,album}
                             Attempt to retrieve genre information from Spotify's Web API [Default=skip]
+      --id3-v23             Store ID3 tags using version v2.3 [Default=v2.4]
       -k KEY, --key KEY     Path to Spotify application key file [Default=Settings Directory]
       -u USER, --user USER  Spotify username
       -p PASSWORD, --password PASSWORD

@@ -144,7 +144,11 @@ def set_metadata_tags(args, audio_file, track):
                     else genres_ascii
                 audio.tags.add(tcon_tag)
 
-            audio.save()
+            if args.id3_v23:
+                audio.tags.update_to_v23()
+                audio.save(v2_version=3, v23_sep='/')
+            else:
+                audio.save()
 
         # aac is not well supported
         def set_id3_tags_raw(audio, audio_file):
@@ -194,7 +198,11 @@ def set_metadata_tags(args, audio_file, track):
                     else genres_ascii
                 id3_dict.add(tcon_tag)
 
-            id3_dict.save(audio_file)
+            if args.id3_v23:
+                id3_dict.update_to_v23()
+                id3_dict.save(audio_file, v2_version=3, v23_sep='/')
+            else:
+                id3_dict.save(audio_file)
             audio.tags = id3_dict
 
         def set_vorbis_comments(audio):

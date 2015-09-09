@@ -198,6 +198,9 @@ def main(prog_args=sys.argv[1:]):
         choices=['artist', 'album'],
         help='Attempt to retrieve genre information from Spotify\'s '
              'Web API [Default=skip]')
+    encoding_group.add_argument(
+        '--id3-v23', action='store_true',
+        help='Store ID3 tags using version v2.3 [Default=v2.4]')
     parser.add_argument(
         '-k', '--key', nargs=1,
         help='Path to Spotify application key file [Default=Settings Directory]')
