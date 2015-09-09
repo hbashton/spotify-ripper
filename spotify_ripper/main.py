@@ -289,12 +289,16 @@ def main(prog_args=sys.argv[1:]):
         else:
             log_file = open(args.log[0], 'a')
             sys.stdout = wrap_stream(log_file, None, True, False, True)
-            sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     else:
         init(strip=True if args.strip_colors else None)
 
     if args.ascii_path_only is True:
         args.ascii = True
+
+    # unless explicitly told not to, we are going to encode
+    # for utf-8 by default
+    if not args.ascii:
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
     if args.wav:
         args.output_type = "wav"
