@@ -182,11 +182,12 @@ class Ripper(threading.Thread):
 
             print(Fore.GREEN + "Creating playlist m3u file " + playlist_path + Fore.RESET)
 
-            with open(playlist_path, 'w') as playlist:
+            encoding = "ascii" if args.ascii else "utf-8"
+            with codecs.open(playlist_path, 'w', encoding) as playlist:
                 for idx, track in enumerate(tracks):
                     _file = self.format_track_path(idx, track)
                     if os.path.exists(_file):
-                        playlist.write(_file + "\n")
+                        playlist.write(os.path.relpath(_file, _base_dir) + "\n")
 
 
     def run(self):
