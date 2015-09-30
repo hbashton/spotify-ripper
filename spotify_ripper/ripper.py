@@ -243,7 +243,7 @@ class Ripper(threading.Thread):
             if self.progress.total_size > 0:
                 print(
                     "Total Download Size: " +
-                    format_size(self.progress.total_size))
+                    format_size(to_long(self.progress.total_size)))
 
             # ripping loop
             for idx, track in enumerate(tracks):
