@@ -763,8 +763,6 @@ class Ripper(threading.Thread):
             self.pipe = None
 
         if self.wav_file is not None:
-            self.wav_file.flush()
-            os.fsync(self.wav_file.fileno())
             self.wav_file.close()
             self.wav_file = None
 
