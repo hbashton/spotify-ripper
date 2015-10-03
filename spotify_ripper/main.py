@@ -297,7 +297,7 @@ def main(prog_args=sys.argv[1:]):
 
     # unless explicitly told not to, we are going to encode
     # for utf-8 by default
-    if not args.ascii:
+    if not args.ascii and sys.version_info < (3, 0):
         sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
     if args.wav:
