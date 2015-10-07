@@ -8,6 +8,7 @@ import os
 import sys
 import json
 import codecs
+import spotify
 
 class Sync(object):
 
@@ -32,7 +33,8 @@ class Sync(object):
         if not os.path.exists(lib_path):
             os.makedirs(lib_path)
 
-        return os.path.join(lib_path, uri_tokens[4] + ".json")
+        encoding = "ascii" if args.ascii else "utf-8"
+        return os.path.join(lib_path, uri_tokens[4].encode(encoding) + ".json")
 
     def save_sync_library(self, playlist, lib):
         args = self.args
@@ -56,14 +58,17 @@ class Sync(object):
 
 
     def sync_playlist(self, playlist):
+        args = self.args
         lib = self.load_sync_library(playlist)
         new_lib = {}
 
-        print("Syncing playlist " + to_ascii(self.args, playlist.name))
+        print("Syncing playlist " + to_ascii(args, playlist.name))
 
         # remove any missing files from the lib or playlist
         uris = set([t.link.uri for t in playlist.tracks])
         for uri, file_path in lib.items():
+            encoding = "ascii" if args.ascii else "utf-8"
+            file_path = file_path.encode(encoding)
             if not os.path.exists(file_path):
                 del lib[uri]
             elif uri not in uris:
