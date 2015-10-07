@@ -548,6 +548,12 @@ class Ripper(threading.Thread):
             args, escape_filename_part(track.artists[0].name))
         track_artists = to_ascii(args, ", ".join(
             [artist.name for artist in track.artists]))
+        if len(track.artists) > 1:
+            featuring_artists = to_ascii(args, ", ".join(
+                [artist.name for artist in track.artists[1:]]))
+        else:
+            featuring_artists = ""
+
         album_artist = to_ascii(
             args,
             self.current_album.artist.name
@@ -604,9 +610,12 @@ class Ripper(threading.Thread):
             "playlist_username": playlist_owner,
             "user": user,
             "username": user,
+            "feat_artists": featuring_artists,
+            "featuring_artists": featuring_artists
         }
         fill_tags = {"idx", "index", "track_num", "track_idx",
                      "track_index", "disc_num", "disc_idx", "disc_index"}
+        prefix_tags = {"feat_artists", "featuring_artists"}
         for tag in tags.keys():
             audio_file = audio_file.replace("{" + tag + "}", tags[tag])
             if tag in fill_tags:
@@ -617,6 +626,19 @@ class Ripper(threading.Thread):
                     tag_filled = tags[tag].zfill(int(tokens[1]))
                     audio_file = audio_file[:match.start()] + tag_filled + \
                         audio_file[match.end():]
+            if tag in prefix_tags:
+                # don't print prefix if there are no values
+                if len(tags[tag]) > 0:
+                    match = re.search(r"\{" + tag + r":[^\}]+\}", audio_file)
+                    if match:
+                        tokens = audio_file[match.start():match.end()]\
+                            .strip("{}").split(":")
+                        audio_file = audio_file[:match.start()] + tokens[1] + \
+                            " " + tags[tag] + audio_file[match.end():]
+                else:
+                    match = re.search(r"\s*\{" + tag + r":[^\}]+\}", audio_file)
+                    if match:
+                        audio_file = audio_file[:match.start()] + audio_file[match.end():]
 
         # in case the file name is too long
         def truncate(_str, max_size):
