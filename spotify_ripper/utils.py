@@ -99,8 +99,6 @@ def which(program):
 
     return None
 
-def to_long(val):
-    return val if sys.version_info >= (3, 0) else long(val)
 
 KB_BYTES = 1024
 '''Number of bytes per KB (2^10)'''

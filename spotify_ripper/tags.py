@@ -15,8 +15,7 @@ import base64
 def set_metadata_tags(args, audio_file, track):
     # log completed file
     print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) +
-          Style.NORMAL + "\t[ " + format_size(
-            to_long(os.stat(audio_file)[ST_SIZE])) +
+          Style.NORMAL + "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) +
           " ]" + Fore.RESET)
 
     if args.output_type == "wav" or args.output_type == "pcm":
