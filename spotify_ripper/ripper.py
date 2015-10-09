@@ -210,25 +210,43 @@ class Ripper(threading.Thread):
             self.finished = True
             return
 
-        # check if we were passed a file name
+        # check if we were passed a file name or search
         if len(args.uri) == 1 and os.path.exists(args.uri[0]):
             uris = [line.strip() for line in open(args.uri[0])]
+        elif len(args.uri) == 1 and not args.uri[0].startswith("spotify:"):
+            uris = [list(self.search_query(args.uri[0]))]
         else:
             uris = args.uri
 
-        # create track iterator
-        for uri in uris:
-            if uri.startswith("spotify:"):
+        def get_tracks_from_uri(uri):
+            if isinstance(uri, list):
+                return uri
+            else:
                 if (args.exclude_appears_on and
                         uri.startswith("spotify:artist:")):
                     album_uris = self.load_artist_albums(uri)
-                    tracks = itertools.chain(
+                    return itertools.chain(
                         *[self.load_link(album_uri) for
                           album_uri in album_uris])
                 else:
-                    tracks = self.load_link(uri)
-            else:
-                tracks = self.search_query(uri)
+                    return self.load_link(uri)
+
+        # calculate total size and time
+        all_tracks = []
+        for uri in uris:
+            tracks = get_tracks_from_uri(uri)
+            all_tracks += list(tracks)
+
+        self.progress.calc_total(all_tracks)
+
+        if self.progress.total_size > 0:
+            print(
+                "Total Download Size: " +
+                format_size(self.progress.total_size))
+
+        # create track iterator
+        for uri in uris:
+            tracks = get_tracks_from_uri(uri)
 
             if args.flat_with_index and self.current_playlist:
                 self.idx_digits = len(str(len(self.current_playlist.tracks)))
@@ -236,14 +254,6 @@ class Ripper(threading.Thread):
             if args.playlist_sync and self.current_playlist:
                 self.sync = Sync(args, self)
                 self.sync.sync_playlist(self.current_playlist)
-
-            tracks = list(tracks)
-            self.progress.calc_total(tracks)
-
-            if self.progress.total_size > 0:
-                print(
-                    "Total Download Size: " +
-                    format_size(self.progress.total_size))
 
             # ripping loop
             for idx, track in enumerate(tracks):
