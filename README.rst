@@ -149,6 +149,11 @@ Command Line
         rip a list of URIs: spotify-ripper -u user -p password list_of_uris.txt
         search for tracks to rip: spotify-ripper -l -Q 160 -o "album:Rumours track:'the chain'"
 
+Facebook Login
+~~~~~~~~~~~~~~
+
+Spotify-ripper will work with your regular Facebook login/password if you setup your Spotify account to login using your Facebook credentials.  Otherwise, use your Spotify login/password.
+
 Config File
 ~~~~~~~~~~~
 
