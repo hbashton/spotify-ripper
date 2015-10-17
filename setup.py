@@ -12,7 +12,7 @@ def _read(fn):
 
 setup(
     name='spotify-ripper',
-    version='2.6.1',
+    version='2.6.2',
     packages=find_packages(exclude=["tests"]),
     scripts=['spotify_ripper/main.py'],
     include_package_data=True,
@@ -34,7 +34,7 @@ setup(
     install_requires=[
         'pyspotify==2.0.5',
         'colorama>=0.3.3',
-        'mutagen==1.31',
+        'mutagen==1.30',
         'requests>=2.3.0',
         'schedule>=0.3.1',
     ],
@@ -47,7 +47,7 @@ setup(
     license='MIT',
     keywords="spotify ripper mp3 ogg vorbis flac opus acc mp4 m4a",
     url='https://github.com/jrnewell/spotify-ripper',
-    download_url='https://github.com/jrnewell/spotify-ripper/tarball/2.6.1',
+    download_url='https://github.com/jrnewell/spotify-ripper/tarball/2.6.2',
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Multimedia :: Sound/Audio :: Capture/Recording',
