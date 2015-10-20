@@ -1,3 +1,5 @@
+#!/bin/sh
+
 sudo apt-add-repository multiverse
 sudo apt-get update
 sudo apt-get -y install lame build-essential libffi-dev python-pip libffi-dev libssl-dev python-dev flac libav-tools faac libfdk-aac-dev automake autoconf vorbis-tools opus-tools
