@@ -104,6 +104,14 @@ class Ripper(threading.Thread):
         self.session = spotify.Session(config=config)
         self.session.volume_normalization = args.normalize
 
+        # disable scrobbling
+        self.session.social.set_scrobbling(spotify.SocialProvider.SPOTIFY,
+            spotify.ScrobblingState.LOCAL_DISABLED)
+        self.session.social.set_scrobbling(spotify.SocialProvider.FACEBOOK,
+            spotify.ScrobblingState.LOCAL_DISABLED)
+        self.session.social.set_scrobbling(spotify.SocialProvider.LASTFM,
+            spotify.ScrobblingState.LOCAL_DISABLED)
+
         bit_rates = dict([
             ('160', BitRate.BITRATE_160K),
             ('320', BitRate.BITRATE_320K),
