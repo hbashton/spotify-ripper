@@ -337,6 +337,10 @@ class Ripper(threading.Thread):
         self.finished = True
 
     def load_link(self, uri):
+        # blank out current playlist/album
+        self.current_playlist = None
+        self.current_album = None
+
         # ignore if the uri is just blank (e.g. from a file)
         if not uri:
             return iter([])
