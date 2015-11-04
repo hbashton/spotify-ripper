@@ -485,7 +485,8 @@ class Ripper(threading.Thread):
     def on_music_delivery(self, session, audio_format,
                           frame_bytes, num_frames):
         try:
-            self.rip_queue.put_nowait((audio_format.sample_rate, frame_bytes, num_frames))
+            self.rip_queue.put_nowait((audio_format.sample_rate,
+                frame_bytes, num_frames))
         except queue.Full:
             print(Fore.RED + "rip_queue is full. dropped music data" +
                 Fore.RESET)
@@ -653,6 +654,7 @@ class Ripper(threading.Thread):
         fill_tags = {"idx", "index", "track_num", "track_idx",
                      "track_index", "disc_num", "disc_idx", "disc_index"}
         prefix_tags = {"feat_artists", "featuring_artists"}
+        paren_tags = {"track_name", "track"}
         for tag in tags.keys():
             audio_file = audio_file.replace("{" + tag + "}", tags[tag])
             if tag in fill_tags:
@@ -676,6 +678,14 @@ class Ripper(threading.Thread):
                     match = re.search(r"\s*\{" + tag + r":[^\}]+\}", audio_file)
                     if match:
                         audio_file = audio_file[:match.start()] + audio_file[match.end():]
+            if tag in paren_tags:
+                match = re.search(r"\{" + tag + r":paren\}", audio_file)
+                if match:
+                    match_tag = re.search(r"(.*)\s+-\s+([^-]+)", tags[tag])
+                    if match_tag:
+                        audio_file = audio_file[:match.start()] + match_tag.group(1) + " (" + match_tag.group(2) + ")" + audio_file[match.end():]
+                    else:
+                        audio_file = audio_file[:match.start()] + tags[tag] + audio_file[match.end():]
 
         # in case the file name is too long
         def truncate(_str, max_size):
