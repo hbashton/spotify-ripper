@@ -140,7 +140,7 @@ class Progress(object):
         self.total_position += self.current_track.duration
         self.current_track = None
 
-    def update_progress(self, num_frames, audio_format):
+    def update_progress(self, num_frames, sample_rate):
         if self.args.has_log:
             return
 
@@ -165,8 +165,8 @@ class Progress(object):
             prog_width = 40
 
         # song position/progress calculations
-        if num_frames > 0 and audio_format.sample_rate > 0:
-            self.song_position += (num_frames * 1000) / audio_format.sample_rate
+        if num_frames > 0 and sample_rate > 0:
+            self.song_position += (num_frames * 1000) / sample_rate
         pos_seconds = self.song_position // 1000
         dur_seconds = self.song_duration // 1000
         pct = int(self.song_position * 100 // self.song_duration) \

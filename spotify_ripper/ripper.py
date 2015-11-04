@@ -20,6 +20,13 @@ import wave
 import re
 import codecs
 
+try:
+    # Python 3
+    import queue
+except ImportError:
+    # Python 2
+    import Queue as queue
+
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
     BITRATE_320K = 1
@@ -46,6 +53,7 @@ class Ripper(threading.Thread):
     fail_log_file = None
     success_tracks = []
     failure_tracks = []
+    rip_queue = queue.Queue()
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -289,7 +297,13 @@ class Ripper(threading.Thread):
                     self.prepare_rip(idx, track)
                     self.session.player.play()
 
-                    self.end_of_track.wait()
+                    while not self.end_of_track.is_set():
+                        try:
+                            rip_item = self.rip_queue.get(timeout=1)
+                            self.rip(self.session, rip_item[0], rip_item[1], rip_item[2])
+                        except queue.Empty:
+                            pass
+
                     self.end_of_track.clear()
 
                     self.finish_rip(track)
@@ -470,7 +484,11 @@ class Ripper(threading.Thread):
 
     def on_music_delivery(self, session, audio_format,
                           frame_bytes, num_frames):
-        self.rip(session, audio_format, frame_bytes, num_frames)
+        try:
+            self.rip_queue.put_nowait((audio_format.sample_rate, frame_bytes, num_frames))
+        except queue.Full:
+            print(Fore.RED + "rip_queue is full. dropped music data" +
+                Fore.RESET)
         return num_frames
 
     def on_connection_state_changed(self, session):
@@ -816,9 +834,9 @@ class Ripper(threading.Thread):
         self.ripping = False
         self.success_tracks.append(track)
 
-    def rip(self, session, audio_format, frame_bytes, num_frames):
+    def rip(self, session, sample_rate, frame_bytes, num_frames):
         if self.ripping:
-            self.progress.update_progress(num_frames, audio_format)
+            self.progress.update_progress(num_frames, sample_rate)
             if self.pipe is not None:
                 self.pipe.write(frame_bytes)
 
@@ -829,6 +847,7 @@ class Ripper(threading.Thread):
               self.pcm_file.write(frame_bytes)
 
     def abort(self):
+        self.ripping = False
         self.session.player.play(False)
         self.clean_up_partial()
         self.remove_tracks_from_playlist()
