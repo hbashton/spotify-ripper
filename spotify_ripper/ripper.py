@@ -297,7 +297,7 @@ class Ripper(threading.Thread):
                     self.prepare_rip(idx, track)
                     self.session.player.play()
 
-                    while not self.end_of_track.is_set():
+                    while not self.end_of_track.is_set() or not self.rip_queue.empty():
                         try:
                             rip_item = self.rip_queue.get(timeout=1)
                             self.rip(self.session, rip_item[0], rip_item[1], rip_item[2])
