@@ -48,6 +48,8 @@ Features
 
 -  helpful progress bar to gauge the time remaining until completion
 
+-  keep local files in sync with a Spotify playlist and m3u playlist file
+
 -  option to rip to ALAC, a loseless codec, instead of MP3 (requires extra ``avconv`` dependency)
 
 -  option to rip to FLAC, a loseless codec, instead of MP3 (requires extra ``flac`` dependency)
@@ -60,7 +62,8 @@ Features
 
 -  option to rip to MP4/M4A instead of MP3 (requires compiling ``fdkaac``)
 
--  keep local files in sync with a Spotify playlist and m3u playlist file
+**Please note: Spotify’s highest quality setting is 320 kbps, so the benefit of ripping to a lossless format is to not double encode the audio data. It’s not possible to rip in true lossless quality.**
+
 
 Usage
 -----
