@@ -396,6 +396,11 @@ Use ``pip`` to upgrade to the latest version.
 
     $ pip install --upgrade spotify-ripper
 
+Release Notes
+-------------
+
+Release notes can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Release-Notes>`__.
+
 License
 -------
 
