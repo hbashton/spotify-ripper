@@ -262,7 +262,7 @@ class Ripper(threading.Thread):
 
         # create track iterator
         for uri in uris:
-            tracks = get_tracks_from_uri(uri)
+            tracks = list(get_tracks_from_uri(uri))
 
             if args.flat_with_index and self.current_playlist:
                 self.idx_digits = len(str(len(self.current_playlist.tracks)))
