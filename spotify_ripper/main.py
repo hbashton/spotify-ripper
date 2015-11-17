@@ -433,7 +433,6 @@ def main(prog_args=sys.argv[1:]):
             schedule.run_pending()
             ripper.join(0.1)
     except (KeyboardInterrupt, Exception) as e:
-        print("KeyboardInterrupt2")
         if not isinstance(e, KeyboardInterrupt):
             print(str(e))
         print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
