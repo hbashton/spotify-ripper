@@ -39,12 +39,9 @@ class Ripper(threading.Thread):
     wav_file = None
     rip_proc = None
     pipe = None
-    ripping = threading.Event()
-    finished = False
     current_playlist = None
     current_album = None
     tracks_to_remove = []
-    end_of_track = threading.Event()
     idx_digits = 3
     login_success = False
     progress = None
@@ -54,6 +51,13 @@ class Ripper(threading.Thread):
     success_tracks = []
     failure_tracks = []
     rip_queue = queue.Queue()
+
+    # threading events
+    logged_in = threading.Event()
+    logged_out = threading.Event()
+    ripping = threading.Event()
+    end_of_track = threading.Event()
+    finished = threading.Event()
     abort = threading.Event()
 
     def __init__(self, args):
@@ -63,8 +67,7 @@ class Ripper(threading.Thread):
         self.progress = Progress(args, self)
 
         self.args = args
-        self.logged_in = threading.Event()
-        self.logged_out = threading.Event()
+
         self.logged_out.set()
 
         config = spotify.Config()
@@ -221,7 +224,7 @@ class Ripper(threading.Thread):
             print(
                 Fore.RED + "Encountered issue while logging into "
                            "Spotify, aborting..." + Fore.RESET)
-            self.finished = True
+            self.finished.set()
             return
 
         # check if we were passed a file name or search
@@ -348,7 +351,7 @@ class Ripper(threading.Thread):
         self.end_failure_log()
         self.print_summary()
         self.logout()
-        self.finished = True
+        self.finished.set()
 
     def load_link(self, uri):
         # blank out current playlist/album
@@ -539,9 +542,7 @@ class Ripper(threading.Thread):
 
     def play_token_lost(self, session):
         print("\n" + Fore.RED + "Play token lost, aborting..." + Fore.RESET)
-        self.session.player.play(False)
-        self.clean_up_partial()
-        self.finished = True
+        self.abort_rip()
 
     def on_end_of_track(self, session):
         self.session.player.play(False)
