@@ -54,7 +54,7 @@ class EventLoop(threading.Thread):
 
         self._session = session
         self._runnable = True
-        self._timeout = timeout
+        self._queue_timeout = timeout * 1000
         self._queue = queue.Queue()
 
     def start(self):
@@ -72,22 +72,22 @@ class EventLoop(threading.Thread):
             self._on_notify_main_thread)
 
     def run(self):
-        process_timeout = self._session.process_events() / 1000.0
-        timeout_trigger = process_timeout // self._timeout
-        timeout_count = 0
+        timeout_countdown = self._session.process_events()
 
         while self._runnable:
+            timeout = min(timeout_countdown, self._queue_timeout)
+
             try:
-                self._queue.get(timeout=self._timeout)
+                self._queue.get(timeout=(timeout / 1000.0))
             except queue.Empty:
-                timeout_count += 1
+                # queue timeout
+                timeout_countdown -= timeout
             else:
-                timeout_count = timeout_trigger
+                # notification
+                timeout_countdown = 0
             finally:
-                if timeout_count >= timeout_trigger:
-                    process_timeout = self._session.process_events() / 1000.0
-                    timeout_trigger = process_timeout // self._timeout
-                    timeout_count = 0
+                if timeout_countdown <= 0:
+                    timeout_countdown = self._session.process_events()
 
     def _on_notify_main_thread(self, session):
         # WARNING: This event listener is called from an internal libspotify
