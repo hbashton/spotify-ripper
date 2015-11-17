@@ -613,7 +613,7 @@ class Ripper(threading.Thread):
         track_name = to_ascii(args, escape_filename_part(track.name))
         year = str(track.album.year)
         extension = args.output_type
-        idx_str = str(idx)
+        idx_str = str(idx + 1)
         track_num = str(track.index)
         disc_num = str(track.disc)
         if self.current_playlist is not None:
