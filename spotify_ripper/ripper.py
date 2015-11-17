@@ -39,7 +39,7 @@ class Ripper(threading.Thread):
     wav_file = None
     rip_proc = None
     pipe = None
-    ripping = False
+    ripping = threading.Event()
     finished = False
     current_playlist = None
     current_album = None
@@ -54,12 +54,10 @@ class Ripper(threading.Thread):
     success_tracks = []
     failure_tracks = []
     rip_queue = queue.Queue()
+    abort = threading.Event()
 
     def __init__(self, args):
         threading.Thread.__init__(self)
-
-        # set to a daemon thread
-        self.daemon = True
 
         # initialize progress meter
         self.progress = Progress(args, self)
@@ -262,6 +260,9 @@ class Ripper(threading.Thread):
 
         # create track iterator
         for uri in uris:
+            if self.abort.is_set():
+                break
+
             tracks = list(get_tracks_from_uri(uri))
 
             if args.flat_with_index and self.current_playlist:
@@ -274,6 +275,9 @@ class Ripper(threading.Thread):
             # ripping loop
             for idx, track in enumerate(tracks):
                 try:
+                    if self.abort.is_set():
+                        break
+
                     print('Loading track...')
                     track.load()
                     if track.availability != 1:
@@ -299,10 +303,20 @@ class Ripper(threading.Thread):
 
                     while not self.end_of_track.is_set() or not self.rip_queue.empty():
                         try:
+                            if self.abort.is_set():
+                                break
+
                             rip_item = self.rip_queue.get(timeout=1)
                             self.rip(self.session, rip_item[0], rip_item[1], rip_item[2])
                         except queue.Empty:
                             pass
+
+                    if self.abort.is_set():
+                        self.session.player.play(False)
+                        self.end_of_track.set()
+                        self.clean_up_partial()
+                        self.log_failure(track)
+                        break
 
                     self.end_of_track.clear()
 
@@ -817,7 +831,7 @@ class Ripper(threading.Thread):
         if self.rip_proc is not None:
             self.pipe = self.rip_proc.stdin
 
-        self.ripping = True
+        self.ripping.set()
 
     def finish_rip(self, track):
         self.progress.end_track()
@@ -845,11 +859,11 @@ class Ripper(threading.Thread):
             self.pcm_file.close()
             self.pcm_file = None
 
-        self.ripping = False
+        self.ripping.clear()
         self.success_tracks.append(track)
 
     def rip(self, session, sample_rate, frame_bytes, num_frames):
-        if self.ripping:
+        if self.ripping.is_set():
             self.progress.update_progress(num_frames, sample_rate)
             if self.pipe is not None:
                 self.pipe.write(frame_bytes)
@@ -860,15 +874,9 @@ class Ripper(threading.Thread):
             if self.pcm_file is not None:
               self.pcm_file.write(frame_bytes)
 
-    def abort(self):
-        self.ripping = False
-        self.session.player.play(False)
-        self.clean_up_partial()
-        self.remove_tracks_from_playlist()
-        self.end_failure_log()
-        self.print_summary()
-        self.logout()
-        self.finished = True
+    def abort_rip(self):
+        self.ripping.clear()
+        self.abort.set()
 
     def queue_remove_from_playlist(self, idx):
         if self.args.remove_from_playlist:

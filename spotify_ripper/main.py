@@ -429,14 +429,16 @@ def main(prog_args=sys.argv[1:]):
 
     # wait for ripping thread to finish
     try:
-        while not ripper.finished:
+        while ripper.isAlive():
             schedule.run_pending()
-            time.sleep(0.1)
+            ripper.join(0.1)
     except (KeyboardInterrupt, Exception) as e:
+        print("KeyboardInterrupt2")
         if not isinstance(e, KeyboardInterrupt):
             print(str(e))
         print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
-        ripper.abort()
+        ripper.abort_rip()
+        ripper.join()
         sys.exit(1)
 
 
