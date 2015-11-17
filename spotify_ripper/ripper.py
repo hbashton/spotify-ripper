@@ -8,6 +8,7 @@ from spotify_ripper.utils import *
 from spotify_ripper.tags import set_metadata_tags
 from spotify_ripper.progress import Progress
 from spotify_ripper.sync import Sync
+from spotify_ripper.eventloop import EventLoop
 import os
 import sys
 import time
@@ -34,6 +35,8 @@ class BitRate(spotify.utils.IntEnum):
 
 
 class Ripper(threading.Thread):
+    name = 'SpotifyRipperThread'
+
     audio_file = None
     pcm_file = None
     wav_file = None
@@ -68,10 +71,10 @@ class Ripper(threading.Thread):
 
         self.args = args
 
+        # initially logged-out
         self.logged_out.set()
 
         config = spotify.Config()
-
         default_dir = default_settings_dir()
 
         # create a log file for rip failures
@@ -137,7 +140,7 @@ class Ripper(threading.Thread):
         self.session.on(spotify.SessionEvent.LOGGED_IN,
                         self.on_logged_in)
 
-        self.event_loop = spotify.EventLoop(self.session)
+        self.event_loop = EventLoop(self.session, 0.1)
         self.event_loop.start()
 
     def log_failure(self, track):
@@ -206,6 +209,10 @@ class Ripper(threading.Thread):
                     if os.path.exists(_file):
                         playlist.write(os.path.relpath(_file, _base_dir) + "\n")
 
+    def stop_event_loop(self):
+        if self.event_loop.isAlive():
+            self.event_loop.stop()
+            self.event_loop.join()
 
     def run(self):
         args = self.args
@@ -224,6 +231,7 @@ class Ripper(threading.Thread):
             print(
                 Fore.RED + "Encountered issue while logging into "
                            "Spotify, aborting..." + Fore.RESET)
+            self.stop_event_loop()
             self.finished.set()
             return
 
@@ -351,6 +359,7 @@ class Ripper(threading.Thread):
         self.end_failure_log()
         self.print_summary()
         self.logout()
+        self.stop_event_loop()
         self.finished.set()
 
     def load_link(self, uri):
@@ -559,6 +568,7 @@ class Ripper(threading.Thread):
             self.session.relogin()
             self.logged_in.wait()
         except spotify.Error as e:
+            self.login_success = False
             print(str(e))
 
     def logout(self):
@@ -568,7 +578,6 @@ class Ripper(threading.Thread):
             print('Logging out...')
             self.session.logout()
             self.logged_out.wait()
-        self.event_loop.stop()
 
     def album_artists_web(self, uri):
         def get_album_json(album_id):
