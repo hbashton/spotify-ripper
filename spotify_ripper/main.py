@@ -236,6 +236,9 @@ def main(prog_args=sys.argv[1:]):
         '--playlist-m3u', action='store_true',
         help='create a m3u file when ripping a playlist')
     parser.add_argument(
+        '--playlist-wpl', action='store_true',
+        help='create a wpl file when ripping a playlist')
+    parser.add_argument(
         '--playlist-sync', action='store_true',
         help='Sync playlist songs (rename and remove old songs)')
     parser.add_argument(
