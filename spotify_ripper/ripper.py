@@ -221,26 +221,27 @@ class Ripper(threading.Thread):
 
             encoding = "ascii" if args.ascii else "utf-8"
             with codecs.open(playlist_path, 'w', encoding) as playlist:
+                # to get an accurate track count
+                track_paths = [_file for _file in [self.format_track_path(idx, track) for
+                    idx, track in enumerate(tracks)] if os.path.exists(_file)]
+
                 playlist.write('<?wpl version="1.0"?>\n')
                 playlist.write('<smil>\n')
                 playlist.write('\t<head>\n')
                 playlist.write('\t\t<meta name="Generator" content="Microsoft Windows Media Player -- 12.0.7601.18526"/>\n')
-                playlist.write('\t\t<meta name="ItemCount" content="' + str(len(tracks)) +'"/>\n')
-                playlist.write('\t\t<author/>\n')
+                playlist.write('\t\t<meta name="ItemCount" content="' + str(len(track_paths)) +'"/>\n')
+                playlist.write('\t\t<author>' + self.session.user.display_name + '</author>\n')
                 playlist.write('\t\t<title>' + self.current_playlist.name + '</title>\n')
                 playlist.write('\t</head>\n')
                 playlist.write('\t<body>\n')
                 playlist.write('\t\t<seq>\n')
-                for idx, track in enumerate(tracks):
-                    _file = self.format_track_path(idx, track)
-                    if os.path.exists(_file):
-                        _file.replace("&", "&amp;")
-                        _file.replace("'", "&apos;")
-                        playlist.write('\t\t\t<media src="' + os.path.relpath(_file, _base_dir) + "\"/>\n")
+                for _file in track_paths:
+                    _file.replace("&", "&amp;")
+                    _file.replace("'", "&apos;")
+                    playlist.write('\t\t\t<media src="' + os.path.relpath(_file, _base_dir) + "\"/>\n")
                 playlist.write('\t\t</seq>\n')
                 playlist.write('\t</body>\n')
                 playlist.write('</smil>\n')
-
 
     def stop_event_loop(self):
         if self.event_loop.isAlive():
