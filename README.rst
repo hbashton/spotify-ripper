@@ -48,7 +48,7 @@ Features
 
 -  helpful progress bar to gauge the time remaining until completion
 
--  keep local files in sync with a Spotify playlist and m3u playlist file
+-  keep local files in sync with a Spotify playlist, m3u and wpl playlist file
 
 -  option to rip to ALAC, a loseless codec, instead of MP3 (requires extra ``avconv`` dependency)
 
@@ -82,9 +82,9 @@ Command Line
                           [--flat-with-index] [-g {artist,album}] [--id3-v23]
                           [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm]
                           [--mp4] [--normalize] [-o] [--opus] [--playlist-m3u]
-                          [--playlist-sync] [-q VBR] [-Q {160,320,96}] [-s]
-                          [--stereo-mode {j,s,f,d,m,l,r}] [-V] [--wav] [--vorbis]
-                          [-r] [-x]
+                          [--playlist-wpl] [--playlist-sync] [-q VBR]
+                          [-Q {160,320,96}] [-s] [--stereo-mode {j,s,f,d,m,l,r}]
+                          [-V] [--wav] [--vorbis] [-r] [-x]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -131,6 +131,7 @@ Command Line
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs to Opus encoding instead of MP3
       --playlist-m3u        create a m3u file when ripping a playlist
+      --playlist-wpl        create a wpl file when ripping a playlist
       --playlist-sync       Sync playlist songs (rename and remove old songs)
       -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
       -Q {160,320,96}, --quality {160,320,96}
