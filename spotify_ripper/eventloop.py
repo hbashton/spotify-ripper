@@ -49,13 +49,14 @@ class EventLoop(threading.Thread):
 
     name = 'SpotifyEventLoop'
 
-    def __init__(self, session, timeout):
+    def __init__(self, session, timeout, ripper):
         threading.Thread.__init__(self)
 
         self._session = session
         self._runnable = True
         self._queue_timeout = timeout * 1000
         self._queue = queue.Queue()
+        self._ripper = ripper
 
     def start(self):
         """Start the event loop."""
@@ -74,7 +75,7 @@ class EventLoop(threading.Thread):
     def run(self):
         timeout_countdown = self._session.process_events()
 
-        while self._runnable:
+        while self._runnable and self._ripper.isAlive():
             timeout = min(timeout_countdown, self._queue_timeout)
 
             try:

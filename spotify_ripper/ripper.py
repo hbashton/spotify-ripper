@@ -140,8 +140,6 @@ class Ripper(threading.Thread):
         self.session.on(spotify.SessionEvent.LOGGED_IN,
                         self.on_logged_in)
 
-        self.event_loop = EventLoop(self.session, 0.1)
-        self.event_loop.start()
 
     def log_failure(self, track):
         self.failure_tracks.append(track)
@@ -242,6 +240,7 @@ class Ripper(threading.Thread):
                 playlist.write('\t\t</seq>\n')
                 playlist.write('\t</body>\n')
                 playlist.write('</smil>\n')
+        self.event_loop = EventLoop(self.session, 0.1, self)
 
     def stop_event_loop(self):
         if self.event_loop.isAlive():
@@ -250,6 +249,9 @@ class Ripper(threading.Thread):
 
     def run(self):
         args = self.args
+
+        # start event loop
+        self.event_loop.start()
 
         # login
         print("Logging in...")
