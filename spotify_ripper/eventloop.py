@@ -96,5 +96,6 @@ class EventLoop(threading.Thread):
         try:
             self._queue.put_nowait(1)
         except queue.Full:
-            print(Fore.RED + "event loop queue full. dropped notification event" +
-                Fore.RESET)
+            print(Fore.RED +
+                  "event loop queue full. dropped notification event" +
+                  Fore.RESET)

@@ -395,7 +395,8 @@ def set_metadata_tags(args, audio_file, track):
                   str(audio.info.sample_rate) +
                   " Hz - " + channel_str(audio.info.channels) + " ]")
             print("-" * 79)
-            print(Fore.YELLOW + "Writing Apple iTunes metadata - " + Fore.RESET)
+            print(Fore.YELLOW + "Writing Apple iTunes metadata - " +
+                  Fore.RESET)
             print("-" * 79)
         elif args.output_type == "ogg":
             print("Time: " + format_time(audio.info.length) +

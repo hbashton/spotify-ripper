@@ -20,7 +20,6 @@ import itertools
 import requests
 import wave
 import re
-import codecs
 
 try:
     # Python 3
@@ -28,6 +27,7 @@ try:
 except ImportError:
     # Python 2
     import Queue as queue
+
 
 class BitRate(spotify.utils.IntEnum):
     BITRATE_160K = 0
@@ -109,11 +109,14 @@ class Ripper(threading.Thread):
         self.session.volume_normalization = args.normalize
 
         # disable scrobbling
-        self.session.social.set_scrobbling(spotify.SocialProvider.SPOTIFY,
+        self.session.social.set_scrobbling(
+            spotify.SocialProvider.SPOTIFY,
             spotify.ScrobblingState.LOCAL_DISABLED)
-        self.session.social.set_scrobbling(spotify.SocialProvider.FACEBOOK,
+        self.session.social.set_scrobbling(
+            spotify.SocialProvider.FACEBOOK,
             spotify.ScrobblingState.LOCAL_DISABLED)
-        self.session.social.set_scrobbling(spotify.SocialProvider.LASTFM,
+        self.session.social.set_scrobbling(
+            spotify.SocialProvider.LASTFM,
             spotify.ScrobblingState.LOCAL_DISABLED)
 
         bit_rates = dict([
@@ -240,13 +243,15 @@ class Ripper(threading.Thread):
                     self.prepare_rip(idx, track)
                     self.session.player.play()
 
-                    while not self.end_of_track.is_set() or not self.rip_queue.empty():
+                    while not self.end_of_track.is_set() or \
+                            not self.rip_queue.empty():
                         try:
                             if self.abort.is_set():
                                 break
 
                             rip_item = self.rip_queue.get(timeout=1)
-                            self.rip(self.session, rip_item[0], rip_item[1], rip_item[2])
+                            self.rip(self.session, rip_item[0],
+                                     rip_item[1], rip_item[2])
                         except queue.Empty:
                             pass
 
@@ -444,10 +449,10 @@ class Ripper(threading.Thread):
                           frame_bytes, num_frames):
         try:
             self.rip_queue.put_nowait((audio_format.sample_rate,
-                frame_bytes, num_frames))
+                                       frame_bytes, num_frames))
         except queue.Full:
             print(Fore.RED + "rip_queue is full. dropped music data" +
-                Fore.RESET)
+                  Fore.RESET)
         return num_frames
 
     def on_connection_state_changed(self, session):
@@ -463,7 +468,7 @@ class Ripper(threading.Thread):
         if error is spotify.ErrorType.OK:
             print("Logged in as " + session.user.display_name)
         else:
-            errorMap = {
+            error_map = {
                 9: "CLIENT_TOO_OLD",
                 8: "UNABLE_TO_CONTACT_SERVER",
                 6: "BAD_USERNAME_OR_PASSWORD",
@@ -473,7 +478,7 @@ class Ripper(threading.Thread):
                 10: "OTHER_PERMANENT"
             }
             print("Logged in failed: " +
-                  errorMap.get(error, "UNKNOWN_ERROR_CODE: " + str(error)))
+                  error_map.get(error, "UNKNOWN_ERROR_CODE: " + str(error)))
             self.login_success = False
             self.logged_in.set()
 
@@ -570,7 +575,8 @@ class Ripper(threading.Thread):
         disc_num = str(track.disc)
         if self.current_playlist is not None:
             playlist_name = to_ascii(args, self.current_playlist.name)
-            playlist_owner = to_ascii(args, self.current_playlist.owner.display_name)
+            playlist_owner = to_ascii(
+                args, self.current_playlist.owner.display_name)
         else:
             playlist_name = "No Playlist"
             playlist_owner = "No Playlist Owner"
@@ -631,17 +637,23 @@ class Ripper(threading.Thread):
                         audio_file = audio_file[:match.start()] + tokens[1] + \
                             " " + tags[tag] + audio_file[match.end():]
                 else:
-                    match = re.search(r"\s*\{" + tag + r":[^\}]+\}", audio_file)
+                    match = re.search(r"\s*\{" + tag +
+                                      r":[^\}]+\}", audio_file)
                     if match:
-                        audio_file = audio_file[:match.start()] + audio_file[match.end():]
+                        audio_file = audio_file[:match.start()] + \
+                                     audio_file[match.end():]
             if tag in paren_tags:
                 match = re.search(r"\{" + tag + r":paren\}", audio_file)
                 if match:
                     match_tag = re.search(r"(.*)\s+-\s+([^-]+)", tags[tag])
                     if match_tag:
-                        audio_file = audio_file[:match.start()] + match_tag.group(1) + " (" + match_tag.group(2) + ")" + audio_file[match.end():]
+                        audio_file = audio_file[:match.start()] + \
+                                     match_tag.group(1) + " (" + \
+                                     match_tag.group(2) + ")" + \
+                                     audio_file[match.end():]
                     else:
-                        audio_file = audio_file[:match.start()] + tags[tag] + audio_file[match.end():]
+                        audio_file = audio_file[:match.start()] + tags[tag] + \
+                                     audio_file[match.end():]
 
         # in case the file name is too long
         def truncate(_str, max_size):
@@ -708,7 +720,9 @@ class Ripper(threading.Thread):
                 stdin=PIPE)
         elif args.output_type == "alac.m4a":
             self.rip_proc = Popen(
-                ["avconv", "-nostats", "-loglevel", "0", "-f", "s16le", "-ar", "44100", "-ac", "2", "-channel_layout", "stereo", "-i", "-", "-acodec", "alac", self.audio_file],
+                ["avconv", "-nostats", "-loglevel", "0", "-f", "s16le", "-ar",
+                 "44100", "-ac", "2", "-channel_layout", "stereo", "-i", "-",
+                 "-acodec", "alac", self.audio_file],
                 stdin=PIPE)
         elif args.output_type == "ogg":
             if args.cbr:
@@ -810,7 +824,7 @@ class Ripper(threading.Thread):
                 self.wav_file.writeframes(frame_bytes)
 
             if self.pcm_file is not None:
-              self.pcm_file.write(frame_bytes)
+                self.pcm_file.write(frame_bytes)
 
     def abort_rip(self):
         self.ripping.clear()

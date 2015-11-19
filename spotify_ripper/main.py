@@ -9,16 +9,15 @@ from spotify_ripper.utils import *
 import os
 import sys
 import codecs
-import time
 import argparse
 import pkg_resources
+import schedule
+import signal
 
 if sys.version_info >= (3, 0):
     import configparser as ConfigParser
 else:
     import ConfigParser
-import schedule
-import signal
 
 
 def load_config(args, defaults):
@@ -171,7 +170,8 @@ def main(prog_args=sys.argv[1:]):
         help='Add custom metadata comment to all songs')
     parser.add_argument(
         '--cover-file', nargs=1,
-        help='Save album cover image to file name (e.g "cover.jpg") [Default=embed]')
+        help='Save album cover image to file name (e.g "cover.jpg") '
+             '[Default=embed]')
     parser.add_argument(
         '-d', '--directory', nargs=1,
         help='Base directory where ripped MP3s are saved [Default=cwd]')
@@ -203,7 +203,8 @@ def main(prog_args=sys.argv[1:]):
         help='Store ID3 tags using version v2.3 [Default=v2.4]')
     parser.add_argument(
         '-k', '--key', nargs=1,
-        help='Path to Spotify application key file [Default=Settings Directory]')
+        help='Path to Spotify application key file '
+             '[Default=Settings Directory]')
     group.add_argument(
         '-u', '--user', nargs=1,
         help='Spotify username')

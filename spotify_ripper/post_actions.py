@@ -5,10 +5,10 @@ from __future__ import unicode_literals
 from colorama import Fore
 from spotify_ripper.utils import *
 import os
-import sys
 import time
 import spotify
 import codecs
+
 
 class PostActions(object):
     tracks_to_remove = []
@@ -63,23 +63,25 @@ class PostActions(object):
             for track in tracks:
                 try:
                     track.load()
-                    if (len(track.artists) > 0 and track.artists[0].name is not None
-                        and track.name is not None):
+                    if (len(track.artists) > 0 and track.artists[0].name
+                            is not None and track.name is not None):
                         print_with_bullet(track.artists[0].name + " - " +
-                            track.name)
+                                          track.name)
                     else:
-                       print_with_bullet(track.link.uri)
+                        print_with_bullet(track.link.uri)
                 except spotify.Error as e:
                     print_with_bullet(track.link.uri)
             print("")
 
         if len(self.success_tracks) > 0:
-            print(Fore.GREEN + "\nSuccess Summary (" + str(len(self.success_tracks)) +
-                ")\n" + ("-" * 79) + Fore.RESET)
+            print(Fore.GREEN + "\nSuccess Summary (" +
+                  str(len(self.success_tracks)) +
+                  ")\n" + ("-" * 79) + Fore.RESET)
             log_tracks(self.success_tracks)
         if len(self.failure_tracks) > 0:
-            print(Fore.RED + "\nFailure Summary (" + str(len(self.failure_tracks)) +
-                ")\n" + ("-" * 79) + Fore.RESET)
+            print(Fore.RED + "\nFailure Summary (" +
+                  str(len(self.failure_tracks)) +
+                  ")\n" + ("-" * 79) + Fore.RESET)
             log_tracks(self.failure_tracks)
 
     def create_playlist_m3u(self, tracks):
@@ -89,17 +91,20 @@ class PostActions(object):
         if ripper.current_playlist is not None and args.playlist_m3u:
             _base_dir = base_dir(args)
             playlist_path = to_ascii(
-                args, os.path.join(_base_dir, ripper.current_playlist.name + '.m3u')
+                args, os.path.join(_base_dir,
+                                   ripper.current_playlist.name + '.m3u')
             )
 
-            print(Fore.GREEN + "Creating playlist m3u file " + playlist_path + Fore.RESET)
+            print(Fore.GREEN + "Creating playlist m3u file " +
+                  playlist_path + Fore.RESET)
 
             encoding = "ascii" if args.ascii else "utf-8"
             with codecs.open(playlist_path, 'w', encoding) as playlist:
                 for idx, track in enumerate(tracks):
                     _file = ripper.format_track_path(idx, track)
                     if os.path.exists(_file):
-                        playlist.write(os.path.relpath(_file, _base_dir) + "\n")
+                        playlist.write(os.path.relpath(_file, _base_dir) +
+                                       "\n")
 
     def create_playlist_wpl(self, tracks):
         args = self.args
@@ -108,31 +113,44 @@ class PostActions(object):
         if ripper.current_playlist is not None and args.playlist_wpl:
             _base_dir = base_dir(args)
             playlist_path = to_ascii(
-                args, os.path.join(_base_dir, ripper.current_playlist.name + '.wpl')
+                args, os.path.join(_base_dir,
+                                   ripper.current_playlist.name + '.wpl')
             )
 
-            print(Fore.GREEN + "Creating playlist wpl file " + playlist_path + Fore.RESET)
+            print(Fore.GREEN + "Creating playlist wpl file " +
+                  playlist_path + Fore.RESET)
 
             encoding = "ascii" if args.ascii else "utf-8"
             with codecs.open(playlist_path, 'w', encoding) as playlist:
                 # to get an accurate track count
-                track_paths = [_file for _file in [ripper.format_track_path(idx, track) for
-                    idx, track in enumerate(tracks)] if os.path.exists(_file)]
+                track_paths = [_file for _file in
+                               [ripper.format_track_path(idx, track)
+                                for idx, track in enumerate(tracks)]
+                               if os.path.exists(_file)]
 
                 playlist.write('<?wpl version="1.0"?>\n')
                 playlist.write('<smil>\n')
                 playlist.write('\t<head>\n')
-                playlist.write('\t\t<meta name="Generator" content="Microsoft Windows Media Player -- 12.0.7601.18526"/>\n')
-                playlist.write('\t\t<meta name="ItemCount" content="' + str(len(track_paths)) +'"/>\n')
-                playlist.write('\t\t<author>' + ripper.session.user.display_name + '</author>\n')
-                playlist.write('\t\t<title>' + ripper.current_playlist.name + '</title>\n')
+                playlist.write('\t\t<meta name="Generator" '
+                               'content="Microsoft Windows Media Player -- '
+                               '12.0.7601.18526"/>\n')
+                playlist.write('\t\t<meta name="ItemCount" content="' +
+                               str(len(track_paths)) + '"/>\n')
+                playlist.write('\t\t<author>' +
+                               ripper.session.user.display_name +
+                               '</author>\n')
+                playlist.write('\t\t<title>' +
+                               ripper.current_playlist.name +
+                               '</title>\n')
                 playlist.write('\t</head>\n')
                 playlist.write('\t<body>\n')
                 playlist.write('\t\t<seq>\n')
                 for _file in track_paths:
                     _file.replace("&", "&amp;")
                     _file.replace("'", "&apos;")
-                    playlist.write('\t\t\t<media src="' + os.path.relpath(_file, _base_dir) + "\"/>\n")
+                    playlist.write('\t\t\t<media src="' +
+                                   os.path.relpath(_file, _base_dir) +
+                                   "\"/>\n")
                 playlist.write('\t\t</seq>\n')
                 playlist.write('\t</body>\n')
                 playlist.write('</smil>\n')
@@ -149,7 +167,8 @@ class PostActions(object):
 
         if self.args.remove_from_playlist:
             if ripper.current_playlist:
-                if ripper.current_playlist.owner.canonical_name == ripper.session.user.canonical_name:
+                if ripper.current_playlist.owner.canonical_name == \
+                        ripper.session.user.canonical_name:
                     self.tracks_to_remove.append(idx)
                 else:
                     print(Fore.RED +

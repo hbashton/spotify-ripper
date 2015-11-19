@@ -214,8 +214,8 @@ class Progress(object):
             if self.total_eta is not None:
                 _spaces = max(22 - len(output_strings[2]), 1) * " "
                 output_strings.append(_spaces)
-                _str = "(~" + format_time(self.total_eta,
-                                            short=True) + " remaining)"
+                _str = "(~" + format_time(self.total_eta, short=True) + \
+                       " remaining)"
                 output_strings.append(_str)
 
             output_what_fits("\n\033[2K", output_strings)

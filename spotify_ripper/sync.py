@@ -5,10 +5,10 @@ from __future__ import unicode_literals
 from colorama import Fore, Style
 from spotify_ripper.utils import *
 import os
-import sys
 import json
 import codecs
 import spotify
+
 
 class Sync(object):
 
@@ -42,8 +42,9 @@ class Sync(object):
 
         encoding = "ascii" if args.ascii else "utf-8"
         with codecs.open(lib_path, 'w', encoding) as lib_file:
-            lib_file.write(json.dumps(lib, ensure_ascii=args.ascii,
-                indent=4, separators=(',', ': ')))
+            lib_file.write(
+                json.dumps(lib, ensure_ascii=args.ascii,
+                           indent=4, separators=(',', ': ')))
 
     def load_sync_library(self, playlist):
         args = self.args
@@ -55,7 +56,6 @@ class Sync(object):
                 return json.loads(lib_file.read())
         else:
             return {}
-
 
     def sync_playlist(self, playlist):
         args = self.args
