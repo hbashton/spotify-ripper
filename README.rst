@@ -294,6 +294,7 @@ Recommend approach uses `homebrew <http://brew.sh/>`__ and
 `pyenv <https://github.com/yyuu/pyenv>`__
 
 To install pyenv using homebrew:
+
 .. code:: bash
     $ brew update
     $ brew install pyenv
@@ -301,6 +302,7 @@ To install pyenv using homebrew:
     ## restart terminal ##
 
 Once pyenv is setup, to install spotify-ripper:
+
 .. code:: bash
 
     $ brew install homebrew/binary/libspotify
@@ -326,11 +328,13 @@ version <https://developer.spotify.com/download/libspotify/libspotify-12.1.103-L
 of libspotify.
 
 To install pyenv using pyenv-installer (requires git and curl):
+
 .. code:: bash
     $ curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
     ## restart terminal ##
 
 Once pyenv is setup, to install spotify-ripper:
+
 .. code:: bash
 
     $ sudo apt-get install lame build-essential libffi-dev
