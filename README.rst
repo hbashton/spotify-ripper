@@ -293,6 +293,14 @@ Mac OS X
 Recommend approach uses `homebrew <http://brew.sh/>`__ and
 `pyenv <https://github.com/yyuu/pyenv>`__
 
+To install pyenv using homebrew:
+.. code:: bash
+    $ brew update
+    $ brew install pyenv
+    $ echo 'if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi' >> ~/.bash_profile
+    ## restart terminal ##
+
+Once pyenv is setup, to install spotify-ripper:
 .. code:: bash
 
     $ brew install homebrew/binary/libspotify
@@ -317,6 +325,12 @@ too. If you are installing on the Raspberry Pi (gen 1), use the
 version <https://developer.spotify.com/download/libspotify/libspotify-12.1.103-Linux-armv6-bcm2708hardfp-release.tar.gz>`__
 of libspotify.
 
+To install pyenv using pyenv-installer (requires git and curl):
+.. code:: bash
+    $ curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+    ## restart terminal ##
+
+Once pyenv is setup, to install spotify-ripper:
 .. code:: bash
 
     $ sudo apt-get install lame build-essential libffi-dev
