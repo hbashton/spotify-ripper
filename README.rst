@@ -296,6 +296,7 @@ Recommend approach uses `homebrew <http://brew.sh/>`__ and
 To install pyenv using homebrew:
 
 .. code:: bash
+
     $ brew update
     $ brew install pyenv
     $ echo 'if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi' >> ~/.bash_profile
@@ -330,6 +331,7 @@ of libspotify.
 To install pyenv using pyenv-installer (requires git and curl):
 
 .. code:: bash
+
     $ curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
     ## restart terminal ##
 
