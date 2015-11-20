@@ -232,8 +232,8 @@ Format String Variables
 +-----------------------------------------+-----------------------------------------------+
 |``{user}``, ``{username}``               | Spotify username of logged-in user            |
 +-----------------------------------------+-----------------------------------------------+
-|``{feat_artists}, ``{featuring_artists}``| Featuring artists join by commas (see Prefix  |
-|                                         | String section below)                         |
+|``{feat_artists}``,                      | Featuring artists join by commas (see Prefix  |
+|``{featuring_artists}``                  | String section below)                         |
 +-----------------------------------------+-----------------------------------------------+
 
 Any substring in the format string that does not match a variable above will be passed through to the file/path name unchanged.
