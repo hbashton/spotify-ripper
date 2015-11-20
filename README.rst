@@ -302,7 +302,7 @@ To install pyenv using homebrew:
     $ echo 'if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi' >> ~/.bash_profile
     ## restart terminal ##
 
-Once pyenv is setup, to install spotify-ripper:
+To install spotify-ripper once pyenv is setup:
 
 .. code:: bash
 
@@ -328,14 +328,14 @@ too. If you are installing on the Raspberry Pi (gen 1), use the
 version <https://developer.spotify.com/download/libspotify/libspotify-12.1.103-Linux-armv6-bcm2708hardfp-release.tar.gz>`__
 of libspotify.
 
-To install pyenv using pyenv-installer (requires git and curl):
+To install pyenv using `pyenv-installer <https://github.com/yyuu/pyenv-installer>`__ (requires git and curl):
 
 .. code:: bash
 
     $ curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
     ## restart terminal ##
 
-Once pyenv is setup, to install spotify-ripper:
+To install spotify-ripper once pyenv is setup:
 
 .. code:: bash
 
