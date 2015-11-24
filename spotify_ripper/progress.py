@@ -63,7 +63,7 @@ class Progress(object):
                 if track.availability != 1:
                     continue
                 audio_file = self.ripper.format_track_path(idx, track)
-                if not self.args.overwrite and os.path.exists(audio_file):
+                if not self.args.overwrite and os.path.exists(audio_file.encode("utf8")):
                     continue
                 self.total_tracks += 1
                 self.total_duration += track.duration
