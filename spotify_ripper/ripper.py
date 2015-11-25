@@ -680,6 +680,9 @@ class Ripper(threading.Thread):
         else:
             audio_file = truncate_file_name(tokens[0])
 
+        # remove not allowed characters in filename and encode utf-8
+        audio_file = audio_file.replace('*.’"/\[]:;|=,', '')
+
         # prepend base_dir
         audio_file = to_ascii(args, os.path.join(_base_dir, audio_file))
 
@@ -687,6 +690,9 @@ class Ripper(threading.Thread):
         audio_path = os.path.dirname(audio_file)
         if not os.path.exists(audio_path):
             os.makedirs(audio_path)
+
+        # encode filename utf-8
+        audio_file = audio_file.encode("utf8")
 
         return audio_file
 
