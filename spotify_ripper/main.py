@@ -431,6 +431,27 @@ def main(prog_args=sys.argv[1:]):
         ripper.progress.handle_resize()
         signal.signal(signal.SIGWINCH, ripper.progress.handle_resize)
 
+    def abort(set_logged_in=False):
+        ripper.abort_rip()
+        if set_logged_in:
+            ripper.logged_in.set()
+        ripper.join()
+        sys.exit(1)
+
+    # login on main thread to catch any KeyboardInterrupt
+    try:
+        if not ripper.login():
+            print(
+                Fore.RED + "Encountered issue while logging into "
+                           "Spotify, aborting..." + Fore.RESET)
+            abort(set_logged_in=True)
+
+    except (KeyboardInterrupt, Exception) as e:
+        if not isinstance(e, KeyboardInterrupt):
+            print(str(e))
+        print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
+        abort(set_logged_in=True)
+
     # wait for ripping thread to finish
     try:
         while ripper.isAlive():
@@ -440,10 +461,7 @@ def main(prog_args=sys.argv[1:]):
         if not isinstance(e, KeyboardInterrupt):
             print(str(e))
         print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
-        ripper.abort_rip()
-        ripper.join()
-        sys.exit(1)
-
+        abort()
 
 if __name__ == '__main__':
     main()

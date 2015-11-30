@@ -142,13 +142,9 @@ class Ripper(threading.Thread):
             self.event_loop.stop()
             self.event_loop.join()
 
-    def run(self):
+    def login(self):
         args = self.args
 
-        # start event loop
-        self.event_loop.start()
-
-        # login
         print("Logging in...")
         if args.last:
             self.login_as_last()
@@ -156,16 +152,21 @@ class Ripper(threading.Thread):
         if not self.login_success and args.user is not None:
             if args.password is None:
                 password = getpass.getpass()
-                self.login(args.user[0], password)
+                self.login_as_user(args.user[0], password)
             else:
-                self.login(args.user[0], args.password[0])
+                self.login_as_user(args.user[0], args.password[0])
 
-        if not self.login_success:
-            print(
-                Fore.RED + "Encountered issue while logging into "
-                           "Spotify, aborting..." + Fore.RESET)
-            self.stop_event_loop()
-            self.finished.set()
+        return self.login_success
+
+    def run(self):
+        args = self.args
+
+        # start event loop
+        self.event_loop.start()
+
+        # wait for main thread to login
+        self.logged_in.wait()
+        if self.abort.is_set():
             return
 
         # check if we were passed a file name or search
@@ -492,7 +493,7 @@ class Ripper(threading.Thread):
         self.session.player.play(False)
         self.end_of_track.set()
 
-    def login(self, user, password):
+    def login_as_user(self, user, password):
         """login into Spotify"""
         self.session.login(user, password, remember_me=True)
         self.logged_in.wait()
