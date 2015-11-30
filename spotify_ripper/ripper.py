@@ -152,11 +152,13 @@ class Ripper(threading.Thread):
         print("Logging in...")
         if args.last:
             self.login_as_last()
-        elif args.user is not None and args.password is None:
-            password = getpass.getpass()
-            self.login(args.user[0], password)
-        else:
-            self.login(args.user[0], args.password[0])
+
+        if not self.login_success and args.user is not None:
+            if args.password is None:
+                password = getpass.getpass()
+                self.login(args.user[0], password)
+            else:
+                self.login(args.user[0], args.password[0])
 
         if not self.login_success:
             print(
