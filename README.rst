@@ -301,6 +301,9 @@ To install pyenv using homebrew:
     $ brew install pyenv
     $ echo 'if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi' >> ~/.bash_profile
     ## restart terminal ##
+    $ pyenv install 2.7.10  # or whatever version of python you want
+    $ pyenv global 2.7.10
+    $ python -V             # should say Python 2.7.10
 
 To install spotify-ripper once pyenv is setup:
 
@@ -334,6 +337,9 @@ To install pyenv using `pyenv-installer <https://github.com/yyuu/pyenv-installer
 
     $ curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
     ## restart terminal ##
+    $ pyenv install 2.7.10  # or whatever version of python you want
+    $ pyenv global 2.7.10
+    $ python -V             # should say Python 2.7.10
 
 To install spotify-ripper once pyenv is setup:
 
