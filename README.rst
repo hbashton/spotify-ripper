@@ -437,14 +437,14 @@ If you see an error similar to:
     UnicodeEncodeError at <FILENAME>
     ‘ascii’ codec can’t encode characters in position <NUMBER>: ordinal not in range(128)
 
-most likely you do not have your locale set to UTF-8 (either in your system or terminal).  Setting these environment variables might help:
+most likely, you do not have your locale set to UTF-8 (either in your system or in your terminal).  Setting these environment variables might help:
 
 .. code:: bash
 
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
 
-If that does not help, can try using the ``--ascii`` option.
+If that does not help, you can force spotify-ripper to convert all characters to ascii using the ``--ascii`` option.  Note that this will cause all non-ascii characters (e.g. ö) to be removed.
 
 
 Release Notes
