@@ -67,7 +67,7 @@ class Progress(object):
                     continue
                 self.total_tracks += 1
                 self.total_duration += track.duration
-                file_size = calc_file_size(self.args, track)
+                file_size = calc_file_size(track)
                 self.total_size += file_size
             except spotify.Error as e:
                 continue
@@ -146,14 +146,14 @@ class Progress(object):
 
         # log output until we run out of space on this line
         def output_what_fits(init, output_strings):
-            print_str(self.args, init)
+            print_str(init)
             w = 0
             for _str in output_strings:
                 _len = len(_str)
                 if w + _len >= (self.term_width - 1):
                     return
 
-                print_str(self.args, _str)
+                print_str(_str)
                 w += _len
 
         # make progress bar width flexible
@@ -224,4 +224,4 @@ class Progress(object):
         self.song_position = self.song_duration
         self.eta_calc()
         self.update_progress(0, None)
-        print_str(self.args, "\n")
+        print_str("\n")

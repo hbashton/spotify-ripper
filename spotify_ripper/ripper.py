@@ -142,6 +142,7 @@ class Ripper(threading.Thread):
             self.event_loop.stop()
             self.event_loop.join()
 
+    # executes on main thread (not SpotifyRipper thread)
     def login(self):
         args = self.args
 
@@ -253,6 +254,10 @@ class Ripper(threading.Thread):
                                 break
 
                             rip_item = self.rip_queue.get(timeout=1)
+
+                            if self.abort.is_set():
+                                break
+
                             self.rip(self.session, rip_item[0],
                                      rip_item[1], rip_item[2])
                         except queue.Empty:
@@ -400,9 +405,8 @@ class Ripper(threading.Thread):
         return album_uris
 
     def search_query(self, query):
-        args = self.args
-
         print("Searching for query: " + query)
+
         try:
             result = self.session.search(query)
             result.load()
@@ -414,9 +418,9 @@ class Ripper(threading.Thread):
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
             print("  " + Fore.YELLOW + str(track_idx + 1) + Fore.RESET +
-                  " [" + to_ascii(args, track.album.name) + "] " +
-                  to_ascii(args, track.artists[0].name) + " - " +
-                  to_ascii(args, track.name) +
+                  " [" + to_ascii(track.album.name) + "] " +
+                  to_ascii(track.artists[0].name) + " - " +
+                  to_ascii(track.name) +
                   " (" + str(track.popularity) + ")")
 
         pick = raw_input("Pick track(s) (ex 1-3,5): ")
@@ -543,21 +547,20 @@ class Ripper(threading.Thread):
 
     def format_track_path(self, idx, track):
         args = self.args
-        _base_dir = base_dir(args)
+        _base_dir = base_dir()
         audio_file = args.format[0].strip()
 
         track_artist = to_ascii(
-            args, escape_filename_part(track.artists[0].name))
-        track_artists = to_ascii(args, ", ".join(
+            escape_filename_part(track.artists[0].name))
+        track_artists = to_ascii(", ".join(
             [artist.name for artist in track.artists]))
         if len(track.artists) > 1:
-            featuring_artists = to_ascii(args, ", ".join(
+            featuring_artists = to_ascii(", ".join(
                 [artist.name for artist in track.artists[1:]]))
         else:
             featuring_artists = ""
 
         album_artist = to_ascii(
-            args,
             self.current_album.artist.name
             if self.current_album is not None else track_artist)
         album_artists_web = track_artists
@@ -567,19 +570,19 @@ class Ripper(threading.Thread):
                 audio_file.find("{album_artists_web}") >= 0):
             artist_array = self.album_artists_web(self.current_album.link.uri)
             if artist_array is not None:
-                album_artists_web = to_ascii(args, ", ".join(artist_array))
+                album_artists_web = to_ascii(", ".join(artist_array))
 
-        album = to_ascii(args, escape_filename_part(track.album.name))
-        track_name = to_ascii(args, escape_filename_part(track.name))
+        album = to_ascii(escape_filename_part(track.album.name))
+        track_name = to_ascii(escape_filename_part(track.name))
         year = str(track.album.year)
         extension = args.output_type
         idx_str = str(idx + 1)
         track_num = str(track.index)
         disc_num = str(track.disc)
         if self.current_playlist is not None:
-            playlist_name = to_ascii(args, self.current_playlist.name)
+            playlist_name = to_ascii(self.current_playlist.name)
             playlist_owner = to_ascii(
-                args, self.current_playlist.owner.display_name)
+                self.current_playlist.owner.display_name)
         else:
             playlist_name = "No Playlist"
             playlist_owner = "No Playlist Owner"
@@ -684,10 +687,10 @@ class Ripper(threading.Thread):
             audio_file = truncate_file_name(tokens[0])
 
         # remove not allowed characters in filename and encode utf-8
-        audio_file = audio_file.replace('*.’"/\[]:;|=,', '')
+        audio_file = audio_file.replace('*."/\[]:;|=,', '')
 
         # prepend base_dir
-        audio_file = to_ascii(args, os.path.join(_base_dir, audio_file))
+        audio_file = to_ascii(os.path.join(_base_dir, audio_file))
 
         # create directory if it doesn't exist
         audio_path = os.path.dirname(audio_file)
@@ -713,7 +716,7 @@ class Ripper(threading.Thread):
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.audio_file + Fore.RESET)
 
-        file_size = calc_file_size(self.args, track)
+        file_size = calc_file_size(track)
         print("Track Download Size: " + format_size(file_size))
 
         if args.output_type == "wav":

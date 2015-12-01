@@ -62,7 +62,7 @@ class Sync(object):
         lib = self.load_sync_library(playlist)
         new_lib = {}
 
-        print("Syncing playlist " + to_ascii(args, playlist.name))
+        print("Syncing playlist " + to_ascii(playlist.name))
 
         # remove any missing files from the lib or playlist
         uris = set([t.link.uri for t in playlist.tracks])

@@ -22,7 +22,7 @@ class PostActions(object):
 
         # create a log file for rip failures
         if args.fail_log is not None:
-            _base_dir = base_dir(args)
+            _base_dir = base_dir()
             if not os.path.exists(_base_dir):
                 os.makedirs(_base_dir)
 
@@ -89,10 +89,10 @@ class PostActions(object):
         ripper = self.ripper
 
         if ripper.current_playlist is not None and args.playlist_m3u:
-            _base_dir = base_dir(args)
+            _base_dir = base_dir()
             playlist_path = to_ascii(
-                args, os.path.join(_base_dir,
-                                   ripper.current_playlist.name + '.m3u')
+                os.path.join(_base_dir,
+                             ripper.current_playlist.name + '.m3u')
             )
 
             print(Fore.GREEN + "Creating playlist m3u file " +
@@ -111,10 +111,10 @@ class PostActions(object):
         ripper = self.ripper
 
         if ripper.current_playlist is not None and args.playlist_wpl:
-            _base_dir = base_dir(args)
+            _base_dir = base_dir()
             playlist_path = to_ascii(
-                args, os.path.join(_base_dir,
-                                   ripper.current_playlist.name + '.wpl')
+                os.path.join(_base_dir,
+                             ripper.current_playlist.name + '.wpl')
             )
 
             print(Fore.GREEN + "Creating playlist wpl file " +

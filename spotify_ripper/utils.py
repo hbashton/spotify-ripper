@@ -10,9 +10,20 @@ import re
 import math
 
 
-def print_str(args, _str):
+#  since there is no class, use global var
+util_globals = {'args': None}
+
+
+def init_util_globals(args):
+    util_globals['args'] = args
+
+
+def get_args():
+    return util_globals['args']
+
+def print_str(_str):
     """print without newline"""
-    if not args.has_log:
+    if not get_args().has_log:
         sys.stdout.write(_str)
         sys.stdout.flush()
 
@@ -32,9 +43,10 @@ def escape_filename_part(part):
     return part
 
 
-def to_ascii(args, _str, on_error='ignore'):
+def to_ascii(_str, on_error='ignore'):
     """convert unicode to ascii if necessary"""
     # python 3 renamed unicode to str
+    args = get_args()
     if sys.version_info >= (3, 0):
         if isinstance(_str, bytes) and not args.ascii:
             return str(_str, "utf-8")
@@ -67,18 +79,20 @@ def default_settings_dir():
     return norm_path(os.path.join(os.path.expanduser("~"), ".spotify-ripper"))
 
 
-def settings_dir(args):
+def settings_dir():
+    args = get_args()
     return norm_path(args.settings[0]) if args.settings is not None \
         else default_settings_dir()
 
 
-def base_dir(args):
+def base_dir():
+    args = get_args()
     return norm_path(args.directory[0]) if args.directory is not None \
         else os.getcwd()
 
 
-def calc_file_size(args, track):
-    return (int(args.quality) / 8) * track.duration
+def calc_file_size(track):
+    return (int(get_args().quality) / 8) * track.duration
 
 
 # returns path of executable

@@ -20,8 +20,8 @@ else:
     import ConfigParser
 
 
-def load_config(args, defaults):
-    _settings_dir = settings_dir(args)
+def load_config(defaults):
+    _settings_dir = settings_dir()
     config_file = os.path.join(_settings_dir, "config.ini")
     if os.path.exists(config_file):
         try:
@@ -103,6 +103,7 @@ def main(prog_args=sys.argv[1:]):
         help='Path to settings, config and temp files directory '
              '[Default=~/.spotify-ripper]')
     args, remaining_argv = settings_parser.parse_known_args(prog_args)
+    init_util_globals(args)
 
     # load config file, overwriting any defaults
     defaults = {
@@ -111,7 +112,7 @@ def main(prog_args=sys.argv[1:]):
         "comp": "10",
         "vbr": "0",
     }
-    defaults = load_config(args, defaults)
+    defaults = load_config(defaults)
 
     parser = argparse.ArgumentParser(
         prog='spotify-ripper',
@@ -275,6 +276,7 @@ def main(prog_args=sys.argv[1:]):
         help='One or more Spotify URI(s) (either URI, a file of URIs or a '
              'search query)')
     args = parser.parse_args(remaining_argv)
+    init_util_globals(args)
 
     # kind of a hack to get colorama stripping to work when outputting
     # to a file instead of stdout.  Taken from initialise.py in colorama
@@ -410,9 +412,9 @@ def main(prog_args=sys.argv[1:]):
     print(Fore.YELLOW + "  Unicode support:\t" +
           Fore.RESET + unicode_support_str())
     print(Fore.YELLOW + "  Output directory:\t" + Fore.RESET +
-          base_dir(args))
+          base_dir())
     print(Fore.YELLOW + "  Settings directory:\t" + Fore.RESET +
-          settings_dir(args))
+          settings_dir())
 
     print(Fore.YELLOW + "  Format String:\t" + Fore.RESET + args.format[0])
     print(Fore.YELLOW + "  Overwrite files:\t" +

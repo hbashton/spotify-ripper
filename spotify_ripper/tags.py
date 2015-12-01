@@ -67,13 +67,13 @@ def set_metadata_tags(args, audio_file, track):
     try:
         audio = None
         on_error = 'replace' if args.ascii_path_only else 'ignore'
-        album = to_ascii(args, track.album.name, on_error)
-        artist = to_ascii(args, track.artists[0].name, on_error)
-        title = to_ascii(args, track.name, on_error)
+        album = to_ascii(track.album.name, on_error)
+        artist = to_ascii(track.artists[0].name, on_error)
+        title = to_ascii(track.name, on_error)
         if args.comment is not None:
-            comment = to_ascii(args, args.comment[0], on_error)
+            comment = to_ascii(args.comment[0], on_error)
         if genres is not None and genres:
-            genres_ascii = [to_ascii(args, genre) for genre in genres]
+            genres_ascii = [to_ascii(genre) for genre in genres]
 
         # cover art image
         image = track.album.cover()
