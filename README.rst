@@ -423,6 +423,30 @@ Use ``pip`` to upgrade to the latest version.
 
     $ pip install --upgrade spotify-ripper
 
+
+Help
+----
+
+UnicodeEncodeError
+~~~~~~~~~~~~~~~~~~
+
+If you see an error similar to:
+
+.. code:: text
+
+    UnicodeEncodeError at <FILENAME>
+    ‘ascii’ codec can’t encode characters in position <NUMBER>: ordinal not in range(128)
+
+most likely you do not have your locale set to UTF-8 (either in your system or terminal).  Setting these environment variables might help:
+
+.. code:: bash
+
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+
+If that does not help, can try using the ``--ascii`` option.
+
+
 Release Notes
 -------------
 
