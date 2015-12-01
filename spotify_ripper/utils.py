@@ -21,6 +21,16 @@ def init_util_globals(args):
 def get_args():
     return util_globals['args']
 
+
+def enc_str(_str):
+    encoding = "ascii" if get_args().ascii else "utf-8"
+    return _str.encode(encoding)
+
+
+def path_exists(path):
+    return os.path.exists(enc_str(path))
+
+
 def print_str(_str):
     """print without newline"""
     if not get_args().has_log:

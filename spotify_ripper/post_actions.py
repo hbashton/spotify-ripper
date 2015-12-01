@@ -23,8 +23,8 @@ class PostActions(object):
         # create a log file for rip failures
         if args.fail_log is not None:
             _base_dir = base_dir()
-            if not os.path.exists(_base_dir):
-                os.makedirs(_base_dir)
+            if not path_exists(_base_dir):
+                os.makedirs(enc_str(_base_dir))
 
             encoding = "ascii" if args.ascii else "utf-8"
             self.fail_log_file = codecs.open(os.path.join(
@@ -46,7 +46,7 @@ class PostActions(object):
             self.fail_log_file.close()
             self.fail_log_file = None
 
-            if os.path.getsize(file_name) == 0:
+            if os.path.getsize(enc_str(file_name)) == 0:
                 rm_file(file_name)
 
     def print_summary(self):
@@ -102,7 +102,7 @@ class PostActions(object):
             with codecs.open(playlist_path, 'w', encoding) as playlist:
                 for idx, track in enumerate(tracks):
                     _file = ripper.format_track_path(idx, track)
-                    if os.path.exists(_file):
+                    if path_exists(_file):
                         playlist.write(os.path.relpath(_file, _base_dir) +
                                        "\n")
 
@@ -126,7 +126,7 @@ class PostActions(object):
                 track_paths = [_file for _file in
                                [ripper.format_track_path(idx, track)
                                 for idx, track in enumerate(tracks)]
-                               if os.path.exists(_file)]
+                               if path_exists(_file)]
 
                 playlist.write('<?wpl version="1.0"?>\n')
                 playlist.write('<smil>\n')
@@ -158,7 +158,7 @@ class PostActions(object):
     def clean_up_partial(self):
         ripper = self.ripper
 
-        if ripper.audio_file is not None and os.path.exists(ripper.audio_file):
+        if ripper.audio_file is not None and path_exists(ripper.audio_file):
             print(Fore.YELLOW + "Deleting partially ripped file" + Fore.RESET)
             rm_file(ripper.audio_file)
 

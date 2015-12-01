@@ -83,11 +83,11 @@ class Ripper(threading.Thread):
         if args.key is not None:
             config.load_application_key_file(args.key[0])
         else:
-            if not os.path.exists(default_dir):
-                os.makedirs(default_dir)
+            if not path_exists(default_dir):
+                os.makedirs(enc_str(default_dir))
 
             app_key_path = os.path.join(default_dir, "spotify_appkey.key")
-            if not os.path.exists(app_key_path):
+            if not path_exists(app_key_path):
                 print("\n" + Fore.YELLOW +
                       "Please copy your spotify_appkey.key to " +
                       default_dir + ", or use the --key|-k option" +
@@ -171,7 +171,7 @@ class Ripper(threading.Thread):
             return
 
         # check if we were passed a file name or search
-        if len(args.uri) == 1 and os.path.exists(args.uri[0]):
+        if len(args.uri) == 1 and path_exists(args.uri[0]):
             uris = [line.strip() for line in open(args.uri[0])]
         elif len(args.uri) == 1 and not args.uri[0].startswith("spotify:"):
             uris = [list(self.search_query(args.uri[0]))]
@@ -235,7 +235,7 @@ class Ripper(threading.Thread):
 
                     self.audio_file = self.format_track_path(idx, track)
 
-                    if not args.overwrite and os.path.exists(self.audio_file):
+                    if not args.overwrite and path_exists(self.audio_file):
                         print(
                             Fore.YELLOW + "Skipping " +
                             track.link.uri + Fore.RESET)
@@ -694,11 +694,8 @@ class Ripper(threading.Thread):
 
         # create directory if it doesn't exist
         audio_path = os.path.dirname(audio_file)
-        if not os.path.exists(audio_path):
-            os.makedirs(audio_path)
-
-        # encode filename utf-8
-        audio_file = audio_file.encode("utf8")
+        if not path_exists(audio_path):
+            os.makedirs(enc_str(audio_path))
 
         return audio_file
 

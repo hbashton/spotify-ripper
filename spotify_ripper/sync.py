@@ -30,8 +30,8 @@ class Sync(object):
         else:
             lib_path = os.path.join(default_settings_dir(), "Sync")
 
-        if not os.path.exists(lib_path):
-            os.makedirs(lib_path)
+        if not path_exists(lib_path):
+            os.makedirs(enc_str(lib_path))
 
         encoding = "ascii" if args.ascii else "utf-8"
         return os.path.join(lib_path, uri_tokens[4].encode(encoding) + ".json")
@@ -50,7 +50,7 @@ class Sync(object):
         args = self.args
         lib_path = self.sync_lib_path(playlist)
 
-        if os.path.exists(lib_path):
+        if path_exists(lib_path):
             encoding = "ascii" if args.ascii else "utf-8"
             with codecs.open(lib_path, 'r', encoding) as lib_file:
                 return json.loads(lib_file.read())
@@ -69,7 +69,7 @@ class Sync(object):
         for uri, file_path in lib.items():
             encoding = "ascii" if args.ascii else "utf-8"
             file_path = file_path.encode(encoding)
-            if not os.path.exists(file_path):
+            if not path_exists(file_path):
                 del lib[uri]
             elif uri not in uris:
                 os.remove(file_path)
