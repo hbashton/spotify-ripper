@@ -358,6 +358,12 @@ Download an application key file ``spotify_appkey.key`` from
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
 the ``-k | --key`` option).
 
+Windows
+~~~~~~~
+
+Unfortunately, libspotify seems to have an issue building on Windows (if someone can get this to work, please let me know). The best alternative is to run a linux distribution in a virtual machine.  Basic instructions to install Ubuntu on Virtual Box can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Windows>`__.
+
+
 Optional Encoding Formats
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -424,33 +430,17 @@ Use ``pip`` to upgrade to the latest version.
     $ pip install --upgrade spotify-ripper
 
 
-Help
-----
+Common Issues and Problems
+--------------------------
 
-UnicodeEncodeError
-~~~~~~~~~~~~~~~~~~
-
-If you see an error similar to:
-
-.. code:: text
-
-    UnicodeEncodeError at <FILENAME>
-    ‘ascii’ codec can’t encode characters in position <NUMBER>: ordinal not in range(128)
-
-most likely, you do not have your locale set to UTF-8 (either in your system or in your terminal).  Setting these environment variables might help:
-
-.. code:: bash
-
-    export LANG="en_US.UTF-8"
-    export LC_ALL="en_US.UTF-8"
-
-If that does not help, you can force spotify-ripper to convert all characters to ascii using the ``--ascii`` option.  Note that this will cause all non-ascii characters (e.g. ö) to be removed.
+Help for common problems while using spotify-ripper can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Help>`__.
 
 
 Release Notes
 -------------
 
 Release notes can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Release-Notes>`__.
+
 
 License
 -------
