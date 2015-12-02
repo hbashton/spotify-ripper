@@ -361,7 +361,7 @@ the ``-k | --key`` option).
 Windows
 ~~~~~~~
 
-Unfortunately, libspotify seems to have an issue building on Windows (if someone can get this to work, please let me know). The best alternative is to run a linux distribution in a virtual machine.  Basic instructions to install Ubuntu on Virtual Box can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Windows>`__.
+Unfortunately, pyspotify seems to have an issue building on Windows (if someone can get this to work, please let me know). The best alternative is to run a linux distribution in a virtual machine.  Basic instructions to install Ubuntu on Virtual Box can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Windows>`__.
 
 
 Optional Encoding Formats
