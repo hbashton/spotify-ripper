@@ -185,7 +185,7 @@ class PostActions(object):
         ripper = self.ripper
 
         if self.args.remove_from_playlist and \
-                ripper.current_playlist and len(ripper.tracks_to_remove) > 0:
+                ripper.current_playlist and len(self.tracks_to_remove) > 0:
             print(Fore.YELLOW +
                   "Removing successfully ripped tracks from playlist " +
                   ripper.current_playlist.name + "..." + Fore.RESET)
