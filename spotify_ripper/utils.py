@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 from colorama import Fore, Style
 import os
@@ -34,8 +34,7 @@ def path_exists(path):
 def print_str(_str):
     """print without newline"""
     if not get_args().has_log:
-        sys.stdout.write(_str)
-        sys.stdout.flush()
+        print(_str, end = '', flush = True)
 
 
 def norm_path(path):
