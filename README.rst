@@ -241,12 +241,12 @@ Any substring in the format string that does not match a variable above will be 
 Zero-Filled Padding
 ~~~~~~~~~~~~~~~~~~~
 
-Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filled padding will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, and ``{disc_num}`` and thier aliases.
+Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filled padding will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, and ``{disc_num}`` and their aliases.
 
 Prefix String
 ~~~~~~~~~~~~~
 
-Format variable ``feat_artists`` takes a prefix string to be prepended before the output.  For example, ``{feat_artists:featuring} will produce the follow ouputing ``featuing Bruno Mars``.  If there are no featuring artists, the prefix string (and any preceeding spaces) will not be included.
+Format variable ``feat_artists`` takes a prefix string to be prepended before the output.  For example, ``{feat_artists:featuring} will produce the follow output ``featuing Bruno Mars``.  If there are no featuring artists, the prefix string (and any preceding spaces) will not be included.
 
 Playlist Sync Option
 ~~~~~~~~~~~~~~~~~~~~
