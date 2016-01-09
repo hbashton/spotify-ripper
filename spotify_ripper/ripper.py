@@ -10,6 +10,7 @@ from spotify_ripper.progress import Progress
 from spotify_ripper.post_actions import PostActions
 from spotify_ripper.sync import Sync
 from spotify_ripper.eventloop import EventLoop
+from datetime import datetime
 import os
 import sys
 import time
@@ -205,6 +206,7 @@ class Ripper(threading.Thread):
                 format_size(self.progress.total_size))
 
         # create track iterator
+        track_count = 0
         for uri in uris:
             if self.abort.is_set():
                 break
@@ -221,6 +223,14 @@ class Ripper(threading.Thread):
             # ripping loop
             for idx, track in enumerate(tracks):
                 try:
+                    track_count += 1
+                    if args.stop_after:
+                        if args.stop_tracks is not None:
+                            if track_count > args.stop_tracks:
+                                self.stop_time_abort()
+                        elif args.stop_time < datetime.now():
+                            self.stop_time_abort()
+
                     if self.abort.is_set():
                         break
 
@@ -307,6 +317,17 @@ class Ripper(threading.Thread):
         self.logout()
         self.stop_event_loop()
         self.finished.set()
+
+    def stop_time_abort(self):
+        self.abort.set()
+        print(Fore.YELLOW + "Aborting duing to --stop-after option stopping after")
+        if args.stop_tracks is not None:
+            print(
+                str(args.stop_tracks) + " track" + ("s"
+                    if args.stop_tracks > 1 else ""))
+        else:
+            print(args.stop_time.strftime("%H:%M"))
+        print(Fore.RESET)
 
     def load_link(self, uri):
         # blank out current playlist/album
