@@ -322,7 +322,7 @@ class Ripper(threading.Thread):
             if args.resume_after is not None:
                 resume_time = parse_time_str(args.resume_after)
                 print(Fore.YELLOW + "Script will resume at " +
-                    self.resume_time.strftime("%H:%M") + Fore.RESET)
+                    resume_time.strftime("%H:%M") + Fore.RESET)
                 while datetime.now() < resume_time:
                     time.sleep(60)
                 self.stop_time = None
