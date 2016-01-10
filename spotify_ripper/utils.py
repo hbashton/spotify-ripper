@@ -3,6 +3,7 @@
 from __future__ import unicode_literals, print_function
 
 from colorama import Fore, Style
+from datetime import datetime, timedelta
 import os
 import sys
 import errno
@@ -103,6 +104,34 @@ def base_dir():
 def calc_file_size(track):
     return (int(get_args().quality) / 8) * track.duration
 
+
+def parse_time_str(time_str):
+    # if we are passed a time (e.g. 14:20)
+    if re.match(r"^\d{2}:\d{2}$", time_str):
+        t = datetime.strptime(time_str, "%H:%M")
+        calc_time = datetime.now().replace(hour=t.hour, minute=t.minute)
+        if datetime.now() > calc_time:
+            calc_time += timedelta(days=1)
+
+        return calc_time
+
+    # if we are passed hour/minute offset (e.g. 1h20m)
+    match = re.match(r"^((\d+h)?(\d+m))|(\d+h)$", time_str)
+    if match is not None:
+        calc_time = datetime.now()
+        groups = match.groups()
+
+        hours = groups[1] if groups[1] is not None else groups[3]
+        if hours is not None:
+            calc_time = calc_time + timedelta(hours=int(hours[:-1]))
+
+        minutes = groups[2]
+        if minutes is not None:
+            calc_time = calc_time + timedelta(minutes=int(minutes[:-1]))
+
+        return calc_time
+
+    return None
 
 # returns path of executable
 def which(program):

@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 from colorama import init, Fore, AnsiToWin32
 from spotify_ripper.ripper import Ripper
 from spotify_ripper.utils import *
-from datetime import datetime, timedelta
 import os
 import sys
 import codecs
@@ -179,8 +178,7 @@ def main(prog_args=sys.argv[1:]):
         help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument(
         '--fail-log', nargs=1,
-        help="Logs the list of track URIs that failed to rip"
-    )
+        help="Logs the list of track URIs that failed to rip")
     encoding_group.add_argument(
         '--flac', action='store_true',
         help='Rip songs to lossless FLAC encoding instead of MP3')
@@ -251,6 +249,12 @@ def main(prog_args=sys.argv[1:]):
         '-Q', '--quality', choices=['160', '320', '96'],
         help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument(
+        '--resume-after',
+        help='Resumes script after a certain amount of time has passed '
+             'after stopping (e.g. 1h30m). Alternatively, accepts a specific '
+             'time in 24hr format to start after (e.g 03:30, 16:15). '
+             'Requires --stop-after option to be set')
+    parser.add_argument(
         '-s', '--strip-colors', action='store_true',
         help='Strip coloring from output [Default=colors]')
     parser.add_argument(
@@ -258,10 +262,9 @@ def main(prog_args=sys.argv[1:]):
         help='Advanced stereo settings for Lame MP3 encoder only')
     parser.add_argument(
         '--stop-after',
-        help='Stops script after ripping n tracks (e.g. 20) or after n '
-             ' minutes (e.g. 60m) or after certain time in 24hr format '
-             ' (e.g 03:30 or 16:15).  It won\'t exit until the last track'
-             ' has finished ripping')
+        help='Stops script after a certain amount of time has passed '
+             '(e.g. 1h30m). Alternatively, accepts a specific time in 24hr '
+             'format to stop after (e.g 03:30, 16:15)')
     parser.add_argument(
         '-V', '--version', action='version', version=prog_version)
     encoding_group.add_argument(
@@ -416,61 +419,13 @@ def main(prog_args=sys.argv[1:]):
         else:
             return "Yes"
 
-    # calculate "stop-after"
-    def calc_stop_after():
-        stop_after = args.stop_after.strip()
-        args.stop_after = True
-        args.stop_tracks = None
-
-        # if we are passed a time (e.g. 14:20)
-        if re.match(r"^\d{2}:\d{2}$", stop_after):
-            t = datetime.strptime(stop_after, "%H:%M")
-            stop_time = datetime.now().replace(hour=t.hour, minute=t.minute)
-            if datetime.now() > stop_time:
-                stop_time += timedelta(days=1)
-
-            args.stop_time = stop_time
-            print("stop_time: " + str(stop_time))
-            return
-
-        # if we are passed hour/minute offset (e.g. 1h20m)
-        match = re.match(r"^((\d+h)?(\d+m))|(\d+h)$", stop_after)
-        if match is not None:
-            stop_time = datetime.now()
-            print("stop_after: " + stop_after)
-            print("groups: " + str(len(match.groups())))
-            print("groups: " + str(match.groups()))
-            groups = match.groups()
-
-
-            hours = groups[1] if groups[1] is not None else groups[3]
-            print("hours: " + str(hours))
-            if hours is not None:
-                stop_time = stop_time + timedelta(hours=int(hours[:-1]))
-
-            minutes = groups[2]
-            print("minutes: " + str(minutes))
-            if minutes is not None:
-                stop_time = stop_time + timedelta(minutes=int(minutes[:-1]))
-
-            args.stop_time = stop_time
-            print("stop_time: " + str(stop_time))
-
-            return
-
-        # if we are passed a number (of tracks)
-        if re.match(r"^[0-9]+$", stop_after):
-            stop_tracks = int(stop_after)
-            args.stop_tracks = stop_tracks
-            print("stop_tracks: " + str(stop_tracks))
-            return
-
-        print(Fore.RED + "--stop_after option is not valid" + Fore.RESET)
+    # check that --stop-after and --resume-after options are valid
+    if args.stop_after is not None and parse_time_str(args.stop_after) is None:
+        print(Fore.RED + "--stop-after option is not valid" + Fore.RESET)
         sys.exit(1)
-
-    if args.stop_after is not None:
-        calc_stop_after()
-
+    if args.resume_after is not None and parse_time_str(args.resume_after) is None:
+        print(Fore.RED + "--resume-after option is not valid" + Fore.RESET)
+        sys.exit(1)
 
     print(Fore.YELLOW + "  Unicode support:\t" +
           Fore.RESET + unicode_support_str())
@@ -482,14 +437,6 @@ def main(prog_args=sys.argv[1:]):
     print(Fore.YELLOW + "  Format String:\t" + Fore.RESET + args.format[0])
     print(Fore.YELLOW + "  Overwrite files:\t" +
           Fore.RESET + ("Yes" if args.overwrite else "No"))
-    if args.stop_after:
-        if args.stop_tracks is not None:
-            print(Fore.YELLOW + "  Stop after:\t\t" + Fore.RESET +
-                str(args.stop_tracks) + " track" + ("s"
-                    if args.stop_tracks > 1 else ""))
-        else:
-            print(Fore.YELLOW + "  Stop after:\t\t" + Fore.RESET +
-                args.stop_time.strftime("%H:%M"))
 
     # patch a bug when Python 3/MP4
     if sys.version_info >= (3, 0) and args.output_type == "m4a":

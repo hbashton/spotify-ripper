@@ -53,6 +53,7 @@ class Ripper(threading.Thread):
     sync = None
     post = None
     dev_null = None
+    stop_time = None
 
     rip_queue = queue.Queue()
 
@@ -206,7 +207,6 @@ class Ripper(threading.Thread):
                 format_size(self.progress.total_size))
 
         # create track iterator
-        track_count = 0
         for uri in uris:
             if self.abort.is_set():
                 break
@@ -223,13 +223,7 @@ class Ripper(threading.Thread):
             # ripping loop
             for idx, track in enumerate(tracks):
                 try:
-                    track_count += 1
-                    if args.stop_after:
-                        if args.stop_tracks is not None:
-                            if track_count > args.stop_tracks:
-                                self.stop_time_abort()
-                        elif args.stop_time < datetime.now():
-                            self.stop_time_abort()
+                    self.check_stop_time()
 
                     if self.abort.is_set():
                         break
@@ -318,16 +312,32 @@ class Ripper(threading.Thread):
         self.stop_event_loop()
         self.finished.set()
 
-    def stop_time_abort(self):
-        self.abort.set()
-        print(Fore.YELLOW + "Aborting duing to --stop-after option stopping after")
-        if args.stop_tracks is not None:
-            print(
-                str(args.stop_tracks) + " track" + ("s"
-                    if args.stop_tracks > 1 else ""))
-        else:
-            print(args.stop_time.strftime("%H:%M"))
-        print(Fore.RESET)
+    def check_stop_time(self):
+        args = self.args
+        def stop_time_triggered():
+            print(Fore.YELLOW + "Stop time of " +
+                self.stop_time.strftime("%H:%M") +
+                " has been triggered, stopping..." + Fore.RESET)
+
+            if args.resume_after is not None:
+                resume_time = parse_time_str(args.resume_after)
+                print(Fore.YELLOW + "Script will resume at " +
+                    self.resume_time.strftime("%H:%M") + Fore.RESET)
+                while datetime.now() < resume_time:
+                    time.sleep(60)
+                self.stop_time = None
+            else:
+                self.abort.set()
+
+        if args.stop_after is not None:
+            if self.stop_time is None:
+                self.stop_time = parse_time_str(args.stop_after)
+                print(Fore.YELLOW + "Script will stop after " +
+                    self.stop_time.strftime("%H:%M") + Fore.RESET)
+
+            if self.stop_time < datetime.now():
+                stop_time_triggered()
+
 
     def load_link(self, uri):
         # blank out current playlist/album
