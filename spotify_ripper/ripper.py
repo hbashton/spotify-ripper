@@ -251,6 +251,7 @@ class Ripper(threading.Thread):
                     self.prepare_rip(idx, track)
                     self.session.player.play()
 
+                    timeout_count = 0
                     while not self.end_of_track.is_set() or \
                             not self.rip_queue.empty():
                         try:
@@ -265,7 +266,9 @@ class Ripper(threading.Thread):
                             self.rip(self.session, rip_item[0],
                                      rip_item[1], rip_item[2])
                         except queue.Empty:
-                            pass
+                            timeout_count += 1
+                            if timeout_count > 60:
+                                raise spotify.Error("Timeout while ripping track")
 
                     if self.abort.is_set():
                         self.session.player.play(False)
