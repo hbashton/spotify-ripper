@@ -35,7 +35,11 @@ def path_exists(path):
 def print_str(_str):
     """print without newline"""
     if not get_args().has_log:
-        print(_str, end = '', flush = True)
+        if sys.version_info >= (3, 0):
+            print(_str, end = '', flush = True)
+        else:
+            sys.stdout.write(_str)
+            sys.stdout.flush()
 
 
 def norm_path(path):
