@@ -137,6 +137,7 @@ def parse_time_str(time_str):
 
     return None
 
+
 # returns path of executable
 def which(program):
     def is_exe(fpath):

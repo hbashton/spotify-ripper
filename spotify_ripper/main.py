@@ -420,10 +420,12 @@ def main(prog_args=sys.argv[1:]):
             return "Yes"
 
     # check that --stop-after and --resume-after options are valid
-    if args.stop_after is not None and parse_time_str(args.stop_after) is None:
+    if args.stop_after is not None and\
+                    parse_time_str(args.stop_after) is None:
         print(Fore.RED + "--stop-after option is not valid" + Fore.RESET)
         sys.exit(1)
-    if args.resume_after is not None and parse_time_str(args.resume_after) is None:
+    if args.resume_after is not None and \
+                    parse_time_str(args.resume_after) is None:
         print(Fore.RED + "--resume-after option is not valid" + Fore.RESET)
         sys.exit(1)
 

@@ -268,7 +268,8 @@ class Ripper(threading.Thread):
                         except queue.Empty:
                             timeout_count += 1
                             if timeout_count > 60:
-                                raise spotify.Error("Timeout while ripping track")
+                                raise spotify.Error("Timeout while "
+                                                    "ripping track")
 
                     if self.abort.is_set():
                         self.session.player.play(False)
@@ -317,15 +318,16 @@ class Ripper(threading.Thread):
 
     def check_stop_time(self):
         args = self.args
+
         def stop_time_triggered():
             print(Fore.YELLOW + "Stop time of " +
-                self.stop_time.strftime("%H:%M") +
-                " has been triggered, stopping..." + Fore.RESET)
+                  self.stop_time.strftime("%H:%M") +
+                  " has been triggered, stopping..." + Fore.RESET)
 
             if args.resume_after is not None:
                 resume_time = parse_time_str(args.resume_after)
                 print(Fore.YELLOW + "Script will resume at " +
-                    resume_time.strftime("%H:%M") + Fore.RESET)
+                      resume_time.strftime("%H:%M") + Fore.RESET)
                 while datetime.now() < resume_time:
                     time.sleep(60)
                 self.stop_time = None
@@ -336,11 +338,10 @@ class Ripper(threading.Thread):
             if self.stop_time is None:
                 self.stop_time = parse_time_str(args.stop_after)
                 print(Fore.YELLOW + "Script will stop after " +
-                    self.stop_time.strftime("%H:%M") + Fore.RESET)
+                      self.stop_time.strftime("%H:%M") + Fore.RESET)
 
             if self.stop_time < datetime.now():
                 stop_time_triggered()
-
 
     def load_link(self, uri):
         # blank out current playlist/album
