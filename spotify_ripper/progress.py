@@ -26,6 +26,7 @@ class Progress(object):
 
     # total progress
     show_total = False
+    skipped_tracks = 0
     total_tracks = 0
     total_position = 0
     total_duration = 0
@@ -61,9 +62,11 @@ class Progress(object):
             try:
                 track.load()
                 if track.availability != 1:
+                    self.skipped_tracks += 1
                     continue
                 audio_file = self.ripper.format_track_path(idx, track)
                 if not self.args.overwrite and path_exists(audio_file):
+                    self.skipped_tracks += 1
                     continue
                 self.total_tracks += 1
                 self.total_duration += track.duration

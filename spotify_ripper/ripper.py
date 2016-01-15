@@ -449,6 +449,10 @@ class Ripper(threading.Thread):
             print(str(e))
             return iter([])
 
+        if len(result.tracks) == 0:
+            print(Fore.RED + "No Results" + Fore.RESET)
+            return iter([])
+
         # list tracks
         print(Fore.GREEN + "Results" + Fore.RESET)
         for track_idx, track in enumerate(result.tracks):
@@ -741,9 +745,10 @@ class Ripper(threading.Thread):
         self.progress.prepare_track(track)
 
         if self.progress.total_tracks > 1:
-            print(Fore.GREEN + "[ " + str(idx + 1) + " / " + str(
-                self.progress.total_tracks) + " ] Ripping " +
-                  track.link.uri + Fore.RESET)
+            print(Fore.GREEN + "[ " + str(idx + 1 -
+                self.progress.skipped_tracks) + " / " +
+                str(self.progress.total_tracks) + " ] Ripping " +
+                track.link.uri + Fore.RESET)
         else:
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.audio_file + Fore.RESET)
