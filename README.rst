@@ -62,6 +62,8 @@ Features
 
 -  option to rip to MP4/M4A instead of MP3 (requires compiling ``fdkaac``)
 
+-  option to replace output filenames
+
 **Please note: Spotify’s highest quality setting is 320 kbps, so the benefit of ripping to a lossless format is to not double encode the audio data. It’s not possible to rip in true lossless quality.**
 
 
@@ -136,6 +138,10 @@ Command Line
       -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
       -Q {160,320,96}, --quality {160,320,96}
                             Spotify stream bitrate preference [Default=320]
+      -R REPLACE [REPLACE ...], --replace REPLACE [REPLACE ...]
+                            pattern to replace the output filename separated by "/".
+                            The following example replaces all spaces with "_" and all "-" with ".":
+                                spotify-ripper --replace " /_" "\-/." uri
       -s, --strip-colors    Strip coloring from output[Default=colors]
       --stereo-mode {j,s,f,d,m,l,r}
                             Advanced stereo settings for Lame MP3 encoder only

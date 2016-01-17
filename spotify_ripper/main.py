@@ -250,6 +250,11 @@ def main(prog_args=sys.argv[1:]):
         '-Q', '--quality', choices=['160', '320', '96'],
         help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument(
+        '-R', '--replace', nargs="+", required=False,
+        help='pattern to replace the output filename separated by "/". '
+             'The following example replaces all spaces with "_" and all "-" with ".":'
+             '    spotify-ripper --replace " /_" "\-/." uri')
+    parser.add_argument(
         '-s', '--strip-colors', action='store_true',
         help='Strip coloring from output [Default=colors]')
     parser.add_argument(
