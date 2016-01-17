@@ -60,6 +60,7 @@ class Ripper(threading.Thread):
     # threading events
     logged_in = threading.Event()
     logged_out = threading.Event()
+    ripper_continue = threading.Event()
     ripping = threading.Event()
     end_of_track = threading.Event()
     finished = threading.Event()
@@ -168,7 +169,7 @@ class Ripper(threading.Thread):
         self.event_loop.start()
 
         # wait for main thread to login
-        self.logged_in.wait()
+        self.ripper_continue.wait()
         if self.abort.is_set():
             return
 
@@ -508,6 +509,7 @@ class Ripper(threading.Thread):
             self.logged_out.clear()
         elif session.connection.state is spotify.ConnectionState.LOGGED_OUT:
             self.logged_in.clear()
+            self.ripper_continue.clear()
             self.logged_out.set()
 
     def on_logged_in(self, session, error):

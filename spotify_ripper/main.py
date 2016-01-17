@@ -456,7 +456,7 @@ def main(prog_args=sys.argv[1:]):
     def abort(set_logged_in=False):
         ripper.abort_rip()
         if set_logged_in:
-            ripper.logged_in.set()
+            ripper.ripper_continue.set()
         ripper.join()
         sys.exit(1)
 
@@ -467,6 +467,8 @@ def main(prog_args=sys.argv[1:]):
                 Fore.RED + "Encountered issue while logging into "
                            "Spotify, aborting..." + Fore.RESET)
             abort(set_logged_in=True)
+        else:
+            ripper.ripper_continue.set()
 
     except (KeyboardInterrupt, Exception) as e:
         if not isinstance(e, KeyboardInterrupt):
