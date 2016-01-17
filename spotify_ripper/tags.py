@@ -6,13 +6,14 @@ from colorama import Fore, Style
 from mutagen import mp3, id3, flac, oggvorbis, oggopus, aac
 from stat import ST_SIZE
 from spotify_ripper.utils import *
+from datetime import datetime
 import os
 import sys
 import requests
 import base64
 
 
-def set_metadata_tags(args, audio_file, track):
+def set_metadata_tags(args, audio_file, track, ripper):
     # log completed file
     print(Fore.GREEN + Style.BRIGHT + os.path.basename(audio_file) +
           Style.NORMAL + "\t[ " + format_size(os.stat(audio_file)[ST_SIZE]) +
@@ -70,8 +71,22 @@ def set_metadata_tags(args, audio_file, track):
         album = to_ascii(track.album.name, on_error)
         artist = to_ascii(track.artists[0].name, on_error)
         title = to_ascii(track.name, on_error)
+
+        # the comment can include playlist create time and/or creator
         if args.comment is not None:
-            comment = to_ascii(args.comment[0], on_error)
+            comment = args.comment[0]
+            if comment.find("{create_time}") >= 0 or comment.find("{creator}") >= 0:
+                pl_track = get_playlist_track(track, ripper.current_playlist)
+                if pl_track is not None:
+                    if comment.find("{create_time}") >= 0:
+                        create_time = datetime.fromtimestamp(
+                            pl_track.create_time).strftime('%Y-%m-%d %H:%M:%S')
+                        comment = comment.replace("{create_time}", create_time)
+                    if comment.find("{creator}") >= 0:
+                        comment = comment.replace("{creator}",
+                            to_ascii(pl_track.creator.display_name))
+            comment_ascii = to_ascii(comment, on_error)
+
         if genres is not None and genres:
             genres_ascii = [to_ascii(genre) for genre in genres]
 
@@ -136,7 +151,7 @@ def set_metadata_tags(args, audio_file, track):
                          encoding=3))
             if args.comment is not None:
                 audio.tags.add(
-                    id3.COMM(text=[tag_to_ascii(args.comment[0], comment)],
+                    id3.COMM(text=[tag_to_ascii(comment, comment_ascii)],
                              encoding=3))
             if genres is not None and genres:
                 tcon_tag = id3.TCON(encoding=3)
@@ -190,7 +205,7 @@ def set_metadata_tags(args, audio_file, track):
                          encoding=3))
             if args.comment is not None:
                 id3_dict.add(
-                    id3.COMM(text=[tag_to_ascii(args.comment[0], comment)],
+                    id3.COMM(text=[tag_to_ascii(comment, comment_ascii)],
                              encoding=3))
             if genres is not None and genres:
                 tcon_tag = id3.TCON(encoding=3)
@@ -234,7 +249,7 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags["TRACKNUMBER"] = str(track.index)
             audio.tags["TRACKTOTAL"] = str(num_tracks)
             if args.comment is not None:
-                audio.tags["COMMENT"] = tag_to_ascii(args.comment[0], comment)
+                audio.tags["COMMENT"] = tag_to_ascii(comment, comment_ascii)
 
             if genres is not None and genres:
                 _genres = genres if args.ascii_path_only else genres_ascii
@@ -261,7 +276,7 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags["disk"] = [(track.disc, num_discs)]
             audio.tags["trkn"] = [(track.index, num_tracks)]
             if args.comment is not None:
-                audio.tags["\xa9cmt"] = tag_to_ascii(args.comment[0], comment)
+                audio.tags["\xa9cmt"] = tag_to_ascii(comment, comment_ascii)
 
             if genres is not None and genres:
                 _genres = genres if args.ascii_path_only else genres_ascii
@@ -287,7 +302,7 @@ def set_metadata_tags(args, audio_file, track):
             audio.tags[str("disk")] = (track.disc, num_discs)
             audio.tags[str("trkn")] = (track.index, num_tracks)
             if args.comment is not None:
-                audio.tags[b"\xa9cmt"] = tag_to_ascii(args.comment[0], comment)
+                audio.tags[b"\xa9cmt"] = tag_to_ascii(comment, comment_ascii)
 
             if genres is not None and genres:
                 _genres = genres if args.ascii_path_only else genres_ascii
@@ -373,7 +388,7 @@ def set_metadata_tags(args, audio_file, track):
         if image is not None:
             print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
         if args.comment is not None:
-            print(Fore.YELLOW + "Adding comment: " + comment + Fore.RESET)
+            print(Fore.YELLOW + "Adding comment: " + comment_ascii + Fore.RESET)
         if args.output_type == "flac":
             bit_rate = ((audio.info.bits_per_sample * audio.info.sample_rate) *
                         audio.info.channels)

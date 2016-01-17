@@ -138,6 +138,15 @@ def parse_time_str(time_str):
     return None
 
 
+def get_playlist_track(track, playlist):
+    if playlist is not None:
+        pl_tracks = playlist.tracks_with_metadata
+        for pl_track in pl_tracks:
+            if pl_track.track == track:
+                return pl_track
+    return None
+
+
 # returns path of executable
 def which(program):
     def is_exe(fpath):
