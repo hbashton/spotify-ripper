@@ -696,6 +696,9 @@ class Ripper(threading.Thread):
         # prepend base_dir
         audio_file = to_ascii(os.path.join(_base_dir, audio_file))
 
+        if args.normalized_ascii:
+            audio_file = to_normalized_ascii(audio_file)
+
         # create directory if it doesn't exist
         audio_path = os.path.dirname(audio_file)
         if not path_exists(audio_path):

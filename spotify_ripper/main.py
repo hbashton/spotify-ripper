@@ -229,6 +229,9 @@ def main(prog_args=sys.argv[1:]):
         '--normalize', action='store_true',
         help='Normalize volume levels of tracks')
     parser.add_argument(
+        '-na', '--normalized-ascii', action='store_true',
+        help='Convert the file name to normalized ASCII with unicodedata.normalize (NFKD)')
+    parser.add_argument(
         '-o', '--overwrite', action='store_true',
         help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument(
