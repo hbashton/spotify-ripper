@@ -780,65 +780,67 @@ class Ripper(threading.Thread):
         file_size = calc_file_size(track)
         print("Track Download Size: " + format_size(file_size))
 
+        audio_file_enc = enc_str(self.audio_file)
+
         if args.output_type == "wav":
-            self.wav_file = wave.open(self.audio_file, "wb")
+            self.wav_file = wave.open(audio_file_enc, "wb")
             self.wav_file.setparams((2, 2, 44100, 0, 'NONE', 'not compressed'))
         elif args.output_type == "pcm":
-            self.pcm_file = open(self.audio_file, 'wb')
+            self.pcm_file = open(audio_file_enc, 'wb')
         elif args.output_type == "flac":
             self.rip_proc = Popen(
-                ["flac", "-f", str("-" + args.comp), "--silent", "--endian",
+                ["flac", "-f", ("-" + str(args.comp)), "--silent", "--endian",
                  "little", "--channels", "2", "--bps", "16", "--sample-rate",
-                 "44100", "--sign", "signed", "-o", self.audio_file, "-"],
+                 "44100", "--sign", "signed", "-o", audio_file_enc, "-"],
                 stdin=PIPE)
         elif args.output_type == "alac.m4a":
             self.rip_proc = Popen(
                 ["avconv", "-nostats", "-loglevel", "0", "-f", "s16le", "-ar",
                  "44100", "-ac", "2", "-channel_layout", "stereo", "-i", "-",
-                 "-acodec", "alac", self.audio_file],
+                 "-acodec", "alac", audio_file_enc],
                 stdin=PIPE)
         elif args.output_type == "ogg":
             if args.cbr:
                 self.rip_proc = Popen(
                     ["oggenc", "--quiet", "--raw", "-b", args.bitrate, "-o",
-                     self.audio_file, "-"], stdin=PIPE)
+                     audio_file_enc, "-"], stdin=PIPE)
             else:
                 self.rip_proc = Popen(
                     ["oggenc", "--quiet", "--raw", "-q", args.vbr, "-o",
-                     self.audio_file, "-"], stdin=PIPE)
+                     audio_file_enc, "-"], stdin=PIPE)
         elif args.output_type == "opus":
             if args.cbr:
                 self.rip_proc = Popen(
                     ["opusenc", "--quiet", "--comp", args.comp, "--cvbr",
                      "--bitrate", str(int(args.bitrate) / 2), "--raw",
-                     "--raw-rate", "44100", "-", self.audio_file], stdin=PIPE)
+                     "--raw-rate", "44100", "-", audio_file_enc], stdin=PIPE)
             else:
                 self.rip_proc = Popen(
                     ["opusenc", "--quiet", "--comp", args.comp, "--vbr",
                      "--bitrate", args.vbr, "--raw", "--raw-rate", "44100",
-                     "-", self.audio_file], stdin=PIPE)
+                     "-", audio_file_enc], stdin=PIPE)
         elif args.output_type == "aac":
             if self.dev_null is None:
                 self.dev_null = open(os.devnull, 'wb')
             if args.cbr:
                 self.rip_proc = Popen(
                     ["faac", "-P", "-X", "-b", args.bitrate, "-o",
-                     self.audio_file, "-"], stdin=PIPE,
+                     audio_file_enc, "-"], stdin=PIPE,
                     stdout=self.dev_null, stderr=self.dev_null)
             else:
                 self.rip_proc = Popen(
                     ["faac", "-P", "-X", "-q", args.vbr, "-o",
-                     self.audio_file, "-"], stdin=PIPE,
+                     audio_file_enc, "-"], stdin=PIPE,
                     stdout=self.dev_null, stderr=self.dev_null)
         elif args.output_type == "m4a":
             if args.cbr:
                 self.rip_proc = Popen(
                     ["fdkaac", "-S", "-R", "-b",
-                     args.bitrate, "-o", self.audio_file, "-"], stdin=PIPE)
+                     args.bitrate, "-o", audio_file_enc, "-"], stdin=PIPE)
             else:
                 self.rip_proc = Popen(
                     ["fdkaac", "-S", "-R", "-m", args.vbr,
-                     "-o", self.audio_file, "-"], stdin=PIPE)
+                     "-o", audio_file_enc, "-"], stdin=PIPE)
         elif args.output_type == "mp3":
             lame_args = ["lame", "--silent"]
 
@@ -850,7 +852,7 @@ class Ripper(threading.Thread):
             else:
                 lame_args.extend(["-V", args.vbr])
 
-            lame_args.extend(["-h", "-r", "-", self.audio_file])
+            lame_args.extend(["-h", "-r", "-", audio_file_enc])
             self.rip_proc = Popen(lame_args, stdin=PIPE)
 
         if self.rip_proc is not None:
