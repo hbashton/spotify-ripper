@@ -359,7 +359,6 @@ class Ripper(threading.Thread):
             return iter([track])
         elif link.type == spotify.LinkType.PLAYLIST:
             self.current_playlist = link.as_playlist()
-            self.current_playlist = None
             attempt_count = 1
             while self.current_playlist is None:
                 if attempt_count > 3:
