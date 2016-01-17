@@ -359,25 +359,48 @@ class Ripper(threading.Thread):
             return iter([track])
         elif link.type == spotify.LinkType.PLAYLIST:
             self.current_playlist = link.as_playlist()
+            self.current_playlist = None
+            attempt_count = 1
+            while self.current_playlist is None:
+                if attempt_count > 3:
+                    print(Fore.RED + "Could not load playlist..." +
+                          Fore.RESET)
+                    return iter([])
+                print("Attempt " + str(attempt_count) + " failed: Spotify " +
+                      "returned None for playlist, trying again in 5 " +
+                      "seconds...")
+                time.sleep(5.0)
+                self.current_playlist = link.as_playlist()
+                attempt_count += 1
+
             print('Loading playlist...')
             self.current_playlist.load()
             return iter(self.current_playlist.tracks)
         elif link.type == spotify.LinkType.STARRED:
             link_user = link.as_user()
-            if link_user is not None:
-                starred = self.session.get_starred(link_user.canonical_name)
-            else:
-                starred = self.session.get_starred()
+            def load_starred():
+                if link_user is not None:
+                    return self.session.get_starred(link_user.canonical_name)
+                else:
+                    return self.session.get_starred()
+            starred = load_starred()
 
-            if starred is not None:
-                print('Loading starred playlist...')
-                starred.load()
-                return iter(starred.tracks)
-            else:
-                print(
-                    Fore.RED + "Could not load starred playlist..." +
-                    Fore.RESET)
-                return iter([])
+            attempt_count = 1
+            while starred is None:
+                if attempt_count > 3:
+                    print(Fore.RED + "Could not load starred playlist..." +
+                          Fore.RESET)
+                    return iter([])
+                print("Attempt " + str(attempt_count) + " failed: Spotify " +
+                      "returned None for starred playlist, trying again in " +
+                      "5 seconds...")
+                time.sleep(5.0)
+                starred = load_starred()
+                attempt_count += 1
+
+            print('Loading starred playlist...')
+            starred.load()
+            return iter(starred.tracks)
         elif link.type == spotify.LinkType.ALBUM:
             album = link.as_album()
             album_browser = album.browse()
