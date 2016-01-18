@@ -168,7 +168,8 @@ def main(prog_args=sys.argv[1:]):
         help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument(
         '--comment', nargs=1,
-        help='Add custom metadata comment to all songs')
+        help='Add custom metadata comment to all songs. Can include {create_time} '
+             'or {creator} if the URI is a playlist.')
     parser.add_argument(
         '--cover-file', nargs=1,
         help='Save album cover image to file name (e.g "cover.jpg") '

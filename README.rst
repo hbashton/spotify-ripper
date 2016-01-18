@@ -107,7 +107,7 @@ Command Line
                             CBR bitrate [Default=320]
       -c, --cbr             CBR encoding [Default=VBR]
       --comp COMP           compression complexity for FLAC and Opus [Default=Max]
-      --comment COMMENT     Add custom metadata comment to all songs
+      --comment COMMENT     Add custom metadata comment to all songs. Can include {create_time} or {creator} if the URI is a playlist.
       --cover-file COVER_FILE
                             Save album cover image to file name (e.g "cover.jpg") [Default=embed]
       -d DIRECTORY, --directory DIRECTORY
