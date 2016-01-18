@@ -317,6 +317,13 @@ def main(prog_args=sys.argv[1:]):
     if not args.ascii and sys.version_info < (3, 0):
         sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
+    # small sanity check on user option
+    if args.user is not None and args.user[0] == "USER":
+        print(Fore.RED + "Please pass your username as --user " +
+            "<YOUR_USER_NAME> instead of --user USER " +
+            "<YOUR_USER_NAME>..." + Fore.RESET)
+        sys.exit(1)
+
     if args.wav:
         args.output_type = "wav"
     elif args.pcm:
