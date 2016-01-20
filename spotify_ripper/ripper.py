@@ -8,6 +8,7 @@ from spotify_ripper.utils import *
 from spotify_ripper.tags import set_metadata_tags
 from spotify_ripper.progress import Progress
 from spotify_ripper.post_actions import PostActions
+from spotify_ripper.web import WebAPI
 from spotify_ripper.sync import Sync
 from spotify_ripper.eventloop import EventLoop
 from datetime import datetime
@@ -18,7 +19,6 @@ import threading
 import spotify
 import getpass
 import itertools
-import requests
 import wave
 import re
 
@@ -52,6 +52,7 @@ class Ripper(threading.Thread):
     progress = None
     sync = None
     post = None
+    web = None
     dev_null = None
     stop_time = None
 
@@ -81,6 +82,7 @@ class Ripper(threading.Thread):
         default_dir = default_settings_dir()
 
         self.post = PostActions(args, self)
+        self.web = WebAPI(args, self)
 
         # application key location
         if args.key is not None:
@@ -187,7 +189,7 @@ class Ripper(threading.Thread):
             else:
                 if (args.exclude_appears_on and
                         uri.startswith("spotify:artist:")):
-                    album_uris = self.load_artist_albums(uri)
+                    album_uris = self.web.get_non_appears_on_albums(uri)
                     return itertools.chain(
                         *[self.load_link(album_uri) for
                           album_uri in album_uris])
@@ -415,53 +417,6 @@ class Ripper(threading.Thread):
             return iter(artist_browser.tracks)
         return iter([])
 
-    # excludes 'appears on' albums
-    def load_artist_albums(self, uri):
-        def get_albums_json(offset):
-            url = 'https://api.spotify.com/v1/artists/' + \
-                  uri_tokens[2] + \
-                  '/albums/?=album_type=album,single,compilation' + \
-                  '&limit=50&offset=' + str(offset)
-            print(
-                Fore.GREEN + "Attempting to retrieve albums "
-                             "from Spotify's Web API" + Fore.RESET)
-            print(Fore.CYAN + url + Fore.RESET)
-            req = requests.get(url)
-            if req.status_code == 200:
-                return req.json()
-            else:
-                print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
-                      str(req.status_code) + Fore.RESET)
-            return None
-
-        # extract artist id from uri
-        uri_tokens = uri.split(':')
-        if len(uri_tokens) != 3:
-            return []
-
-        # it is possible we won't get all the albums on the first request
-        offset = 0
-        album_uris = []
-        total = None
-        while total is None or offset < total:
-            try:
-                # rate limit if not first request
-                if total is None:
-                    time.sleep(1.0)
-                albums = get_albums_json(offset)
-                if albums is None:
-                    break
-
-                # extract album URIs
-                album_uris += [album['uri'] for album in albums['items']]
-                offset = len(album_uris)
-                if total is None:
-                    total = albums['total']
-            except KeyError as e:
-                break
-        print(str(len(album_uris)) + " albums found")
-        return album_uris
-
     def search_query(self, query):
         print("Searching for query: " + query)
 
@@ -582,32 +537,6 @@ class Ripper(threading.Thread):
             self.session.logout()
             self.logged_out.wait()
 
-    def album_artists_web(self, uri):
-        def get_album_json(album_id):
-            url = 'https://api.spotify.com/v1/albums/' + album_id
-            print(
-                Fore.GREEN + "Attempting to retrieve album "
-                             "from Spotify's Web API" + Fore.RESET)
-            print(Fore.CYAN + url + Fore.RESET)
-            req = requests.get(url)
-            if req.status_code == 200:
-                return req.json()
-            else:
-                print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
-                      str(req.status_code) + Fore.RESET)
-            return None
-
-        # extract album id from uri
-        uri_tokens = uri.split(':')
-        if len(uri_tokens) != 3:
-            return None
-
-        album = get_album_json(uri_tokens[2])
-        if album is None:
-            return None
-
-        return [artist['name'] for artist in album['artists']]
-
     def format_track_path(self, idx, track):
         args = self.args
         _base_dir = base_dir()
@@ -631,7 +560,7 @@ class Ripper(threading.Thread):
         # only retrieve album_artist_web if it exists in the format string
         if (self.current_album is not None and
                 audio_file.find("{album_artists_web}") >= 0):
-            artist_array = self.album_artists_web(self.current_album.link.uri)
+            artist_array = self.web.get_artists_on_album(self.current_album.link.uri)
             if artist_array is not None:
                 album_artists_web = to_ascii(", ".join(artist_array))
 

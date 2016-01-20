@@ -9,7 +9,6 @@ from spotify_ripper.utils import *
 from datetime import datetime
 import os
 import sys
-import requests
 import base64
 
 
@@ -44,25 +43,7 @@ def set_metadata_tags(args, audio_file, track, ripper):
     # try to get genres from Spotify's Web API
     genres = None
     if args.genres is not None:
-        item = track.artists[0] if args.genres[0] == "artist" else track.album
-        uri_tokens = item.link.uri.split(':')
-        if len(uri_tokens) == 3:
-            url = ('https://api.spotify.com/v1/' +
-                   args.genres[0] + 's/' + uri_tokens[2])
-            print(
-                Fore.GREEN + "Attempting to retrieve genres "
-                             "from Spotify's Web API" + Fore.RESET)
-            print(Fore.CYAN + url + Fore.RESET)
-            req = requests.get(url)
-            if req.status_code == 200:
-                try:
-                    resp_json = req.json()
-                    genres = resp_json["genres"]
-                except KeyError as e:
-                    pass
-            else:
-                print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
-                      str(req.status_code) + Fore.RESET)
+        genres = ripper.web.get_genres(args.genres[0], track)
 
     # use mutagen to update id3v2 tags and vorbis comments
     try:
