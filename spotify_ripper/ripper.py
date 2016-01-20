@@ -698,9 +698,9 @@ class Ripper(threading.Thread):
         self.progress.prepare_track(track)
 
         if self.progress.total_tracks > 1:
-            print(Fore.GREEN + "[ " + str(idx + 1 -
-                self.progress.skipped_tracks) + " / " +
-                str(self.progress.total_tracks) + " ] Ripping " +
+            print(Fore.GREEN + "[ " + str(idx + 1) + " / " +
+                str(self.progress.total_tracks +
+                    self.progress.skipped_tracks) + " ] Ripping " +
                 track.link.uri + Fore.RESET)
         else:
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
