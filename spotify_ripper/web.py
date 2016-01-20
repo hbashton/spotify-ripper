@@ -15,6 +15,13 @@ class WebAPI(object):
     def __init__(self, args, ripper):
         self.args = args
         self.ripper = ripper
+        self.cache = {}
+
+    def cache_result(self, uri, result):
+        self.cache[uri] = result
+
+    def get_cached_result(self, uri):
+        return self.cache.get(uri)
 
     # excludes 'appears on' albums
     def get_non_appears_on_albums(self, uri):
@@ -34,6 +41,11 @@ class WebAPI(object):
                 print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
                       str(req.status_code) + Fore.RESET)
             return None
+
+        # check for cached result
+        cached_result = self.get_cached_result(uri)
+        if cached_result is not None:
+            return cached_result
 
         # extract artist id from uri
         uri_tokens = uri.split(':')
@@ -61,6 +73,7 @@ class WebAPI(object):
             except KeyError as e:
                 break
         print(str(len(album_uris)) + " albums found")
+        self.cache_result(uri, album_uris)
         return album_uris
 
     def get_artists_on_album(self, uri):
@@ -78,6 +91,11 @@ class WebAPI(object):
                       str(req.status_code) + Fore.RESET)
             return None
 
+        # check for cached result
+        cached_result = self.get_cached_result(uri)
+        if cached_result is not None:
+            return cached_result
+
         # extract album id from uri
         uri_tokens = uri.split(':')
         if len(uri_tokens) != 3:
@@ -87,7 +105,9 @@ class WebAPI(object):
         if album is None:
             return None
 
-        return [artist['name'] for artist in album['artists']]
+        result = [artist['name'] for artist in album['artists']]
+        self.cache_result(uri, result)
+        return result
 
     # genre_type can be "artist" or "album"
     def get_genres(self, genre_type, track):
@@ -110,7 +130,14 @@ class WebAPI(object):
 
         # extract album id from uri
         item = track.artists[0] if genre_type == "artist" else track.album
-        uri_tokens = item.link.uri.split(':')
+        uri = item.link.uri
+
+        # check for cached result
+        cached_result = self.get_cached_result(uri)
+        if cached_result is not None:
+            return cached_result
+
+        uri_tokens = uri.split(':')
         if len(uri_tokens) != 3:
             return None
 
@@ -118,4 +145,6 @@ class WebAPI(object):
         if json_obj is None:
             return None
 
-        return json_obj["genres"]
+        result = json_obj["genres"]
+        self.cache_result(uri, result)
+        return result
