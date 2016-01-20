@@ -300,15 +300,15 @@ class Ripper(threading.Thread):
                     self.post.log_failure(track)
                     continue
 
-            if not self.abort.is_set():
-                # create playlist m3u file if needed
-                self.post.create_playlist_m3u(tracks)
 
-                # create playlist wpl file if needed
-                self.post.create_playlist_wpl(tracks)
+            # create playlist m3u file if needed
+            self.post.create_playlist_m3u(tracks)
 
-                # actually removing the tracks from playlist
-                self.post.remove_tracks_from_playlist()
+            # create playlist wpl file if needed
+            self.post.create_playlist_wpl(tracks)
+
+            # actually removing the tracks from playlist
+            self.post.remove_tracks_from_playlist()
 
         # logout, we are done
         self.post.end_failure_log()
