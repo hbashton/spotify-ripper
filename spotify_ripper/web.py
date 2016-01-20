@@ -23,24 +23,28 @@ class WebAPI(object):
     def get_cached_result(self, uri):
         return self.cache.get(uri)
 
-    # excludes 'appears on' albums
+    def request_json(self, url, msg):
+        print(Fore.GREEN + "Attempting to retrieve " + msg +
+            " from Spotify's Web API" + Fore.RESET)
+        print(Fore.CYAN + url + Fore.RESET)
+        req = requests.get(url)
+        if req.status_code == 200:
+            return req.json()
+        else:
+            print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
+                  str(req.status_code) + Fore.RESET)
+        return None
+
+    def api_url(self, url_path):
+        return 'https://api.spotify.com/v1/' + url_path
+
+    # excludes 'appears on' albums for artist
     def get_non_appears_on_albums(self, uri):
         def get_albums_json(offset):
-            url = 'https://api.spotify.com/v1/artists/' + \
-                  uri_tokens[2] + \
-                  '/albums/?=album_type=album,single,compilation' + \
-                  '&limit=50&offset=' + str(offset)
-            print(
-                Fore.GREEN + "Attempting to retrieve albums "
-                             "from Spotify's Web API" + Fore.RESET)
-            print(Fore.CYAN + url + Fore.RESET)
-            req = requests.get(url)
-            if req.status_code == 200:
-                return req.json()
-            else:
-                print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
-                      str(req.status_code) + Fore.RESET)
-            return None
+            url = self.api_url('artists/' + uri_tokens[2] +
+                  '/albums/?=album_type=album,single,compilation' +
+                  '&limit=50&offset=' + str(offset))
+            return self.request_json(url, "albums")
 
         # check for cached result
         cached_result = self.get_cached_result(uri)
@@ -78,18 +82,8 @@ class WebAPI(object):
 
     def get_artists_on_album(self, uri):
         def get_album_json(album_id):
-            url = 'https://api.spotify.com/v1/albums/' + album_id
-            print(
-                Fore.GREEN + "Attempting to retrieve album "
-                             "from Spotify's Web API" + Fore.RESET)
-            print(Fore.CYAN + url + Fore.RESET)
-            req = requests.get(url)
-            if req.status_code == 200:
-                return req.json()
-            else:
-                print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
-                      str(req.status_code) + Fore.RESET)
-            return None
+            url = self.api_url('albums/' + album_id)
+            return self.request_json(url, "album")
 
         # check for cached result
         cached_result = self.get_cached_result(uri)
@@ -111,22 +105,9 @@ class WebAPI(object):
 
     # genre_type can be "artist" or "album"
     def get_genres(self, genre_type, track):
-        def get_json(spotify_id):
-            url = ('https://api.spotify.com/v1/' +
-                   genre_type + 's/' + spotify_id)
-            print(
-                Fore.GREEN + "Attempting to retrieve genres "
-                             "from Spotify's Web API" + Fore.RESET)
-            print(Fore.CYAN + url + Fore.RESET)
-            req = requests.get(url)
-            if req.status_code == 200:
-                try:
-                    return req.json()
-                except KeyError as e:
-                    pass
-            else:
-                print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
-                      str(req.status_code) + Fore.RESET)
+        def get_genre_json(spotify_id):
+            url = self.api_url(genre_type + 's/' + spotify_id)
+            return self.request_json(url, "genres")
 
         # extract album id from uri
         item = track.artists[0] if genre_type == "artist" else track.album
@@ -141,7 +122,7 @@ class WebAPI(object):
         if len(uri_tokens) != 3:
             return None
 
-        json_obj = get_json(uri_tokens[2])
+        json_obj = get_genre_json(uri_tokens[2])
         if json_obj is None:
             return None
 
