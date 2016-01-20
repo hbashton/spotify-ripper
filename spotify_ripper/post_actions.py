@@ -88,12 +88,12 @@ class PostActions(object):
         args = self.args
         ripper = self.ripper
 
-        if ripper.current_playlist is not None and args.playlist_m3u:
+        spotify_obj = ripper.current_playlist if ripper.current_playlist\
+            is not None else ripper.current_album
+        if spotify_obj is not None and args.playlist_m3u:
             _base_dir = base_dir()
             playlist_path = to_ascii(
-                os.path.join(_base_dir,
-                             ripper.current_playlist.name + '.m3u')
-            )
+                os.path.join(_base_dir, spotify_obj.name + '.m3u'))
 
             print(Fore.GREEN + "Creating playlist m3u file " +
                   playlist_path + Fore.RESET)
@@ -110,12 +110,12 @@ class PostActions(object):
         args = self.args
         ripper = self.ripper
 
-        if ripper.current_playlist is not None and args.playlist_wpl:
+        spotify_obj = ripper.current_playlist if ripper.current_playlist\
+            is not None else ripper.current_album
+        if spotify_obj is not None and args.playlist_wpl:
             _base_dir = base_dir()
             playlist_path = to_ascii(
-                os.path.join(_base_dir,
-                             ripper.current_playlist.name + '.wpl')
-            )
+                os.path.join(_base_dir, spotify_obj.name + '.wpl'))
 
             print(Fore.GREEN + "Creating playlist wpl file " +
                   playlist_path + Fore.RESET)
@@ -140,7 +140,7 @@ class PostActions(object):
                                ripper.session.user.display_name +
                                '</author>\n')
                 playlist.write('\t\t<title>' +
-                               ripper.current_playlist.name +
+                               spotify_obj.name +
                                '</title>\n')
                 playlist.write('\t</head>\n')
                 playlist.write('\t<body>\n')
