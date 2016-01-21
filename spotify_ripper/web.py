@@ -141,7 +141,7 @@ class WebAPI(object):
             url = self.charts_url("?limit=" + limit  + "&country=" + region +
                 "&recurrence=" + time_window + "&date=" + from_date  + "&type=" +
                 metrics)
-            return self.request_json(url, metrics.replace("_", " "))
+            return self.request_json(url, region + " " + metrics + " charts")
 
         # check for cached result
         cached_result = self.get_cached_result(uri)
