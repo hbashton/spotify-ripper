@@ -193,6 +193,14 @@ class Ripper(threading.Thread):
                     return itertools.chain(
                         *[self.load_link(album_uri) for
                           album_uri in album_uris])
+                elif uri.startswith("spotify:charts:"):
+                    chart_uris = self.web.get_charts(uri)
+                    if chart_uris is not None:
+                        return itertools.chain(
+                            *[self.load_link(chart_uri) for
+                              chart_uri in chart_uris])
+                    else:
+                        return iter([])
                 else:
                     return self.load_link(uri)
 

@@ -154,9 +154,10 @@ Command Line
                             Exclude albums that an artist 'appears on' when passing a Spotify artist URI
 
     Example usage:
-        rip a single file: spotify-ripper -u user -p password spotify:track:52xaypL0Kjzk0ngwv3oBPR
-        rip entire playlist: spotify-ripper -u user -p password spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
-        rip a list of URIs: spotify-ripper -u user -p password list_of_uris.txt
+        rip a single file: spotify-ripper -u user spotify:track:52xaypL0Kjzk0ngwv3oBPR
+        rip entire playlist: spotify-ripper -u user spotify:user:username:playlist:4vkGNcsS8lRXj4q945NIA4
+        rip a list of URIs: spotify-ripper -u user list_of_uris.txt
+        rip tracks from Spotify's charts: spotify-ripper -l spotify:charts:regional:global:weekly:latest
         search for tracks to rip: spotify-ripper -l -Q 160 -o "album:Rumours track:'the chain'"
 
 Facebook Login
