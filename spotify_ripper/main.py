@@ -230,6 +230,9 @@ def main(prog_args=sys.argv[1:]):
         '--normalize', action='store_true',
         help='Normalize volume levels of tracks')
     parser.add_argument(
+        '-na', '--normalized-ascii', action='store_true',
+        help='Convert the file name to normalized ASCII with unicodedata.normalize (NFKD)')
+    parser.add_argument(
         '-o', '--overwrite', action='store_true',
         help='Overwrite existing MP3 files [Default=skip]')
     encoding_group.add_argument(
@@ -256,6 +259,11 @@ def main(prog_args=sys.argv[1:]):
              'after stopping (e.g. 1h30m). Alternatively, accepts a specific '
              'time in 24hr format to start after (e.g 03:30, 16:15). '
              'Requires --stop-after option to be set')
+    parser.add_argument(
+        '-R', '--replace', nargs="+", required=False,
+        help='pattern to replace the output filename separated by "/". '
+             'The following example replaces all spaces with "_" and all "-" with ".":'
+             '    spotify-ripper --replace " /_" "\-/." uri')
     parser.add_argument(
         '-s', '--strip-colors', action='store_true',
         help='Strip coloring from output [Default=colors]')

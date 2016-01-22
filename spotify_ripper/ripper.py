@@ -686,11 +686,18 @@ class Ripper(threading.Thread):
         else:
             audio_file = truncate_file_name(tokens[0])
 
+        # replace filename
+        if args.replace is not None:
+            audio_file = self.replace_filename(audio_file, args.replace)
+
         # remove not allowed characters in filename and encode utf-8
         audio_file = audio_file.replace('*."/\[]:;|=,', '')
 
         # prepend base_dir
         audio_file = to_ascii(os.path.join(_base_dir, audio_file))
+
+        if args.normalized_ascii:
+            audio_file = to_normalized_ascii(audio_file)
 
         # create directory if it doesn't exist
         audio_path = os.path.dirname(audio_file)
@@ -698,6 +705,12 @@ class Ripper(threading.Thread):
             os.makedirs(enc_str(audio_path))
 
         return audio_file
+
+    def replace_filename(self, filename, pattern_list):
+        for pattern in pattern_list:
+            repl = pattern.split('/')
+            filename = re.sub(repl[0], repl[1], filename)
+        return filename
 
     def prepare_rip(self, idx, track):
         args = self.args
