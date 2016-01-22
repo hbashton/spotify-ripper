@@ -32,8 +32,8 @@ def load_config(defaults):
             config_items = dict(config.items("main"))
 
             to_array_options = [
-                "directory", "key", "user", "password", "log",
-                "genres", "format"]
+                "comment", "cover_file", "directory", "fail_log", "format",
+                "genres", "key", "user", "password", "log", "replace"]
 
             # coerce boolean and none types
             for _key in config_items:
