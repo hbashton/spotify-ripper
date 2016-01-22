@@ -169,8 +169,8 @@ def main(prog_args=sys.argv[1:]):
         help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument(
         '--comment', nargs=1,
-        help='Add custom metadata comment to all songs. Can include {create_time} '
-             'or {creator} if the URI is a playlist.')
+        help='Add custom metadata comment to all songs. Can include '
+             '{create_time} or {creator} if the URI is a playlist.')
     parser.add_argument(
         '--cover-file', nargs=1,
         help='Save album cover image to file name (e.g "cover.jpg") '
@@ -231,7 +231,8 @@ def main(prog_args=sys.argv[1:]):
         help='Normalize volume levels of tracks')
     parser.add_argument(
         '-na', '--normalized-ascii', action='store_true',
-        help='Convert the file name to normalized ASCII with unicodedata.normalize (NFKD)')
+        help='Convert the file name to normalized ASCII with '
+             'unicodedata.normalize (NFKD)')
     parser.add_argument(
         '-o', '--overwrite', action='store_true',
         help='Overwrite existing MP3 files [Default=skip]')
@@ -262,7 +263,8 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument(
         '-R', '--replace', nargs="+", required=False,
         help='pattern to replace the output filename separated by "/". '
-             'The following example replaces all spaces with "_" and all "-" with ".":'
+             'The following example replaces all spaces with "_" and all "-" '
+             'with ".":'
              '    spotify-ripper --replace " /_" "\-/." uri')
     parser.add_argument(
         '-s', '--strip-colors', action='store_true',
@@ -329,8 +331,8 @@ def main(prog_args=sys.argv[1:]):
     # small sanity check on user option
     if args.user is not None and args.user[0] == "USER":
         print(Fore.RED + "Please pass your username as --user " +
-            "<YOUR_USER_NAME> instead of --user USER " +
-            "<YOUR_USER_NAME>..." + Fore.RESET)
+              "<YOUR_USER_NAME> instead of --user USER " +
+              "<YOUR_USER_NAME>..." + Fore.RESET)
         sys.exit(1)
 
     if args.wav:
@@ -437,12 +439,12 @@ def main(prog_args=sys.argv[1:]):
             return "Yes"
 
     # check that --stop-after and --resume-after options are valid
-    if args.stop_after is not None and\
-                    parse_time_str(args.stop_after) is None:
+    if args.stop_after is not None and \
+            parse_time_str(args.stop_after) is None:
         print(Fore.RED + "--stop-after option is not valid" + Fore.RESET)
         sys.exit(1)
     if args.resume_after is not None and \
-                    parse_time_str(args.resume_after) is None:
+            parse_time_str(args.resume_after) is None:
         print(Fore.RED + "--resume-after option is not valid" + Fore.RESET)
         sys.exit(1)
 

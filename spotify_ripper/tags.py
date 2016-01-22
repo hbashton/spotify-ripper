@@ -19,7 +19,8 @@ def set_metadata_tags(args, audio_file, track, ripper):
           " ]" + Fore.RESET)
 
     if args.output_type == "wav" or args.output_type == "pcm":
-        print(Fore.YELLOW + "Skipping metadata tagging for " + args.output_type + " encoding...")
+        print(Fore.YELLOW + "Skipping metadata tagging for " +
+              args.output_type + " encoding...")
         return
 
     # ensure everything is loaded still
@@ -56,7 +57,8 @@ def set_metadata_tags(args, audio_file, track, ripper):
         # the comment can include playlist create time and/or creator
         if args.comment is not None:
             comment = args.comment[0]
-            if comment.find("{create_time}") >= 0 or comment.find("{creator}") >= 0:
+            if comment.find("{create_time}") >= 0 or \
+                    comment.find("{creator}") >= 0:
                 pl_track = get_playlist_track(track, ripper.current_playlist)
                 if pl_track is not None:
                     if comment.find("{create_time}") >= 0:
@@ -64,8 +66,9 @@ def set_metadata_tags(args, audio_file, track, ripper):
                             pl_track.create_time).strftime('%Y-%m-%d %H:%M:%S')
                         comment = comment.replace("{create_time}", create_time)
                     if comment.find("{creator}") >= 0:
-                        comment = comment.replace("{creator}",
-                            to_ascii(pl_track.creator.display_name))
+                        comment = comment.replace(
+                                "{creator}",
+                                to_ascii(pl_track.creator.display_name))
             comment_ascii = to_ascii(comment, on_error)
 
         if genres is not None and genres:
@@ -369,7 +372,8 @@ def set_metadata_tags(args, audio_file, track, ripper):
         if image is not None:
             print(Fore.YELLOW + "Adding cover image" + Fore.RESET)
         if args.comment is not None:
-            print(Fore.YELLOW + "Adding comment: " + comment_ascii + Fore.RESET)
+            print(Fore.YELLOW + "Adding comment: " + comment_ascii +
+                  Fore.RESET)
         if args.output_type == "flac":
             bit_rate = ((audio.info.bits_per_sample * audio.info.sample_rate) *
                         audio.info.channels)

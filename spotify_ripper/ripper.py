@@ -310,7 +310,6 @@ class Ripper(threading.Thread):
                     self.post.log_failure(track)
                     continue
 
-
             # create playlist m3u file if needed
             self.post.create_playlist_m3u(tracks)
 
@@ -387,6 +386,7 @@ class Ripper(threading.Thread):
             return iter(self.current_playlist.tracks)
         elif link.type == spotify.LinkType.STARRED:
             link_user = link.as_user()
+
             def load_starred():
                 if link_user is not None:
                     return self.session.get_starred(link_user.canonical_name)
@@ -568,7 +568,8 @@ class Ripper(threading.Thread):
         # only retrieve album_artist_web if it exists in the format string
         if (self.current_album is not None and
                 audio_file.find("{album_artists_web}") >= 0):
-            artist_array = self.web.get_artists_on_album(self.current_album.link.uri)
+            artist_array = \
+                self.web.get_artists_on_album(self.current_album.link.uri)
             if artist_array is not None:
                 album_artists_web = to_ascii(", ".join(artist_array))
 
@@ -720,9 +721,9 @@ class Ripper(threading.Thread):
 
         if self.progress.total_tracks > 1:
             print(Fore.GREEN + "[ " + str(idx + 1) + " / " +
-                str(self.progress.total_tracks +
-                    self.progress.skipped_tracks) + " ] Ripping " +
-                track.link.uri + Fore.RESET)
+                  str(self.progress.total_tracks +
+                      self.progress.skipped_tracks) + " ] Ripping " +
+                  track.link.uri + Fore.RESET)
         else:
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.audio_file + Fore.RESET)

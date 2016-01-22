@@ -77,11 +77,13 @@ def to_ascii(_str, on_error='ignore'):
         else:
             return _str
 
+
 def to_normalized_ascii(_str):
     if sys.version_info < (3, 0):
         if not isinstance(_str, unicode):
             _str = unicode(_str, "utf-8")
     return unicodedata.normalize('NFKD', _str).encode('ASCII', 'ignore')
+
 
 def rm_file(file_name):
     try:

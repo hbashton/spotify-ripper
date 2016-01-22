@@ -26,7 +26,7 @@ class WebAPI(object):
 
     def request_json(self, url, msg):
         print(Fore.GREEN + "Attempting to retrieve " + msg +
-            " from Spotify's Web API" + Fore.RESET)
+              " from Spotify's Web API" + Fore.RESET)
         print(Fore.CYAN + url + Fore.RESET)
         req = requests.get(url)
         if req.status_code == 200:
@@ -45,9 +45,10 @@ class WebAPI(object):
     # excludes 'appears on' albums for artist
     def get_non_appears_on_albums(self, uri):
         def get_albums_json(offset):
-            url = self.api_url('artists/' + uri_tokens[2] +
-                  '/albums/?=album_type=album,single,compilation' +
-                  '&limit=50&offset=' + str(offset))
+            url = self.api_url(
+                    'artists/' + uri_tokens[2] +
+                    '/albums/?=album_type=album,single,compilation' +
+                    '&limit=50&offset=' + str(offset))
             return self.request_json(url, "albums")
 
         # check for cached result
@@ -138,9 +139,10 @@ class WebAPI(object):
     def get_charts(self, uri):
         def get_tracks_json(metrics, region, time_window, from_date):
             limit = "50" if metrics == "viral" else "200"
-            url = self.charts_url("?limit=" + limit  + "&country=" + region +
-                "&recurrence=" + time_window + "&date=" + from_date  + "&type=" +
-                metrics)
+            url = self.charts_url(
+                    "?limit=" + limit + "&country=" + region +
+                    "&recurrence=" + time_window + "&date=" + from_date +
+                    "&type=" + metrics)
             return self.request_json(url, region + " " + metrics + " charts")
 
         # check for cached result
@@ -155,40 +157,46 @@ class WebAPI(object):
 
         # some sanity checking
         valid_metrics = {"regional", "viral"}
-        valid_regions = {"ar","at","au","be","bg","ch","cl","co","cr","cz",
-                         "de","dk","ec","ee","es","fi","fr","gb","gr","gt",
-                         "hk","hu","ie","is","it","li","lt","lu","lv","mx",
-                         "my","nl","no","nz","pe","pl","pt","se","sg","sk",
-                         "sv","tr","tw","us","uy","global"}
+        valid_regions = {"ar", "at", "au", "be", "bg", "ch", "cl", "co", "cr",
+                         "cz", "de", "dk", "ec", "ee", "es", "fi", "fr", "gb",
+                         "gr", "gt", "hk", "hu", "ie", "is", "it", "li", "lt",
+                         "lu", "lv", "mx", "my", "nl", "no", "nz", "pe", "pl",
+                         "pt", "se", "sg", "sk", "sv", "tr", "tw", "us", "uy",
+                         "global"}
         valid_windows = {"daily", "weekly"}
 
         def sanity_check(val, valid_set):
             if val not in valid_set:
-                print(Fore.YELLOW + "Not a valid Spotify charts URI parameter: " +
-                    val + Fore.RESET)
-                print("Valid parameter options are: [" + ", ".join(valid_set)) + "]"
+                print(Fore.YELLOW +
+                      "Not a valid Spotify charts URI parameter: " +
+                      val + Fore.RESET)
+                print("Valid parameter options are: [" +
+                      ", ".join(valid_set)) + "]"
                 return False
             return True
 
         def sanity_check_date(val):
-            if val != "latest" and re.match(r"^\d{4}-\d{2}-\d{2}$", val) is None:
-                print(Fore.YELLOW + "Not a valid Spotify charts URI parameter: " +
-                    val + Fore.RESET)
-                print("Valid parameter options are: ['latest', a date (e.g. 2016-01-21)]")
+            if  re.match(r"^\d{4}-\d{2}-\d{2}$", val) is None and \
+                    val != "latest":
+                print(Fore.YELLOW +
+                      "Not a valid Spotify charts URI parameter: " +
+                      val + Fore.RESET)
+                print("Valid parameter options are: ['latest', a date "
+                      "(e.g. 2016-01-21)]")
                 return False
             return True
 
         check_results = sanity_check(uri_tokens[2], valid_metrics) and \
-                        sanity_check(uri_tokens[3], valid_regions) and \
-                        sanity_check(uri_tokens[4], valid_windows) and \
-                        sanity_check_date(uri_tokens[5])
+            sanity_check(uri_tokens[3], valid_regions) and \
+            sanity_check(uri_tokens[4], valid_windows) and \
+            sanity_check_date(uri_tokens[5])
         if not check_results:
             print("Generally, a charts URI follow the pattern "
                   "spotify:charts:metric:region:time_window:date")
             return None
 
-        json_obj = get_tracks_json(uri_tokens[2],
-            uri_tokens[3], uri_tokens[4], uri_tokens[5])
+        json_obj = get_tracks_json(uri_tokens[2], uri_tokens[3],
+                                   uri_tokens[4], uri_tokens[5])
         if json_obj is None:
             return None
 
