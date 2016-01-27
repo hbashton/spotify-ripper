@@ -46,6 +46,7 @@ class Ripper(threading.Thread):
     pipe = None
     current_playlist = None
     current_album = None
+    current_chart = None
 
     idx_digits = 3
     login_success = False
@@ -184,6 +185,10 @@ class Ripper(threading.Thread):
             uris = args.uri
 
         def get_tracks_from_uri(uri):
+            current_playlist = None
+            current_album = None
+            current_chart = None
+
             if isinstance(uri, list):
                 return uri
             else:
@@ -194,8 +199,10 @@ class Ripper(threading.Thread):
                         *[self.load_link(album_uri) for
                           album_uri in album_uris])
                 elif uri.startswith("spotify:charts:"):
-                    chart_uris = self.web.get_charts(uri)
-                    if chart_uris is not None:
+                    charts = self.web.get_charts(uri)
+                    if charts is not None:
+                        self.current_chart = charts
+                        chart_uris = [t["track"]["uri"] for t in charts["entries"]["items"]]
                         return itertools.chain(
                             *[self.load_link(chart_uri) for
                               chart_uri in chart_uris])
@@ -354,10 +361,6 @@ class Ripper(threading.Thread):
                 stop_time_triggered()
 
     def load_link(self, uri):
-        # blank out current playlist/album
-        self.current_playlist = None
-        self.current_album = None
-
         # ignore if the uri is just blank (e.g. from a file)
         if not uri:
             return iter([])

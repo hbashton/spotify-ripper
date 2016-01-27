@@ -200,6 +200,5 @@ class WebAPI(object):
         if json_obj is None:
             return None
 
-        result = [t["track"]["uri"] for t in json_obj["entries"]["items"]]
-        self.cache_result(uri, result)
-        return result
+        self.cache_result(uri, json_obj)
+        return json_obj
