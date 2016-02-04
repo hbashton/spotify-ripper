@@ -10,13 +10,15 @@ URIs to audio files and includes ID3 tags and cover art.  By default spotify-rip
 
 **Note that stream ripping violates the libspotify's ToS**
 
+.. _deprecation:
+
 Libspotify’s Deprecation
 ------------------------
 **From Mopidy's documentation**
 
 *Note that as of May 2015 libspotify is officially deprecated by Spotify and is no longer actively maintained.*
 
-**Note that as of Jan 2016 Spotify may no longer be issuing developer keys.**
+*Note that as of Jan 2016 Spotify may no longer be issuing developer keys.*
 
 *Spotify has published newer libraries intended for Android and iOS development, as well as web APIs to access track metadata and manage playlists. Though, for making apps with Spotify playback capabilities, on any other platform than Android and iOS, there is currently no alternative to libspotify.*
 
@@ -335,7 +337,7 @@ To install spotify-ripper once pyenv is setup:
     $ pip install spotify-ripper
     $ pyenv rehash
 
-**Note that Spotify may no longer be issuing developer keys.  See [Libspotify’s Deprecation](#Libspotify’s Deprecation)**
+**Note that Spotify may no longer be issuing developer keys.  See :ref:`deprecation`**
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
@@ -373,7 +375,7 @@ To install spotify-ripper once pyenv is setup:
     $ pip install spotify-ripper
     $ pyenv rehash
 
-**Note that Spotify may no longer be issuing developer keys.  See [Libspotify’s Deprecation](#Libspotify’s Deprecation)**
+**Note that Spotify may no longer be issuing developer keys.  See :ref:`deprecation`**
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
