@@ -16,6 +16,8 @@ Libspotify’s Deprecation
 
 *Note that as of May 2015 libspotify is officially deprecated by Spotify and is no longer actively maintained.*
 
+**Note that as of Jan 2016 Spotify may no longer be issuing developer keys.**
+
 *Spotify has published newer libraries intended for Android and iOS development, as well as web APIs to access track metadata and manage playlists. Though, for making apps with Spotify playback capabilities, on any other platform than Android and iOS, there is currently no alternative to libspotify.*
 
 *libspotify has been the main way of integrating with Spotify since 2009, and is today a part of numerous open source projects and commercial applications, including many receivers and even cars. There’s no guarantees, but one can hope that the large deployment of libspotify means that the library will continue to work with the Spotify service for a long time into the future.*
@@ -333,6 +335,7 @@ To install spotify-ripper once pyenv is setup:
     $ pip install spotify-ripper
     $ pyenv rehash
 
+**Note that Spotify may no longer be issuing developer keys.  See [Libspotify’s Deprecation](#Libspotify’s Deprecation)**
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
@@ -370,6 +373,7 @@ To install spotify-ripper once pyenv is setup:
     $ pip install spotify-ripper
     $ pyenv rehash
 
+**Note that Spotify may no longer be issuing developer keys.  See [Libspotify’s Deprecation](#Libspotify’s Deprecation)**
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
