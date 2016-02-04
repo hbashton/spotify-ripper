@@ -10,8 +10,6 @@ URIs to audio files and includes ID3 tags and cover art.  By default spotify-rip
 
 **Note that stream ripping violates the libspotify's ToS**
 
-.. _deprecation:
-
 Libspotify’s Deprecation
 ------------------------
 **From Mopidy's documentation**
@@ -337,7 +335,8 @@ To install spotify-ripper once pyenv is setup:
     $ pip install spotify-ripper
     $ pyenv rehash
 
-**Note that Spotify may no longer be issuing developer keys.  See :ref:`deprecation`**
+**Note that Spotify may no longer be issuing developer keys.** See `Libspotify’s Deprecation`_
+
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
@@ -375,7 +374,8 @@ To install spotify-ripper once pyenv is setup:
     $ pip install spotify-ripper
     $ pyenv rehash
 
-**Note that Spotify may no longer be issuing developer keys.  See :ref:`deprecation`**
+**Note that Spotify may no longer be issuing developer keys.** See `Libspotify’s Deprecation`_
+
 Download an application key file ``spotify_appkey.key`` from
 ``https://devaccount.spotify.com/my-account/keys/`` (requires a Spotify
 Premium Account) and move the file to the ``~/.spotify-ripper`` directory (or use
