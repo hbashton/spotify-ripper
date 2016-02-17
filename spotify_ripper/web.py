@@ -157,12 +157,13 @@ class WebAPI(object):
 
         # some sanity checking
         valid_metrics = {"regional", "viral"}
-        valid_regions = {"ar", "at", "au", "be", "bg", "ch", "cl", "co", "cr",
-                         "cz", "de", "dk", "ec", "ee", "es", "fi", "fr", "gb",
-                         "gr", "gt", "hk", "hu", "ie", "is", "it", "li", "lt",
-                         "lu", "lv", "mx", "my", "nl", "no", "nz", "pe", "pl",
-                         "pt", "se", "sg", "sk", "sv", "tr", "tw", "us", "uy",
-                         "global"}
+        valid_regions = {"us", "gb", "ad", "ar", "au", "at", "be", "bo", "br",
+                         "bg", "ca", "cl", "co", "cr", "cy", "cz", "dk", "do",
+                         "ec", "sv", "ee", "fi", "fr", "de", "gr", "gt", "hn",
+                         "hk", "hu", "is", "ie", "it", "lv", "lt", "lu", "my",
+                         "mt", "mx", "nl", "nz", "ni", "no", "pa", "py", "pe",
+                         "ph", "pl", "pt", "sg", "sk", "es", "se", "ch", "tw",
+                         "tr", "uy", "global"}
         valid_windows = {"daily", "weekly"}
 
         def sanity_check(val, valid_set):
