@@ -48,7 +48,6 @@ class Ripper(threading.Thread):
     current_album = None
     current_chart = None
 
-    idx_digits = 3
     login_success = False
     progress = None
     sync = None
@@ -230,9 +229,6 @@ class Ripper(threading.Thread):
                 break
 
             tracks = list(get_tracks_from_uri(uri))
-
-            if args.flat_with_index and self.current_playlist:
-                self.idx_digits = len(str(len(self.current_playlist.tracks)))
 
             if args.playlist_sync and self.current_playlist:
                 self.sync = Sync(args, self)
