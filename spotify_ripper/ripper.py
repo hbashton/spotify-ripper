@@ -580,7 +580,8 @@ class Ripper(threading.Thread):
         track_num = str(track.index)
         disc_num = str(track.disc)
         if self.current_playlist is not None:
-            playlist_name = to_ascii(self.current_playlist.name)
+            playlist_name = to_ascii(
+                sanitize_playlist_name(self.current_playlist.name))
             playlist_owner = to_ascii(
                 self.current_playlist.owner.display_name)
         else:

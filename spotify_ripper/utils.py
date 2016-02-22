@@ -48,6 +48,11 @@ def norm_path(path):
     return os.path.normpath(os.path.realpath(path))
 
 
+def sanitize_playlist_name(name):
+    """replace unwanted path characters"""
+    return re.sub(r"[\\/]", "-", name)
+
+
 # borrowed from AndersTornkvist's fork
 def escape_filename_part(part):
     """escape possible offending characters"""
