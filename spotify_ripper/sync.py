@@ -7,6 +7,7 @@ from spotify_ripper.utils import *
 import os
 import json
 import codecs
+import copy
 import spotify
 
 
@@ -33,8 +34,7 @@ class Sync(object):
         if not path_exists(lib_path):
             os.makedirs(enc_str(lib_path))
 
-        encoding = "ascii" if args.ascii else "utf-8"
-        return os.path.join(lib_path, uri_tokens[4].encode(encoding) + ".json")
+        return os.path.join(enc_str(lib_path), enc_str(uri_tokens[4] + ".json"))
 
     def save_sync_library(self, playlist, lib):
         args = self.args
@@ -50,7 +50,7 @@ class Sync(object):
         args = self.args
         lib_path = self.sync_lib_path(playlist)
 
-        if path_exists(lib_path):
+        if os.path.exists(lib_path):
             encoding = "ascii" if args.ascii else "utf-8"
             with codecs.open(lib_path, 'r', encoding) as lib_file:
                 return json.loads(lib_file.read())
@@ -66,14 +66,15 @@ class Sync(object):
 
         # remove any missing files from the lib or playlist
         uris = set([t.link.uri for t in playlist.tracks])
+        new_lib = copy.deepcopy(lib)
         for uri, file_path in lib.items():
-            encoding = "ascii" if args.ascii else "utf-8"
-            file_path = file_path.encode(encoding)
-            if not path_exists(file_path):
-                del lib[uri]
+            file_path = enc_str(file_path)
+            if not os.path.exists(file_path):
+                del new_lib[uri]
             elif uri not in uris:
                 os.remove(file_path)
-                del lib[uri]
+                del new_lib[uri]
+        lib = new_lib
 
         # check if we need to rename any songs already ripped
         for idx, track in enumerate(playlist.tracks):
