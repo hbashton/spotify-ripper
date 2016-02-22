@@ -589,6 +589,15 @@ class Ripper(threading.Thread):
             playlist_owner = "No Playlist Owner"
         user = self.session.user.display_name
 
+        copyright = label = ""
+        if (audio_file.find("{copyright}") >= 0 or
+                audio_file.find("{label}") >= 0):
+            album_browser = track.album.browse()
+            album_browser.load()
+            if len(album_browser.copyrights) > 0:
+                copyright = escape_filename_part(album_browser.copyrights[0])
+                label = re.sub(r"^[0-9]+\s+", "", copyright)
+
         tags = {
             "track_artist": track_artist,
             "track_artists": track_artists,
@@ -618,7 +627,9 @@ class Ripper(threading.Thread):
             "user": user,
             "username": user,
             "feat_artists": featuring_artists,
-            "featuring_artists": featuring_artists
+            "featuring_artists": featuring_artists,
+            "copyright": copyright,
+            "label": label
         }
         fill_tags = {"idx", "index", "track_num", "track_idx",
                      "track_index", "disc_num", "disc_idx", "disc_index"}
