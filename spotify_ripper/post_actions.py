@@ -100,8 +100,9 @@ class PostActions(object):
         args = self.args
         ripper = self.ripper
 
-        name = sanitize_playlist_name(to_ascii(self.get_playlist_name()))
+        name = self.get_playlist_name()
         if name is not None and args.playlist_m3u:
+            name = sanitize_playlist_name(to_ascii(name))
             _base_dir = base_dir()
             playlist_path = to_ascii(
                 os.path.join(_base_dir, name + '.m3u'))
@@ -121,8 +122,9 @@ class PostActions(object):
         args = self.args
         ripper = self.ripper
 
-        name = sanitize_playlist_name(to_ascii(self.get_playlist_name()))
+        name = self.get_playlist_name()
         if name is not None and args.playlist_wpl:
+            name = sanitize_playlist_name(to_ascii(name))
             _base_dir = base_dir()
             playlist_path = to_ascii(
                 os.path.join(_base_dir, name + '.wpl'))

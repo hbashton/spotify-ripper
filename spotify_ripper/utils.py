@@ -50,7 +50,7 @@ def norm_path(path):
 
 def sanitize_playlist_name(name):
     """replace unwanted path characters"""
-    return re.sub(r"[\\/]", "-", name)
+    return re.sub(r"[\\/]", "-", name) if name is not None else None
 
 
 # borrowed from AndersTornkvist's fork
