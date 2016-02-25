@@ -169,8 +169,8 @@ def main(prog_args=sys.argv[1:]):
         help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument(
         '--comment', nargs=1,
-        help='Add custom metadata comment to all songs. Can include '
-             '{create_time} or {creator} if the URI is a playlist.')
+        help='Set comment metadata tag to all songs. Can include '
+             'same tags as --format.')
     parser.add_argument(
         '--cover-file', nargs=1,
         help='Save album cover image to file name (e.g "cover.jpg") '
@@ -200,6 +200,10 @@ def main(prog_args=sys.argv[1:]):
         choices=['artist', 'album'],
         help='Attempt to retrieve genre information from Spotify\'s '
              'Web API [Default=skip]')
+    parser.add_argument(
+        '--grouping', nargs=1,
+        help='Set grouping metadata tag to all songs. Can include '
+             'same tags as --format.')
     encoding_group.add_argument(
         '--id3-v23', action='store_true',
         help='Store ID3 tags using version v2.3 [Default=v2.4]')

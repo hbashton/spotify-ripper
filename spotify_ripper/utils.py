@@ -160,6 +160,153 @@ def get_playlist_track(track, playlist):
     return None
 
 
+def format_track_string(ripper, format_string, idx, track):
+    args = get_args()
+    current_album = ripper.current_album
+    current_playlist = ripper.current_playlist
+
+    track_artist = to_ascii(
+        escape_filename_part(track.artists[0].name))
+    track_artists = to_ascii(", ".join(
+        [artist.name for artist in track.artists]))
+    if len(track.artists) > 1:
+        featuring_artists = to_ascii(", ".join(
+            [artist.name for artist in track.artists[1:]]))
+    else:
+        featuring_artists = ""
+
+    album_artist = to_ascii(
+        current_album.artist.name
+        if current_album is not None else track_artist)
+    album_artists_web = track_artists
+
+    # only retrieve album_artist_web if it exists in the format string
+    if (current_album is not None and
+            format_string.find("{album_artists_web}") >= 0):
+        artist_array = \
+            ripper.web.get_artists_on_album(current_album.link.uri)
+        if artist_array is not None:
+            album_artists_web = to_ascii(", ".join(artist_array))
+
+    album = to_ascii(escape_filename_part(track.album.name))
+    track_name = to_ascii(escape_filename_part(track.name))
+    year = str(track.album.year)
+    extension = args.output_type
+    idx_str = str(idx + 1)
+    track_num = str(track.index)
+    disc_num = str(track.disc)
+    if current_playlist is not None:
+        playlist_name = to_ascii(
+            sanitize_playlist_name(current_playlist.name))
+        playlist_owner = to_ascii(
+            current_playlist.owner.display_name)
+    else:
+        playlist_name = "No Playlist"
+        playlist_owner = "No Playlist Owner"
+    user = ripper.session.user.display_name
+
+    # load copyright only if needed
+    copyright = label = ""
+    if (format_string.find("{copyright}") >= 0 or
+            format_string.find("{label}") >= 0):
+        album_browser = track.album.browse()
+        album_browser.load()
+        if len(album_browser.copyrights) > 0:
+            copyright = escape_filename_part(album_browser.copyrights[0])
+            label = re.sub(r"^[0-9]+\s+", "", copyright)
+
+    # load playlist create time or creator only if needed
+    create_time = creator = ""
+    if format_string.find("{create_time}") >= 0 or \
+            format_string.find("{creator}") >= 0:
+        pl_track = get_playlist_track(track, current_playlist)
+        if pl_track is not None:
+            create_time = datetime.fromtimestamp(
+                    pl_track.create_time).strftime('%Y-%m-%d %H:%M:%S')
+            creator = pl_track.creator.display_name
+
+    tags = {
+        "track_artist": track_artist,
+        "track_artists": track_artists,
+        "album_artist": album_artist,
+        "album_artists_web": album_artists_web,
+        "artist": track_artist,
+        "artists": track_artists,
+        "album": album,
+        "track_name": track_name,
+        "track": track_name,
+        "year": year,
+        "ext": extension,
+        "extension": extension,
+        "idx": idx_str,
+        "index": idx_str,
+        "track_num": track_num,
+        "track_idx": track_num,
+        "track_index": track_num,
+        "disc_num": disc_num,
+        "disc_idx": disc_num,
+        "disc_index": disc_num,
+        "playlist": playlist_name,
+        "playlist_name": playlist_name,
+        "playlist_owner": playlist_owner,
+        "playlist_user": playlist_owner,
+        "playlist_username": playlist_owner,
+        "user": user,
+        "username": user,
+        "feat_artists": featuring_artists,
+        "featuring_artists": featuring_artists,
+        "copyright": copyright,
+        "label": label,
+        "create_time": create_time,
+        "playlist_create_time": create_time,
+        "creator": creator,
+        "playlist_creator": creator
+    }
+    fill_tags = {"idx", "index", "track_num", "track_idx",
+                 "track_index", "disc_num", "disc_idx", "disc_index"}
+    prefix_tags = {"feat_artists", "featuring_artists"}
+    paren_tags = {"track_name", "track"}
+    for tag in tags.keys():
+        format_string = format_string.replace("{" + tag + "}", tags[tag])
+        if tag in fill_tags:
+            match = re.search(r"\{" + tag + r":\d+\}", format_string)
+            if match:
+                tokens = format_string[match.start():match.end()]\
+                    .strip("{}").split(":")
+                tag_filled = tags[tag].zfill(int(tokens[1]))
+                format_string = format_string[:match.start()] + tag_filled + \
+                    format_string[match.end():]
+        if tag in prefix_tags:
+            # don't print prefix if there are no values
+            if len(tags[tag]) > 0:
+                match = re.search(r"\{" + tag + r":[^\}]+\}", format_string)
+                if match:
+                    tokens = format_string[match.start():match.end()]\
+                        .strip("{}").split(":")
+                    format_string = format_string[:match.start()] + tokens[1] + \
+                        " " + tags[tag] + format_string[match.end():]
+            else:
+                match = re.search(r"\s*\{" + tag +
+                                  r":[^\}]+\}", format_string)
+                if match:
+                    format_string = format_string[:match.start()] + \
+                                 format_string[match.end():]
+        if tag in paren_tags:
+            match = re.search(r"\{" + tag + r":paren\}", format_string)
+            if match:
+                match_tag = re.search(r"(.*)\s+-\s+([^-]+)", tags[tag])
+                if match_tag:
+                    format_string = format_string[:match.start()] + \
+                                 match_tag.group(1) + " (" + \
+                                 match_tag.group(2) + ")" + \
+                                 format_string[match.end():]
+                else:
+                    format_string = format_string[:match.start()] + tags[tag] + \
+                                 format_string[match.end():]
+
+    return format_string
+
+
 # returns path of executable
 def which(program):
     def is_exe(fpath):

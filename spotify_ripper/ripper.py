@@ -297,7 +297,7 @@ class Ripper(threading.Thread):
                     self.finish_rip(track)
 
                     # update id3v2 with metadata and embed front cover image
-                    set_metadata_tags(args, self.audio_file, track, self)
+                    set_metadata_tags(args, self.audio_file, idx, track, self)
 
                     # make a note of the index and remove all the
                     # tracks from the playlist when everything is done
@@ -546,132 +546,9 @@ class Ripper(threading.Thread):
 
     def format_track_path(self, idx, track):
         args = self.args
-        _base_dir = base_dir()
-        audio_file = args.format[0].strip()
 
-        track_artist = to_ascii(
-            escape_filename_part(track.artists[0].name))
-        track_artists = to_ascii(", ".join(
-            [artist.name for artist in track.artists]))
-        if len(track.artists) > 1:
-            featuring_artists = to_ascii(", ".join(
-                [artist.name for artist in track.artists[1:]]))
-        else:
-            featuring_artists = ""
-
-        album_artist = to_ascii(
-            self.current_album.artist.name
-            if self.current_album is not None else track_artist)
-        album_artists_web = track_artists
-
-        # only retrieve album_artist_web if it exists in the format string
-        if (self.current_album is not None and
-                audio_file.find("{album_artists_web}") >= 0):
-            artist_array = \
-                self.web.get_artists_on_album(self.current_album.link.uri)
-            if artist_array is not None:
-                album_artists_web = to_ascii(", ".join(artist_array))
-
-        album = to_ascii(escape_filename_part(track.album.name))
-        track_name = to_ascii(escape_filename_part(track.name))
-        year = str(track.album.year)
-        extension = args.output_type
-        idx_str = str(idx + 1)
-        track_num = str(track.index)
-        disc_num = str(track.disc)
-        if self.current_playlist is not None:
-            playlist_name = to_ascii(
-                sanitize_playlist_name(self.current_playlist.name))
-            playlist_owner = to_ascii(
-                self.current_playlist.owner.display_name)
-        else:
-            playlist_name = "No Playlist"
-            playlist_owner = "No Playlist Owner"
-        user = self.session.user.display_name
-
-        copyright = label = ""
-        if (audio_file.find("{copyright}") >= 0 or
-                audio_file.find("{label}") >= 0):
-            album_browser = track.album.browse()
-            album_browser.load()
-            if len(album_browser.copyrights) > 0:
-                copyright = escape_filename_part(album_browser.copyrights[0])
-                label = re.sub(r"^[0-9]+\s+", "", copyright)
-
-        tags = {
-            "track_artist": track_artist,
-            "track_artists": track_artists,
-            "album_artist": album_artist,
-            "album_artists_web": album_artists_web,
-            "artist": track_artist,
-            "artists": track_artists,
-            "album": album,
-            "track_name": track_name,
-            "track": track_name,
-            "year": year,
-            "ext": extension,
-            "extension": extension,
-            "idx": idx_str,
-            "index": idx_str,
-            "track_num": track_num,
-            "track_idx": track_num,
-            "track_index": track_num,
-            "disc_num": disc_num,
-            "disc_idx": disc_num,
-            "disc_index": disc_num,
-            "playlist": playlist_name,
-            "playlist_name": playlist_name,
-            "playlist_owner": playlist_owner,
-            "playlist_user": playlist_owner,
-            "playlist_username": playlist_owner,
-            "user": user,
-            "username": user,
-            "feat_artists": featuring_artists,
-            "featuring_artists": featuring_artists,
-            "copyright": copyright,
-            "label": label
-        }
-        fill_tags = {"idx", "index", "track_num", "track_idx",
-                     "track_index", "disc_num", "disc_idx", "disc_index"}
-        prefix_tags = {"feat_artists", "featuring_artists"}
-        paren_tags = {"track_name", "track"}
-        for tag in tags.keys():
-            audio_file = audio_file.replace("{" + tag + "}", tags[tag])
-            if tag in fill_tags:
-                match = re.search(r"\{" + tag + r":\d+\}", audio_file)
-                if match:
-                    tokens = audio_file[match.start():match.end()]\
-                        .strip("{}").split(":")
-                    tag_filled = tags[tag].zfill(int(tokens[1]))
-                    audio_file = audio_file[:match.start()] + tag_filled + \
-                        audio_file[match.end():]
-            if tag in prefix_tags:
-                # don't print prefix if there are no values
-                if len(tags[tag]) > 0:
-                    match = re.search(r"\{" + tag + r":[^\}]+\}", audio_file)
-                    if match:
-                        tokens = audio_file[match.start():match.end()]\
-                            .strip("{}").split(":")
-                        audio_file = audio_file[:match.start()] + tokens[1] + \
-                            " " + tags[tag] + audio_file[match.end():]
-                else:
-                    match = re.search(r"\s*\{" + tag +
-                                      r":[^\}]+\}", audio_file)
-                    if match:
-                        audio_file = audio_file[:match.start()] + \
-                                     audio_file[match.end():]
-            if tag in paren_tags:
-                match = re.search(r"\{" + tag + r":paren\}", audio_file)
-                if match:
-                    match_tag = re.search(r"(.*)\s+-\s+([^-]+)", tags[tag])
-                    if match_tag:
-                        audio_file = audio_file[:match.start()] + \
-                                     match_tag.group(1) + " (" + \
-                                     match_tag.group(2) + ")" + \
-                                     audio_file[match.end():]
-                    else:
-                        audio_file = audio_file[:match.start()] + tags[tag] + \
-                                     audio_file[match.end():]
+        audio_file = \
+            format_track_string(self, args.format[0].strip(), idx, track)
 
         # in case the file name is too long
         def truncate(_str, max_size):
@@ -706,7 +583,7 @@ class Ripper(threading.Thread):
         audio_file = audio_file.replace('*."/\[]:;|=,', '')
 
         # prepend base_dir
-        audio_file = to_ascii(os.path.join(_base_dir, audio_file))
+        audio_file = to_ascii(os.path.join(base_dir(), audio_file))
 
         if args.normalized_ascii:
             audio_file = to_normalized_ascii(audio_file)
