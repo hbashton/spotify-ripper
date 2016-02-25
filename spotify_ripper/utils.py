@@ -257,10 +257,11 @@ def format_track_string(ripper, format_string, idx, track):
         "featuring_artists": featuring_artists,
         "copyright": copyright,
         "label": label,
-        "create_time": create_time,
-        "playlist_create_time": create_time,
-        "creator": creator,
-        "playlist_creator": creator
+        "copyright_holder": label,
+        "playlist_track_add_time": create_time,
+        "track_add_time": create_time,
+        "playlist_track_add_user": creator,
+        "track_add_user": creator
     }
     fill_tags = {"idx", "index", "track_num", "track_idx",
                  "track_index", "disc_num", "disc_idx", "disc_index"}

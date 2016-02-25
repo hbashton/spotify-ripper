@@ -85,11 +85,13 @@ Command Line
                           [-b BITRATE] [-c] [--comp COMP] [--comment COMMENT]
                           [--cover-file COVER_FILE] [-d DIRECTORY]
                           [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
-                          [--flat-with-index] [-g {artist,album}] [--id3-v23]
-                          [-k KEY] [-u USER] [-p PASSWORD] [-l] [-L LOG] [--pcm]
-                          [--mp4] [--normalize] [-o] [--opus] [--playlist-m3u]
+                          [--flat-with-index] [-g {artist,album}]
+                          [--grouping GROUPING] [--id3-v23] [-k KEY] [-u USER]
+                          [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
+                          [--normalize] [-na] [-o] [--opus] [--playlist-m3u]
                           [--playlist-wpl] [--playlist-sync] [-q VBR]
-                          [-Q {160,320,96}] [--resume-after RESUME_AFTER] [-s]
+                          [-Q {160,320,96}] [--resume-after RESUME_AFTER]
+                          [-R REPLACE [REPLACE ...]] [-s]
                           [--stereo-mode {j,s,f,d,m,l,r}]
                           [--stop-after STOP_AFTER] [-V] [--wav] [--vorbis] [-r]
                           [-x]
@@ -113,7 +115,7 @@ Command Line
                             CBR bitrate [Default=320]
       -c, --cbr             CBR encoding [Default=VBR]
       --comp COMP           compression complexity for FLAC and Opus [Default=Max]
-      --comment COMMENT     Add custom metadata comment to all songs. Can include {create_time} or {creator} if the URI is a playlist.
+      --comment COMMENT     Set comment metadata tag to all songs. Can include same tags as --format.
       --cover-file COVER_FILE
                             Save album cover image to file name (e.g "cover.jpg") [Default=embed]
       -d DIRECTORY, --directory DIRECTORY
@@ -126,6 +128,7 @@ Command Line
       --flat-with-index     Similar to --flat [-f] but includes the playlist index at the start of the song file
       -g {artist,album}, --genres {artist,album}
                             Attempt to retrieve genre information from Spotify's Web API [Default=skip]
+      --grouping GROUPING   Set grouping metadata tag to all songs. Can include same tags as --format.
       --id3-v23             Store ID3 tags using version v2.3 [Default=v2.4]
       -k KEY, --key KEY     Path to Spotify application key file [Default=Settings Directory]
       -u USER, --user USER  Spotify username
@@ -249,10 +252,22 @@ Format String Variables
 |``{playlist_user}``,                     | a playlist uri, otherwise "No Playlist Owner" |
 |``{playlist_username}``                  |                                               |
 +-----------------------------------------+-----------------------------------------------+
+|``{playlist_track_add_time}``,           | When the track was added to the playlist      |
+|``{track_add_time}``,                    |                                               |
++-----------------------------------------+-----------------------------------------------+
+|``{playlist_track_add_user}``,           | The user that added the track to the playlist |
+|``{track_add_user}``,                    |                                               |
++-----------------------------------------+-----------------------------------------------+
 |``{user}``, ``{username}``               | Spotify username of logged-in user            |
 +-----------------------------------------+-----------------------------------------------+
 |``{feat_artists}``,                      | Featuring artists join by commas (see Prefix  |
 |``{featuring_artists}``                  | String section below)                         |
++-----------------------------------------+-----------------------------------------------+
+|``{copyright}``                          | Album copyright message                       |
++-----------------------------------------+-----------------------------------------------+
+|``{label}``, ``{copyright_holder}``      | Album copyright message with the year         |
+|                                         | removed at the start of the string if it      |
+|                                         | exists                                        |
 +-----------------------------------------+-----------------------------------------------+
 
 Any substring in the format string that does not match a variable above will be passed through to the file/path name unchanged.
