@@ -2,12 +2,12 @@
 # coding=utf-8
 
 from setuptools import setup, find_packages
-from spotify_ripper.utils import default_settings_dir
 import os
 
 
 def create_default_dir():
-    default_dir = default_settings_dir()
+    default_dir = os.path.normpath(os.path.realpath(
+        (os.path.join(os.path.expanduser("~"), ".spotify-ripper"))))
     if not os.path.exists(default_dir):
         print("Creating default settings directory: " +
             default_dir)
@@ -18,7 +18,6 @@ def _read(fn):
     path = os.path.join(os.path.dirname(__file__), fn)
     return open(path).read()
 
-create_default_dir()
 setup(
     name='spotify-ripper',
     version='2.8.0',
@@ -70,3 +69,5 @@ setup(
     ],
     long_description=_read('README.rst'),
 )
+
+create_default_dir()
