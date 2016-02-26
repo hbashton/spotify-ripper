@@ -13,6 +13,9 @@ import argparse
 import pkg_resources
 import schedule
 import signal
+import select
+import tty
+import termios
 
 if sys.version_info >= (3, 0):
     import configparser as ConfigParser
@@ -476,12 +479,19 @@ def main(prog_args=sys.argv[1:]):
         ripper.progress.handle_resize()
         signal.signal(signal.SIGWINCH, ripper.progress.handle_resize)
 
+    def hasStdinData():
+        return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
+
     def abort(set_logged_in=False):
         ripper.abort_rip()
         if set_logged_in:
             ripper.ripper_continue.set()
         ripper.join()
         sys.exit(1)
+
+    def skip():
+        if ripper.ripping.is_set():
+            ripper.skip.set()
 
     # login on main thread to catch any KeyboardInterrupt
     try:
@@ -500,15 +510,26 @@ def main(prog_args=sys.argv[1:]):
         abort(set_logged_in=True)
 
     # wait for ripping thread to finish
+    stdin_settings = termios.tcgetattr(sys.stdin)
     try:
+        tty.setcbreak(sys.stdin.fileno())
+
         while ripper.isAlive():
             schedule.run_pending()
+
+            # check if the escape button was pressed
+            if hasStdinData():
+                c = sys.stdin.read(1)
+                if c == '\x1b':
+                    skip()
             ripper.join(0.1)
     except (KeyboardInterrupt, Exception) as e:
         if not isinstance(e, KeyboardInterrupt):
             print(str(e))
         print("\n" + Fore.RED + "Aborting..." + Fore.RESET)
         abort()
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, stdin_settings)
 
 if __name__ == '__main__':
     main()

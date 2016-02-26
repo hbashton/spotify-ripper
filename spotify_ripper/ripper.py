@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from subprocess import Popen, PIPE
-from colorama import Fore
+from colorama import Fore, Style
 from spotify_ripper.utils import *
 from spotify_ripper.tags import set_metadata_tags
 from spotify_ripper.progress import Progress
@@ -21,6 +21,7 @@ import getpass
 import itertools
 import wave
 import re
+import select
 
 try:
     # Python 3
@@ -66,6 +67,7 @@ class Ripper(threading.Thread):
     end_of_track = threading.Event()
     finished = threading.Event()
     abort = threading.Event()
+    skip = threading.Event()
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -238,6 +240,7 @@ class Ripper(threading.Thread):
             for idx, track in enumerate(tracks):
                 try:
                     self.check_stop_time()
+                    self.skip.clear()
 
                     if self.abort.is_set():
                         break
@@ -269,12 +272,12 @@ class Ripper(threading.Thread):
                     while not self.end_of_track.is_set() or \
                             not self.rip_queue.empty():
                         try:
-                            if self.abort.is_set():
+                            if self.abort.is_set() or self.skip.is_set():
                                 break
 
                             rip_item = self.rip_queue.get(timeout=1)
 
-                            if self.abort.is_set():
+                            if self.abort.is_set() or self.skip.is_set():
                                 break
 
                             self.rip(self.session, rip_item[0],
@@ -284,6 +287,17 @@ class Ripper(threading.Thread):
                             if timeout_count > 60:
                                 raise spotify.Error("Timeout while "
                                                     "ripping track")
+
+                    if self.skip.is_set():
+                        print("\n" + Fore.YELLOW +
+                            "User skipped track... " + Fore.RESET)
+                        self.session.player.play(False)
+                        self.post.clean_up_partial()
+                        self.post.log_failure(track)
+                        self.end_of_track.clear()
+                        self.progress.end_track(show_end=False)
+                        self.ripping.clear()
+                        continue
 
                     if self.abort.is_set():
                         self.session.player.play(False)
@@ -611,7 +625,8 @@ class Ripper(threading.Thread):
             print(Fore.GREEN + "[ " + str(idx + 1) + " / " +
                   str(self.progress.total_tracks +
                       self.progress.skipped_tracks) + " ] Ripping " +
-                  track.link.uri + Fore.RESET)
+                  track.link.uri + Fore.WHITE + Style.DIM +
+                  "\t(ESC to skip)" + Style.RESET_ALL)
         else:
             print(Fore.GREEN + "Ripping " + track.link.uri + Fore.RESET)
         print(Fore.CYAN + self.audio_file + Fore.RESET)

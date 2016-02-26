@@ -135,8 +135,9 @@ class Progress(object):
         self.move_cursor = False
         self.current_track = track
 
-    def end_track(self):
-        self.end_progress()
+    def end_track(self, show_end=True):
+        if show_end:
+            self.end_progress()
         self.stat_prev = None
         self.song_eta = None
         self.total_eta = None
