@@ -36,7 +36,8 @@ def load_config(defaults):
 
             to_array_options = [
                 "comment", "cover_file", "directory", "fail_log", "format",
-                "genres", "key", "user", "password", "log", "replace"]
+                "genres", "grouping", "key", "user", "password", "log",
+                "replace"]
 
             # coerce boolean and none types
             for _key in config_items:
