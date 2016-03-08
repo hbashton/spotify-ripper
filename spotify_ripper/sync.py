@@ -66,15 +66,15 @@ class Sync(object):
 
         # remove any missing files from the lib or playlist
         uris = set([t.link.uri for t in playlist.tracks])
-        new_lib = copy.deepcopy(lib)
+        copy_lib = copy.deepcopy(lib)
         for uri, file_path in lib.items():
             file_path = enc_str(file_path)
             if not os.path.exists(file_path):
-                del new_lib[uri]
+                del copy_lib[uri]
             elif uri not in uris:
                 os.remove(file_path)
-                del new_lib[uri]
-        lib = new_lib
+                del copy_lib[uri]
+        lib = copy_lib
 
         # check if we need to rename any songs already ripped
         for idx, track in enumerate(playlist.tracks):
