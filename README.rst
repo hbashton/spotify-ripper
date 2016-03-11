@@ -333,8 +333,9 @@ To install pyenv using homebrew:
 
     $ brew update
     $ brew install pyenv
+    $ eval "$(pyenv init -)"
+    ## the next line ensures 'eval "$(pyenv init -)"' is run everytime terminal is opened
     $ echo 'if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi' >> ~/.bash_profile
-    ## restart terminal ##
     $ pyenv install 2.7.10  # or whatever version of python you want
     $ pyenv global 2.7.10
     $ python -V             # should say Python 2.7.10
