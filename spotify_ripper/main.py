@@ -354,7 +354,7 @@ def main(prog_args=sys.argv[1:]):
     elif args.vorbis:
         args.output_type = "ogg"
         if args.vbr == "0":
-            args.vbr = "10"
+            args.vbr = "9"
     elif args.opus:
         args.output_type = "opus"
         if args.vbr == "0":
