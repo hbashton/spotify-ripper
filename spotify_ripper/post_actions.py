@@ -84,6 +84,71 @@ class PostActions(object):
                   ")\n" + ("-" * 79) + Fore.RESET)
             log_tracks(self.failure_tracks)
 
+    def get_chart_name(self, chart):
+        region_mapping = {
+            "global": "Global",
+            "us": "United States",
+            "gb": "United Kingdom",
+            "ad": "Andorra",
+            "ar": "Argentina",
+            "au": "Australia",
+            "at": "Austria",
+            "be": "Belgium",
+            "bo": "Bolivia",
+            "br": "Brazil",
+            "bg": "Bulgaria",
+            "ca": "Canada",
+            "cl": "Chile",
+            "co": "Colombia",
+            "cr": "Costa Rica",
+            "cy": "Cyprus",
+            "cz": "Czech Republic",
+            "dk": "Denmark",
+            "do": "Dominican Republic",
+            "ec": "Ecuador",
+            "sv": "El Salvador",
+            "ee": "Estonia",
+            "fi": "Finland",
+            "fr": "France",
+            "de": "Germany",
+            "gr": "Greece",
+            "gt": "Guatemala",
+            "hn": "Honduras",
+            "hk": "Hong Kong",
+            "hu": "Hungary",
+            "is": "Iceland",
+            "ie": "Ireland",
+            "it": "Italy",
+            "lv": "Latvia",
+            "lt": "Lithuania",
+            "lu": "Luxembourg",
+            "my": "Malaysia",
+            "mt": "Malta",
+            "mx": "Mexico",
+            "nl": "Netherlands",
+            "nz": "New Zealand",
+            "ni": "Nicaragua",
+            "no": "Norway",
+            "pa": "Panama",
+            "py": "Paraguay",
+            "pe": "Peru",
+            "ph": "Philippines",
+            "pl": "Poland",
+            "pt": "Portugal",
+            "sg": "Singapore",
+            "sk": "Slovakia",
+            "es": "Spain",
+            "se": "Sweden",
+            "ch": "Switzerland",
+            "tw": "Taiwan",
+            "tr": "Turkey",
+            "uy": "Uruguay"
+        }
+        return (chart["recurrence"].title() + " " +
+                region_mapping.get(chart["country"], "") + " " +
+                ("Top" if chart["type"] == "regional" else "Viral") + " " +
+                ("200" if chart["type"] == "regional" else "50"))
+
     def get_playlist_name(self):
         ripper = self.ripper
 
@@ -92,7 +157,7 @@ class PostActions(object):
         elif ripper.current_album is not None:
             return (ripper.current_album.artist.name + " - " + ripper.current_album.name)
         elif ripper.current_chart is not None:
-            return ripper.current_chart["name"]
+            return self.get_chart_name(ripper.current_chart)
         else:
             return None
 

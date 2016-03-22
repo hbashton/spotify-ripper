@@ -203,7 +203,8 @@ class Ripper(threading.Thread):
                     charts = self.web.get_charts(uri)
                     if charts is not None:
                         self.current_chart = charts
-                        chart_uris = [t["track"]["uri"] for t in charts["entries"]["items"]]
+                        chart_uris = ["spotify:track:" + t["track"]["id"]
+                            for t in charts["entries"]["items"]]
                         return itertools.chain(
                             *[self.load_link(chart_uri) for
                               chart_uri in chart_uris])
