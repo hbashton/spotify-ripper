@@ -86,6 +86,10 @@ class Ripper(threading.Thread):
         self.post = PostActions(args, self)
         self.web = WebAPI(args, self)
 
+        proxy = os.environ.get('http_proxy')
+        if proxy is not None:
+            config.proxy = proxy
+
         # application key location
         if args.key is not None:
             config.load_application_key_file(args.key[0])
