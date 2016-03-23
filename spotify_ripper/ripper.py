@@ -262,12 +262,15 @@ class Ripper(threading.Thread):
                     self.audio_file = self.format_track_path(idx, track)
 
                     if not args.overwrite and path_exists(self.audio_file):
-                        print(
-                            Fore.YELLOW + "Skipping " +
-                            track.link.uri + Fore.RESET)
-                        print(Fore.CYAN + self.audio_file + Fore.RESET)
-                        self.post.queue_remove_from_playlist(idx)
-                        continue
+                        if is_partial(self.audio_file, track):
+                            print("Overwriting partial file")
+                        else:
+                            print(
+                                Fore.YELLOW + "Skipping " +
+                                track.link.uri + Fore.RESET)
+                            print(Fore.CYAN + self.audio_file + Fore.RESET)
+                            self.post.queue_remove_from_playlist(idx)
+                            continue
 
                     self.session.player.load(track)
                     self.prepare_rip(idx, track)

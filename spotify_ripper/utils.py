@@ -4,6 +4,7 @@ from __future__ import unicode_literals, print_function
 
 from colorama import Fore, Style
 from datetime import datetime, timedelta
+import mutagen
 import os
 import sys
 import errno
@@ -385,6 +386,19 @@ def format_size(size, short=False):
         else:
             str_value = str_value[:3]
         return "{0:>3s}{1}".format(str_value, suffix)
+
+# returns true if audio_file is a partial of track
+def is_partial(audio_file, track):
+    def audio_file_duration(audio_file):
+        if (path_exists(audio_file)):
+            _file = mutagen.File(audio_file)
+            if _file is not None and _file.info is not None:
+                return _file.info.length
+        return None
+
+    audio_file_dur = audio_file_duration(audio_file)
+    return (audio_file_dur is None or
+        track.duration > (audio_file_dur * 1000))
 
 
 # borrowed from eyeD3

@@ -65,7 +65,8 @@ class Progress(object):
                     self.skipped_tracks += 1
                     continue
                 audio_file = self.ripper.format_track_path(idx, track)
-                if not self.args.overwrite and path_exists(audio_file):
+                if not self.args.overwrite and path_exists(audio_file) and \
+                        not is_partial(audio_file, track):
                     self.skipped_tracks += 1
                     continue
                 self.total_tracks += 1
