@@ -229,6 +229,7 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
                 audio.tags["ALBUM"] = tag_to_ascii(track.album.name, album)
             audio.tags["TITLE"] = tag_to_ascii(track.name, title)
             audio.tags["ARTIST"] = tag_to_ascii(track.artists[0].name, artist)
+            audio.tags["DATE"] = str(track.album.year)
             audio.tags["YEAR"] = str(track.album.year)
             audio.tags["DISCNUMBER"] = str(track.disc)
             audio.tags["DISCTOTAL"] = str(num_discs)
