@@ -144,6 +144,7 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
             if args.id3_v23:
                 audio.tags.update_to_v23()
                 audio.save(v2_version=3, v23_sep='/')
+                audio.tags.version = (2, 3, 0)
             else:
                 audio.save()
 
@@ -202,6 +203,7 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
             if args.id3_v23:
                 id3_dict.update_to_v23()
                 id3_dict.save(audio_file, v2_version=3, v23_sep='/')
+                id3_dict.version = (2, 3, 0)
             else:
                 id3_dict.save(audio_file)
             audio.tags = id3_dict

@@ -266,7 +266,6 @@ class PostActions(object):
                   ripper.current_playlist.name + "..." + Fore.RESET)
 
             ripper.current_playlist.remove_tracks(self.tracks_to_remove)
-            ripper.session.process_events()
 
             while ripper.current_playlist.has_pending_changes:
                 time.sleep(0.1)
