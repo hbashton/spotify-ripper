@@ -56,6 +56,7 @@ class Ripper(threading.Thread):
     web = None
     dev_null = None
     stop_time = None
+    track_path_cache = {}
 
     rip_queue = queue.Queue()
 
@@ -572,6 +573,11 @@ class Ripper(threading.Thread):
     def format_track_path(self, idx, track):
         args = self.args
 
+        # check if we cached the result already
+        track.load()
+        if track.link.uri in self.track_path_cache:
+            return self.track_path_cache[track.link.uri]
+
         audio_file = \
             format_track_string(self, args.format[0].strip(), idx, track)
 
@@ -618,6 +624,7 @@ class Ripper(threading.Thread):
         if not path_exists(audio_path):
             os.makedirs(enc_str(audio_path))
 
+        self.track_path_cache[track.link.uri] = audio_file
         return audio_file
 
     def replace_filename(self, filename, pattern_list):
