@@ -263,6 +263,10 @@ def main(prog_args=sys.argv[1:]):
         '-Q', '--quality', choices=['160', '320', '96'],
         help='Spotify stream bitrate preference [Default=320]')
     parser.add_argument(
+        '--remove-offline-cache', action='store_true',
+        help='Remove libspotify\'s offline cache directory after the rip'
+             'is complete to save disk space')
+    parser.add_argument(
         '--resume-after',
         help='Resumes script after a certain amount of time has passed '
              'after stopping (e.g. 1h30m). Alternatively, accepts a specific '

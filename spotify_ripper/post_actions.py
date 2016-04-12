@@ -8,6 +8,7 @@ import os
 import time
 import spotify
 import codecs
+import shutil
 
 
 class PostActions(object):
@@ -269,3 +270,13 @@ class PostActions(object):
 
             while ripper.current_playlist.has_pending_changes:
                 time.sleep(0.1)
+
+    def remove_offline_cache(self):
+        ripper = self.ripper
+
+        if self.args.remove_offline_cache:
+            storage_dir = os.path.join(ripper.session.config.settings_location,
+                "Storage")
+            if path_exists(storage_dir):
+                shutil.rmtree(enc_str(storage_dir))
+

@@ -344,6 +344,9 @@ class Ripper(threading.Thread):
             # actually removing the tracks from playlist
             self.post.remove_tracks_from_playlist()
 
+            # remove libspotify's offline storage cache
+            self.post.remove_offline_cache()
+
         # logout, we are done
         self.post.end_failure_log()
         self.post.print_summary()
