@@ -40,25 +40,28 @@ def load_config(defaults):
                 "replace"]
 
             # coerce boolean and none types
+            config_items_new = {}
             for _key in config_items:
                 item = config_items[_key]
+
+                u_key = _key.replace("-", "_")
                 if item == 'True':
-                    config_items[_key] = True
+                    item = True
                 elif item == 'False':
-                    config_items[_key] = False
+                    item = False
                 elif item == 'None':
-                    config_items[_key] = None
+                    item = None
                 else:
-                    config_items[_key] = item.strip("'\"")
+                    item = item.strip("'\"")
 
                 # certain options need to be in array (nargs=1)
-                if _key in to_array_options:
-                    item = config_items[_key]
-                    if item is not None:
-                        config_items[_key] = [item]
+                if u_key in to_array_options:
+                    item = [item]
+
+                config_items_new[u_key] = item
 
             # overwrite any existing defaults
-            defaults.update(config_items)
+            defaults.update(config_items_new)
         except ConfigParser.Error as e:
             print("\nError parsing config file: " + config_file)
             print(str(e))
