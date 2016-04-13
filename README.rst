@@ -90,9 +90,9 @@ Command Line
                           [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
                           [--normalize] [-na] [-o] [--opus] [--playlist-m3u]
                           [--playlist-wpl] [--playlist-sync] [-q VBR]
-                          [-Q {160,320,96}] [--resume-after RESUME_AFTER]
-                          [-R REPLACE [REPLACE ...]] [-s]
-                          [--stereo-mode {j,s,f,d,m,l,r}]
+                          [-Q {160,320,96}] [--remove-offline-cache]
+                          [--resume-after RESUME_AFTER] [-R REPLACE [REPLACE ...]]
+                          [-s] [--stereo-mode {j,s,f,d,m,l,r}]
                           [--stop-after STOP_AFTER] [-V] [--wav] [--vorbis] [-r]
                           [-x]
                           uri [uri ...]
@@ -149,6 +149,8 @@ Command Line
       -q VBR, --vbr VBR     VBR quality setting or target bitrate for Opus [Default=0]
       -Q {160,320,96}, --quality {160,320,96}
                             Spotify stream bitrate preference [Default=320]
+      --remove-offline-cache
+                            Remove libspotify's offline cache directory after the ripis complete to save disk space
       --resume-after RESUME_AFTER
                             Resumes script after a certain amount of time has passed after stopping (e.g. 1h30m). Alternatively, accepts a specific time in 24hr format to start after (e.g 03:30, 16:15). Requires --stop-after option to be set
       -R REPLACE [REPLACE ...], --replace REPLACE [REPLACE ...]
