@@ -179,6 +179,9 @@ class PostActions(object):
             encoding = "ascii" if args.ascii else "utf-8"
             with codecs.open(playlist_path, 'w', encoding) as playlist:
                 for idx, track in enumerate(tracks):
+                    track.load()
+                    if track.is_local:
+                        continue
                     _file = ripper.format_track_path(idx, track)
                     if path_exists(_file):
                         playlist.write(os.path.relpath(_file, _base_dir) +
@@ -201,10 +204,14 @@ class PostActions(object):
             encoding = "ascii" if args.ascii else "utf-8"
             with codecs.open(playlist_path, 'w', encoding) as playlist:
                 # to get an accurate track count
-                track_paths = [_file for _file in
-                               [ripper.format_track_path(idx, track)
-                                for idx, track in enumerate(tracks)]
-                               if path_exists(_file)]
+                track_paths = []
+                for idx, track in enumerate(tracks):
+                    track.load()
+                    if track.is_local:
+                        continue
+                    _file = ripper.format_track_path(idx, track)
+                    if path_exists(_file):
+                        track_paths.append(_file)
 
                 playlist.write('<?wpl version="1.0"?>\n')
                 playlist.write('<smil>\n')
