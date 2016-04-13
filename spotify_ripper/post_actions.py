@@ -282,8 +282,12 @@ class PostActions(object):
         ripper = self.ripper
 
         if self.args.remove_offline_cache:
-            storage_dir = os.path.join(ripper.session.config.settings_location,
-                "Storage")
-            if path_exists(storage_dir):
-                shutil.rmtree(enc_str(storage_dir))
+            if self.args.settings is not None:
+                storage_path = norm_path(self.args.settings[0])
+            else:
+                storage_path = default_settings_dir()
+
+            storage_path = os.path.join(storage_path, "Storage")
+            if path_exists(storage_path):
+                shutil.rmtree(enc_str(storage_path))
 
