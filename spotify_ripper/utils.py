@@ -326,7 +326,8 @@ def format_track_string(ripper, format_string, idx, track):
                 else:
                     format_string = format_string[:match.start()] + tags[tag] + \
                                  format_string[match.end():]
-
+    if args.upper_words:
+        return ' '.join(word[0].upper() + word[1:] for word in format_string.split())
     return format_string
 
 

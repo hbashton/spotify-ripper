@@ -37,7 +37,7 @@ def load_config(defaults):
             to_array_options = [
                 "comment", "cover_file", "cover_embed", "directory", "fail_log", "format",
                 "genres", "grouping", "key", "user", "password", "log", "filter_albums"
-                "replace"]
+                "replace", "upper_words"]
 
             # coerce boolean and none types
             config_items_new = {}
@@ -317,6 +317,9 @@ def main(prog_args=sys.argv[1:]):
         help='Only load albums of specified types when passing '
              'a Spotify artist URI '
              '[Default=album,single,ep,compilation,appears_on]')
+    parser.add_argument(
+        '--upper-words', action='store_true',
+        help='Convert make all words of the filenames start with captial letters')
     parser.add_argument(
         'uri', nargs="+",
         help='One or more Spotify URI(s) (either URI, a file of URIs or a '
