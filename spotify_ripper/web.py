@@ -163,7 +163,7 @@ class WebAPI(object):
                          "hk", "hu", "is", "ie", "it", "lv", "lt", "lu", "my",
                          "mt", "mx", "nl", "nz", "ni", "no", "pa", "py", "pe",
                          "ph", "pl", "pt", "sg", "sk", "es", "se", "ch", "tw",
-                         "tr", "uy", "global"}
+                         "tr", "uy", "id", "global"}
         valid_windows = {"daily", "weekly"}
 
         def sanity_check(val, valid_set):
