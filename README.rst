@@ -83,7 +83,7 @@ Command Line
 
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [--alac] [-A]
                           [-b BITRATE] [-c] [--comp COMP] [--comment COMMENT]
-                          [--cover-file COVER_FILE] [-d DIRECTORY]
+                          [--cover-file COVER_FILE] [--cover-embed] [-d DIRECTORY]
                           [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
                           [--flat-with-index] [-g {artist,album}]
                           [--grouping GROUPING] [--id3-v23] [-k KEY] [-u USER]
@@ -94,7 +94,7 @@ Command Line
                           [--resume-after RESUME_AFTER] [-R REPLACE [REPLACE ...]]
                           [-s] [--stereo-mode {j,s,f,d,m,l,r}]
                           [--stop-after STOP_AFTER] [-V] [--wav] [--vorbis] [-r]
-                          [-x]
+                          [-x] [--filter-albums FILTER_ALBUMS] [--upper-words]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -118,6 +118,7 @@ Command Line
       --comment COMMENT     Set comment metadata tag to all songs. Can include same tags as --format.
       --cover-file COVER_FILE
                             Save album cover image to file name (e.g "cover.jpg") [Default=embed]
+      --cover-embed         Embed album cover into the songs [Default=embed only if cover-file is not specified]
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
       --fail-log FAIL_LOG   Logs the list of track URIs that failed to rip
@@ -154,10 +155,8 @@ Command Line
       --resume-after RESUME_AFTER
                             Resumes script after a certain amount of time has passed after stopping (e.g. 1h30m). Alternatively, accepts a specific time in 24hr format to start after (e.g 03:30, 16:15). Requires --stop-after option to be set
       -R REPLACE [REPLACE ...], --replace REPLACE [REPLACE ...]
-                            pattern to replace the output filename separated by "/".
-                            The following example replaces all spaces with "_" and all "-" with ".":
-                                spotify-ripper --replace " /_" "\-/." uri
-      -s, --strip-colors    Strip coloring from output[Default=colors]
+                            pattern to replace the output filename separated by "/". The following example replaces all spaces with "_" and all "-" with ".":    spotify-ripper --replace " /_" "\-/." uri
+      -s, --strip-colors    Strip coloring from output [Default=colors]
       --stereo-mode {j,s,f,d,m,l,r}
                             Advanced stereo settings for Lame MP3 encoder only
       --stop-after STOP_AFTER
@@ -169,6 +168,9 @@ Command Line
                             Delete tracks from playlist after successful ripping [Default=no]
       -x, --exclude-appears-on
                             Exclude albums that an artist 'appears on' when passing a Spotify artist URI
+      --filter-albums FILTER_ALBUMS
+                            Only load albums of specified types when passing a Spotify artist URI [Default=album,single,ep,compilation,appears_on]
+      --upper-words         Convert make all words of the filenames start with captial letters
 
     Example usage:
         rip a single file: spotify-ripper -u user spotify:track:52xaypL0Kjzk0ngwv3oBPR
@@ -247,6 +249,11 @@ Format String Variables
 | ``{disc_num}``, ``{disc_idx}``,         | The disc number of the album                  |
 | ``{disc_index}``                        |                                               |
 +-----------------------------------------+-----------------------------------------------+
+| ``{smart_num}``                         | for a multi-disc album, smart_num will return |
+|                                         | a number combining disc and track number.     |
+|                                         | i.e. for disc 2 track 4 it will return 204.   |
+|                                         | for single disc album, it gives the track num |
++-----------------------------------------+-----------------------------------------------+
 | ``{playlist}``, ``{playlist_name}``     | Name of playlist if passed a playlist uri,    |
 |                                         | otherwise "No Playlist"                       |
 +-----------------------------------------+-----------------------------------------------+
@@ -277,7 +284,7 @@ Any substring in the format string that does not match a variable above will be 
 Zero-Filled Padding
 ~~~~~~~~~~~~~~~~~~~
 
-Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filled padding will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, and ``{disc_num}`` and their aliases.
+Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filled padding will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, ``{disc_num}``, ``{smart_num}`` and their aliases.
 
 Prefix String
 ~~~~~~~~~~~~~
