@@ -205,8 +205,6 @@ def format_track_string(ripper, format_string, idx, track):
     track_num = str(track.index)
     disc_num = str(track.disc)
 
-    print("disc_num: " + disc_num)
-
     # calculate num of discs on the album
     num_discs = 0
     for track_browse in album_browser.tracks:
@@ -217,7 +215,6 @@ def format_track_string(ripper, format_string, idx, track):
         smart_num = str((int(disc_num)*100)+int(track_num))
     else:
         smart_num = track_num
-    print("smart num: " + smart_num)
 
     if current_playlist is not None:
         playlist_name = to_ascii(

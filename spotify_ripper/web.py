@@ -43,11 +43,11 @@ class WebAPI(object):
         return 'https://spotifycharts.com/api/' + url_path
 
     # excludes 'appears on' albums for artist
-    def get_non_appears_on_albums(self, uri):
-        def get_albums_json(offset):
+    def get_albums_with_filter(self, uri, filter):
+        def get_albums_json(offset, filter):
             url = self.api_url(
                     'artists/' + uri_tokens[2] +
-                    '/albums/?=album_type=album,single,compilation' +
+                    '/albums/?=album_type=' + filter +
                     '&limit=50&offset=' + str(offset))
             return self.request_json(url, "albums")
 
@@ -70,7 +70,7 @@ class WebAPI(object):
                 # rate limit if not first request
                 if total is None:
                     time.sleep(1.0)
-                albums = get_albums_json(offset)
+                albums = get_albums_json(offset, filter)
                 if albums is None:
                     break
 

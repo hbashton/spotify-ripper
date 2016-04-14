@@ -36,7 +36,7 @@ def load_config(defaults):
 
             to_array_options = [
                 "comment", "cover_file", "cover_embed", "directory", "fail_log", "format",
-                "genres", "grouping", "key", "user", "password", "log",
+                "genres", "grouping", "key", "user", "password", "log", "filter_albums"
                 "replace"]
 
             # coerce boolean and none types
@@ -312,6 +312,11 @@ def main(prog_args=sys.argv[1:]):
         '-x', '--exclude-appears-on', action='store_true',
         help='Exclude albums that an artist \'appears on\' when passing '
              'a Spotify artist URI')
+    parser.add_argument(
+        '--filter-albums', nargs=1,
+        help='Only load albums of specified types when passing '
+             'a Spotify artist URI '
+             '[Default=album,single,ep,compilation,appears_on]')
     parser.add_argument(
         'uri', nargs="+",
         help='One or more Spotify URI(s) (either URI, a file of URIs or a '
