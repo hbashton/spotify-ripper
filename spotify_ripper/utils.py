@@ -166,6 +166,14 @@ def format_track_string(ripper, format_string, idx, track):
     current_album = ripper.current_album
     current_playlist = ripper.current_playlist
 
+    # this fixes the track.disc
+    if not track.is_loaded:
+        track.load()
+    if not track.album.is_loaded:
+        track.album.load()
+    album_browser = track.album.browse()
+    album_browser.load()
+
     track_artist = to_ascii(
         escape_filename_part(track.artists[0].name))
     track_artists = to_ascii(", ".join(
@@ -196,6 +204,21 @@ def format_track_string(ripper, format_string, idx, track):
     idx_str = str(idx + 1)
     track_num = str(track.index)
     disc_num = str(track.disc)
+
+    print("disc_num: " + disc_num)
+
+    # calculate num of discs on the album
+    num_discs = 0
+    for track_browse in album_browser.tracks:
+        if track_browse.disc > num_discs:
+            num_discs = track_browse.disc
+
+    if num_discs >= 2:
+        smart_num = str((int(disc_num)*100)+int(track_num))
+    else:
+        smart_num = track_num
+    print("smart num: " + smart_num)
+
     if current_playlist is not None:
         playlist_name = to_ascii(
             sanitize_playlist_name(current_playlist.name))
@@ -247,6 +270,7 @@ def format_track_string(ripper, format_string, idx, track):
         "disc_num": disc_num,
         "disc_idx": disc_num,
         "disc_index": disc_num,
+        "smart_num": smart_num,
         "playlist": playlist_name,
         "playlist_name": playlist_name,
         "playlist_owner": playlist_owner,
@@ -265,7 +289,7 @@ def format_track_string(ripper, format_string, idx, track):
         "track_add_user": creator
     }
     fill_tags = {"idx", "index", "track_num", "track_idx",
-                 "track_index", "disc_num", "disc_idx", "disc_index"}
+                 "track_index", "disc_num", "disc_idx", "disc_index", "smart_num"}
     prefix_tags = {"feat_artists", "featuring_artists"}
     paren_tags = {"track_name", "track"}
     for tag in tags.keys():
