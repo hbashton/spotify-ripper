@@ -35,7 +35,7 @@ def load_config(defaults):
             config_items = dict(config.items("main"))
 
             to_array_options = [
-                "comment", "cover_file", "directory", "fail_log", "format",
+                "comment", "cover_file", "cover_embed", "directory", "fail_log", "format",
                 "genres", "grouping", "key", "user", "password", "log",
                 "replace"]
 
@@ -182,6 +182,10 @@ def main(prog_args=sys.argv[1:]):
         '--cover-file', nargs=1,
         help='Save album cover image to file name (e.g "cover.jpg") '
              '[Default=embed]')
+    parser.add_argument(
+        '--cover-embed', action='store_true',
+        help='Embed album cover into the songs '
+             '[Default=embed only if cover-file is not specified]')
     parser.add_argument(
         '-d', '--directory', nargs=1,
         help='Base directory where ripped MP3s are saved [Default=cwd]')
