@@ -35,9 +35,9 @@ def load_config(defaults):
             config_items = dict(config.items("main"))
 
             to_array_options = [
-                "comment", "cover_file", "directory", "fail_log", "format",
-                "genres", "grouping", "key", "user", "password", "log",
-                "replace"]
+                "comment", "cover_file", "cover_embed", "directory", "fail_log", "format",
+                "genres", "grouping", "key", "user", "password", "log", "filter_albums"
+                "replace", "upper_words"]
 
             # coerce boolean and none types
             config_items_new = {}
@@ -183,6 +183,10 @@ def main(prog_args=sys.argv[1:]):
         help='Save album cover image to file name (e.g "cover.jpg") '
              '[Default=embed]')
     parser.add_argument(
+        '--cover-embed', action='store_true',
+        help='Embed album cover into the songs '
+             '[Default=embed only if cover-file is not specified]')
+    parser.add_argument(
         '-d', '--directory', nargs=1,
         help='Base directory where ripped MP3s are saved [Default=cwd]')
     parser.add_argument(
@@ -308,6 +312,14 @@ def main(prog_args=sys.argv[1:]):
         '-x', '--exclude-appears-on', action='store_true',
         help='Exclude albums that an artist \'appears on\' when passing '
              'a Spotify artist URI')
+    parser.add_argument(
+        '--filter-albums', nargs=1,
+        help='Only load albums of specified types when passing '
+             'a Spotify artist URI '
+             '[Default=album,single,ep,compilation,appears_on]')
+    parser.add_argument(
+        '--upper-words', action='store_true',
+        help='Convert make all words of the filenames start with captial letters')
     parser.add_argument(
         'uri', nargs="+",
         help='One or more Spotify URI(s) (either URI, a file of URIs or a '
