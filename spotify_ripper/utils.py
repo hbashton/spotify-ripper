@@ -212,7 +212,7 @@ def format_track_string(ripper, format_string, idx, track):
             num_discs = track_browse.disc
 
     if num_discs >= 2:
-        smart_num = str((int(disc_num)*100)+int(track_num))
+        smart_num = str((int(disc_num) * 100) + int(track_num))
     else:
         smart_num = track_num
 
@@ -267,7 +267,9 @@ def format_track_string(ripper, format_string, idx, track):
         "disc_num": disc_num,
         "disc_idx": disc_num,
         "disc_index": disc_num,
-        "smart_num": smart_num,
+        "smart_track_num": smart_num,
+        "smart_track_idx": smart_num,
+        "smart_track_index": smart_num,
         "playlist": playlist_name,
         "playlist_name": playlist_name,
         "playlist_owner": playlist_owner,
@@ -286,7 +288,8 @@ def format_track_string(ripper, format_string, idx, track):
         "track_add_user": creator
     }
     fill_tags = {"idx", "index", "track_num", "track_idx",
-                 "track_index", "disc_num", "disc_idx", "disc_index", "smart_num"}
+                 "track_index", "disc_num", "disc_idx", "disc_index",
+                 "smart_num"}
     prefix_tags = {"feat_artists", "featuring_artists"}
     paren_tags = {"track_name", "track"}
     for tag in tags.keys():

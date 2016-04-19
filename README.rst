@@ -83,7 +83,8 @@ Command Line
 
     usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [--alac] [-A]
                           [-b BITRATE] [-c] [--comp COMP] [--comment COMMENT]
-                          [--cover-file COVER_FILE] [--cover-embed] [-d DIRECTORY]
+                          [--cover-file COVER_FILE]
+                          [--cover-file-and-embed COVER_FILE] [-d DIRECTORY]
                           [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
                           [--flat-with-index] [-g {artist,album}]
                           [--grouping GROUPING] [--id3-v23] [-k KEY] [-u USER]
@@ -118,7 +119,8 @@ Command Line
       --comment COMMENT     Set comment metadata tag to all songs. Can include same tags as --format.
       --cover-file COVER_FILE
                             Save album cover image to file name (e.g "cover.jpg") [Default=embed]
-      --cover-embed         Embed album cover into the songs [Default=embed only if cover-file is not specified]
+      --cover-file-and-embed COVER_FILE
+                            Same as --cover-file but embeds the cover image too
       -d DIRECTORY, --directory DIRECTORY
                             Base directory where ripped MP3s are saved [Default=cwd]
       --fail-log FAIL_LOG   Logs the list of track URIs that failed to rip
@@ -249,10 +251,11 @@ Format String Variables
 | ``{disc_num}``, ``{disc_idx}``,         | The disc number of the album                  |
 | ``{disc_index}``                        |                                               |
 +-----------------------------------------+-----------------------------------------------+
-| ``{smart_num}``                         | for a multi-disc album, smart_num will return |
-|                                         | a number combining disc and track number.     |
-|                                         | i.e. for disc 2 track 4 it will return 204.   |
-|                                         | for single disc album, it gives the track num |
+| ``{smart_track_num}``,                  | For a multi-disc album, ``{smart_track_num}`` |
+| ``{smart_track_idx}``,                  | will return a number combining the disc and   |
+| ``{smart_track_index}``                 | track number. e.g. for disc 2, track 4 it will|
+|                                         | return "204". For a single disc album, it will|
+|                                         | return the track num.                         |
 +-----------------------------------------+-----------------------------------------------+
 | ``{playlist}``, ``{playlist_name}``     | Name of playlist if passed a playlist uri,    |
 |                                         | otherwise "No Playlist"                       |
@@ -284,7 +287,7 @@ Any substring in the format string that does not match a variable above will be 
 Zero-Filled Padding
 ~~~~~~~~~~~~~~~~~~~
 
-Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filled padding will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, ``{disc_num}``, ``{smart_num}`` and their aliases.
+Format variables that represent an index can be padded with zeros to a user-specified length.  For example, ``{idx:3}`` will produce the following output: 001, 002, 003, etc.  If no number is provided, no zero-filled padding will occur (e.g. 8, 9, 10, 11, ...). The variables that accept this option include ``{idx}``, ``{track_num}``, ``{disc_num}``, ``{smart_track_num}`` and their aliases.
 
 Prefix String
 ~~~~~~~~~~~~~
