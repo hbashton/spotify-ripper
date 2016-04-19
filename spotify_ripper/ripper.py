@@ -198,20 +198,12 @@ class Ripper(threading.Thread):
             if isinstance(uri, list):
                 return uri
             else:
-                if (args.filter_albums is not None and
-                        uri.startswith("spotify:artist:")):
-                    if isinstance(args.filter_albums, basestring):
-                        filter = args.filter_albums
-                    else:
-                        filter = args.filter_albums[0]
-
-                    album_uris = self.web.get_albums_with_filter(uri, filter)
-                    return itertools.chain(
-                        *[self.load_link(album_uri) for
-                          album_uri in album_uris])
-                elif (args.exclude_appears_on and
-                        uri.startswith("spotify:artist:")):
-                    album_uris = self.web.get_albums_with_filter(uri, "album,single,compilation")
+                if (uri.startswith("spotify:artist:") and
+                        (args.filter_albums is not None or
+                         args.exclude_appears_on)):
+                    _filter = "album,single,compilation" if \
+                        args.exclude_appears_on else args.filter_albums[0]
+                    album_uris = self.web.get_albums_with_filter(uri, _filter)
                     return itertools.chain(
                         *[self.load_link(album_uri) for
                           album_uri in album_uris])

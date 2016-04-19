@@ -37,7 +37,7 @@ def load_config(defaults):
             to_array_options = [
                 "comment", "cover_file", "cover_file_and_embed", "directory",
                 "fail_log", "format", "genres", "grouping", "key", "user",
-                "password", "log", "filter_albums", "replace", "upper_words"]
+                "password", "log", "filter_albums", "replace"]
 
             # coerce boolean and none types
             config_items_new = {}
@@ -317,9 +317,8 @@ def main(prog_args=sys.argv[1:]):
              'a Spotify artist URI')
     parser.add_argument(
         '--filter-albums', nargs=1,
-        help='Only load albums of specified types when passing '
-             'a Spotify artist URI '
-             '[Default=album,single,ep,compilation,appears_on]')
+        help='Only load albums of specified types when passing a Spotify '
+             'artist URI [Default=album,single,ep,compilation,appears_on]')
     parser.add_argument(
         'uri', nargs="+",
         help='One or more Spotify URI(s) (either URI, a file of URIs or a '
