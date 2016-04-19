@@ -198,6 +198,10 @@ def main(prog_args=sys.argv[1:]):
         '-f', '--format', nargs=1,
         help='Save songs using this path and filename structure (see README)')
     parser.add_argument(
+        '--format-case', choices=['upper', 'lower', 'capitalize'],
+        help='Convert all words of the file name to upper-case, lower-case, '
+             'or capitalized')
+    parser.add_argument(
         '--flat', action='store_true',
         help='Save all songs to a single directory '
              '(overrides --format option)')
@@ -316,9 +320,6 @@ def main(prog_args=sys.argv[1:]):
         help='Only load albums of specified types when passing '
              'a Spotify artist URI '
              '[Default=album,single,ep,compilation,appears_on]')
-    parser.add_argument(
-        '--upper-words', action='store_true',
-        help='Convert make all words of the filenames start with captial letters')
     parser.add_argument(
         'uri', nargs="+",
         help='One or more Spotify URI(s) (either URI, a file of URIs or a '

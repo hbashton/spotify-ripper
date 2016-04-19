@@ -85,7 +85,8 @@ Command Line
                           [-b BITRATE] [-c] [--comp COMP] [--comment COMMENT]
                           [--cover-file COVER_FILE]
                           [--cover-file-and-embed COVER_FILE] [-d DIRECTORY]
-                          [--fail-log FAIL_LOG] [--flac] [-f FORMAT] [--flat]
+                          [--fail-log FAIL_LOG] [--flac] [-f FORMAT]
+                          [--format-case {upper,lower,capitalize}] [--flat]
                           [--flat-with-index] [-g {artist,album}]
                           [--grouping GROUPING] [--id3-v23] [-k KEY] [-u USER]
                           [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
@@ -95,7 +96,7 @@ Command Line
                           [--resume-after RESUME_AFTER] [-R REPLACE [REPLACE ...]]
                           [-s] [--stereo-mode {j,s,f,d,m,l,r}]
                           [--stop-after STOP_AFTER] [-V] [--wav] [--vorbis] [-r]
-                          [-x] [--filter-albums FILTER_ALBUMS] [--upper-words]
+                          [-x] [--filter-albums FILTER_ALBUMS]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -127,6 +128,8 @@ Command Line
       --flac                Rip songs to lossless FLAC encoding instead of MP3
       -f FORMAT, --format FORMAT
                             Save songs using this path and filename structure (see README)
+      --format-case {upper,lower,capitalize}
+                            Convert all words of the file name to upper-case, lower-case, or capitalized
       --flat                Save all songs to a single directory (overrides --format option)
       --flat-with-index     Similar to --flat [-f] but includes the playlist index at the start of the song file
       -g {artist,album}, --genres {artist,album}
@@ -172,7 +175,6 @@ Command Line
                             Exclude albums that an artist 'appears on' when passing a Spotify artist URI
       --filter-albums FILTER_ALBUMS
                             Only load albums of specified types when passing a Spotify artist URI [Default=album,single,ep,compilation,appears_on]
-      --upper-words         Convert make all words of the filenames start with captial letters
 
     Example usage:
         rip a single file: spotify-ripper -u user spotify:track:52xaypL0Kjzk0ngwv3oBPR
