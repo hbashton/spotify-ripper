@@ -512,7 +512,14 @@ def main(prog_args=sys.argv[1:]):
         if ripper.ripping.is_set():
             ripper.skip.set()
 
-    # login on main thread to catch any KeyboardInterrupt
+    # check if we were passed a file name or search
+    def check_uri_args():
+        if len(args.uri) == 1 and path_exists(args.uri[0]):
+            args.uri = [line.strip() for line in open(args.uri[0])]
+        elif len(args.uri) == 1 and not args.uri[0].startswith("spotify:"):
+            args.uri = [list(ripper.search_query(args.uri[0]))]
+
+    # login and uri_parse on main thread to catch any KeyboardInterrupt
     try:
         if not ripper.login():
             print(
@@ -520,6 +527,7 @@ def main(prog_args=sys.argv[1:]):
                            "Spotify, aborting..." + Fore.RESET)
             abort(set_logged_in=True)
         else:
+            check_uri_args()
             ripper.ripper_continue.set()
 
     except (KeyboardInterrupt, Exception) as e:

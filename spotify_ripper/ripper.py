@@ -182,13 +182,8 @@ class Ripper(threading.Thread):
         if self.abort.is_set():
             return
 
-        # check if we were passed a file name or search
-        if len(args.uri) == 1 and path_exists(args.uri[0]):
-            uris = [line.strip() for line in open(args.uri[0])]
-        elif len(args.uri) == 1 and not args.uri[0].startswith("spotify:"):
-            uris = [list(self.search_query(args.uri[0]))]
-        else:
-            uris = args.uri
+        # list of spotify URIs
+        uris = args.uri
 
         def get_tracks_from_uri(uri):
             self.current_playlist = None
@@ -224,7 +219,7 @@ class Ripper(threading.Thread):
         # calculate total size and time
         all_tracks = []
         for uri in uris:
-            tracks = get_tracks_from_uri(uri)
+            tracks = list(get_tracks_from_uri(uri))
 
             # TODO: remove dependency on current_album, ...
             for idx, track in enumerate(tracks):
