@@ -48,8 +48,8 @@ class Progress(object):
         if not self.args.has_log:
             schedule.every(2).seconds.do(self.eta_calc)
 
-    def calc_total(self, tracks):
-        if len(tracks) <= 1:
+    def calc_total(self, track_pairs):
+        if len(track_pairs) <= 1:
             return
 
         self.show_total = True
@@ -58,13 +58,14 @@ class Progress(object):
         self.total_size = 0
 
         # some duplicate work here, maybe cache this info beforehand?
-        for idx, track in enumerate(tracks):
+        for pair in track_pairs:
             try:
+                track = pair[0]
                 track.load()
                 if track.availability != 1:
                     self.skipped_tracks += 1
                     continue
-                audio_file = self.ripper.format_track_path(idx, track)
+                audio_file = pair[1]
                 if not self.args.overwrite and path_exists(audio_file) and \
                         not is_partial(audio_file, track):
                     self.skipped_tracks += 1

@@ -191,9 +191,9 @@ class Ripper(threading.Thread):
             uris = args.uri
 
         def get_tracks_from_uri(uri):
-            current_playlist = None
-            current_album = None
-            current_chart = None
+            self.current_playlist = None
+            self.current_album = None
+            self.current_chart = None
 
             if isinstance(uri, list):
                 return uri
@@ -225,7 +225,12 @@ class Ripper(threading.Thread):
         all_tracks = []
         for uri in uris:
             tracks = get_tracks_from_uri(uri)
-            all_tracks += list(tracks)
+
+            # TODO: remove dependency on current_album, ...
+            for idx, track in enumerate(tracks):
+                audio_file = self.format_track_path(idx, track) \
+                    if track.availability == 1 else None
+                all_tracks.append((track, audio_file))
 
         self.progress.calc_total(all_tracks)
 
