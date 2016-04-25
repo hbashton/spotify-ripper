@@ -422,6 +422,10 @@ def format_size(size, short=False):
 
 # returns true if audio_file is a partial of track
 def is_partial(audio_file, track):
+    args = get_args()
+    if (args.partial_check == "none"):
+        return False
+
     def audio_file_duration(audio_file):
         if (path_exists(audio_file)):
             _file = mutagen.File(audio_file)
@@ -430,8 +434,15 @@ def is_partial(audio_file, track):
         return None
 
     audio_file_dur = audio_file_duration(audio_file)
-    return (audio_file_dur is None or
-        track.duration > (audio_file_dur * 1000))
+
+    # for 'weak', give a 1.5 second wiggle-room
+    if (args.partial_check == "strict"):
+        return (audio_file_dur is None or
+            track.duration > (audio_file_dur * 1000))
+    else:
+        return (audio_file_dur is not None and
+            (track.duration - 1500) > \
+                (math.ceil(audio_file_dur) * 1000))
 
 
 # borrowed from eyeD3

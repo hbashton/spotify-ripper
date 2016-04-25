@@ -37,7 +37,7 @@ def load_config(defaults):
             to_array_options = [
                 "comment", "cover_file", "cover_file_and_embed", "directory",
                 "fail_log", "format", "genres", "grouping", "key", "user",
-                "password", "log", "filter_albums", "replace"]
+                "password", "log", "filter_albums", "replace", "partial_check"]
 
             # coerce boolean and none types
             config_items_new = {}
@@ -257,6 +257,11 @@ def main(prog_args=sys.argv[1:]):
     encoding_group.add_argument(
         '--opus', action='store_true',
         help='Rip songs to Opus encoding instead of MP3')
+    parser.add_argument(
+        '--partial-check', default='weak', choices=['none', 'weak', 'strict'],
+        help='Check for and overwrite partially ripped files. "weak" will '
+             'err on the side of not re-ripping the file if it is unsure, '
+             'whereas "strict" will re-rerip the file [Default=weak]')
     parser.add_argument(
         '--playlist-m3u', action='store_true',
         help='create a m3u file when ripping a playlist')
