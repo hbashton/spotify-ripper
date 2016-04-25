@@ -27,6 +27,7 @@ class Progress(object):
     # total progress
     show_total = False
     skipped_tracks = 0
+    track_idx = 0
     total_tracks = 0
     total_position = 0
     total_duration = 0
@@ -53,6 +54,7 @@ class Progress(object):
             return
 
         self.show_total = True
+        self.track_idx = 0
         self.total_tracks = 0
         self.total_duration = 0
         self.total_size = 0
@@ -136,6 +138,7 @@ class Progress(object):
         self.song_duration = track.duration
         self.move_cursor = False
         self.current_track = track
+        self.track_idx += 1
 
     def end_track(self, show_end=True):
         if show_end:
