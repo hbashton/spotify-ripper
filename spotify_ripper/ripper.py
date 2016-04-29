@@ -221,8 +221,7 @@ class Ripper(threading.Thread):
 
             # TODO: remove dependency on current_album, ...
             for idx, track in enumerate(tracks):
-                audio_file = self.format_track_path(idx, track) \
-                    if track.availability == 1 else None
+                audio_file = self.format_track_path(idx, track)
                 all_tracks.append((track, audio_file))
 
         self.progress.calc_total(all_tracks)

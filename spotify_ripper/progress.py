@@ -63,15 +63,20 @@ class Progress(object):
         for pair in track_pairs:
             try:
                 track = pair[0]
+                audio_file = pair[1]
+
                 track.load()
-                if track.availability != 1:
+                # check if we should skip track
+                if track.availability != 1 or audio_file is None:
                     self.skipped_tracks += 1
                     continue
-                audio_file = pair[1]
+
+                # check if we should overwrite existing file
                 if not self.args.overwrite and path_exists(audio_file) and \
                         not is_partial(audio_file, track):
                     self.skipped_tracks += 1
                     continue
+
                 self.total_tracks += 1
                 self.total_duration += track.duration
                 file_size = calc_file_size(track)
