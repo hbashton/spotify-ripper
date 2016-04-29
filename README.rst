@@ -81,7 +81,9 @@ Command Line
 
 .. code::
 
-    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [--alac] [-A]
+    usage: spotify-ripper [-h] [-S SETTINGS] [-a] [--aac] [--alac]
+                          [--artist-album-type ARTIST_ALBUM_TYPE]
+                          [--artist-album-market ARTIST_ALBUM_MARKET] [-A]
                           [-b BITRATE] [-c] [--comp COMP] [--comment COMMENT]
                           [--cover-file COVER_FILE]
                           [--cover-file-and-embed COVER_FILE] [-d DIRECTORY]
@@ -90,13 +92,13 @@ Command Line
                           [--flat-with-index] [-g {artist,album}]
                           [--grouping GROUPING] [--id3-v23] [-k KEY] [-u USER]
                           [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
-                          [--normalize] [-na] [-o] [--opus] [--playlist-m3u]
+                          [--normalize] [-na] [-o] [--opus]
+                          [--partial-check {none,weak,strict}] [--playlist-m3u]
                           [--playlist-wpl] [--playlist-sync] [-q VBR]
                           [-Q {160,320,96}] [--remove-offline-cache]
                           [--resume-after RESUME_AFTER] [-R REPLACE [REPLACE ...]]
                           [-s] [--stereo-mode {j,s,f,d,m,l,r}]
                           [--stop-after STOP_AFTER] [-V] [--wav] [--vorbis] [-r]
-                          [-x] [--filter-albums FILTER_ALBUMS]
                           uri [uri ...]
 
     Rips Spotify URIs to MP3s with ID3 tags and album covers
@@ -111,6 +113,10 @@ Command Line
       -a, --ascii           Convert the file name and the metadata tags to ASCII encoding [Default=utf-8]
       --aac                 Rip songs to AAC format with FreeAAC instead of MP3
       --alac                Rip songs to Apple Lossless format instead of MP3
+      --artist-album-type ARTIST_ALBUM_TYPE
+                            Only load albums of specified types when passing a Spotify artist URI [Default=album,single,ep,compilation,appears_on]
+      --artist-album-market ARTIST_ALBUM_MARKET
+                            Only load albums with the specified ISO2 country code when passing a Spotify artist URI. You may get duplicate albums if not set. [Default=any]
       -A, --ascii-path-only
                             Convert the file name (but not the metadata tags) to ASCII encoding [Default=utf-8]
       -b BITRATE, --bitrate BITRATE
@@ -149,6 +155,8 @@ Command Line
                             Convert the file name to normalized ASCII with unicodedata.normalize (NFKD)
       -o, --overwrite       Overwrite existing MP3 files [Default=skip]
       --opus                Rip songs to Opus encoding instead of MP3
+      --partial-check {none,weak,strict}
+                            Check for and overwrite partially ripped files. "weak" will err on the side of not re-ripping the file if it is unsure, whereas "strict" will re-rip the file [Default=weak]
       --playlist-m3u        create a m3u file when ripping a playlist
       --playlist-wpl        create a wpl file when ripping a playlist
       --playlist-sync       Sync playlist songs (rename and remove old songs)
@@ -171,10 +179,6 @@ Command Line
       --vorbis              Rip songs to Ogg Vorbis encoding instead of MP3
       -r, --remove-from-playlist
                             Delete tracks from playlist after successful ripping [Default=no]
-      -x, --exclude-appears-on
-                            Exclude albums that an artist 'appears on' when passing a Spotify artist URI
-      --filter-albums FILTER_ALBUMS
-                            Only load albums of specified types when passing a Spotify artist URI [Default=album,single,ep,compilation,appears_on]
 
     Example usage:
         rip a single file: spotify-ripper -u user spotify:track:52xaypL0Kjzk0ngwv3oBPR
