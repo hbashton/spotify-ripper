@@ -163,6 +163,9 @@ class Ripper(threading.Thread):
             self.login_as_last()
 
         if not self.login_success and args.user is not None:
+            # remove old saved password
+            self.session.forget_me()
+
             if args.password is None:
                 password = getpass.getpass()
                 self.login_as_user(args.user[0], password)
