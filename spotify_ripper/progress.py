@@ -67,7 +67,7 @@ class Progress(object):
 
                 track.load()
                 # check if we should skip track
-                if track.availability != 1 or audio_file is None:
+                if track.availability != 1:
                     self.skipped_tracks += 1
                     continue
 
