@@ -37,7 +37,8 @@ def load_config(defaults):
             to_array_options = [
                 "comment", "cover_file", "cover_file_and_embed", "directory",
                 "fail_log", "format", "genres", "grouping", "key", "user",
-                "password", "log", "filter_albums", "replace", "partial_check"]
+                "password", "log", "artist_album_type", "replace", "partial_check",
+                "artist_album_market"]
 
             # coerce boolean and none types
             config_items_new = {}
@@ -164,6 +165,15 @@ def main(prog_args=sys.argv[1:]):
         '--alac', action='store_true',
         help='Rip songs to Apple Lossless format instead of MP3')
     parser.add_argument(
+        '--artist-album-type', nargs=1,
+        help='Only load albums of specified types when passing a Spotify '
+             'artist URI [Default=album,single,ep,compilation,appears_on]')
+    parser.add_argument(
+        '--artist-album-market', nargs=1,
+        help='Only load albums with the specified ISO2 country code when '
+             'passing a Spotify artist URI. You may get duplicate albums '
+             'if not set. [Default=any]')
+    parser.add_argument(
         '-A', '--ascii-path-only', action='store_true',
         help='Convert the file name (but not the metadata tags) to ASCII '
              'encoding [Default=utf-8]')
@@ -261,7 +271,7 @@ def main(prog_args=sys.argv[1:]):
         '--partial-check', default='weak', choices=['none', 'weak', 'strict'],
         help='Check for and overwrite partially ripped files. "weak" will '
              'err on the side of not re-ripping the file if it is unsure, '
-             'whereas "strict" will re-rerip the file [Default=weak]')
+             'whereas "strict" will re-rip the file [Default=weak]')
     parser.add_argument(
         '--playlist-m3u', action='store_true',
         help='create a m3u file when ripping a playlist')
@@ -316,14 +326,6 @@ def main(prog_args=sys.argv[1:]):
         '-r', '--remove-from-playlist', action='store_true',
         help='Delete tracks from playlist after successful '
              'ripping [Default=no]')
-    parser.add_argument(
-        '-x', '--exclude-appears-on', action='store_true',
-        help='Exclude albums that an artist \'appears on\' when passing '
-             'a Spotify artist URI')
-    parser.add_argument(
-        '--filter-albums', nargs=1,
-        help='Only load albums of specified types when passing a Spotify '
-             'artist URI [Default=album,single,ep,compilation,appears_on]')
     parser.add_argument(
         'uri', nargs="+",
         help='One or more Spotify URI(s) (either URI, a file of URIs or a '

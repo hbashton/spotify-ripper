@@ -435,14 +435,13 @@ def is_partial(audio_file, track):
 
     audio_file_dur = audio_file_duration(audio_file)
 
-    # for 'weak', give a 1.5 second wiggle-room
+    # for 'weak', give a ~1.5 second wiggle-room
     if (args.partial_check == "strict"):
         return (audio_file_dur is None or
             track.duration > (audio_file_dur * 1000))
     else:
         return (audio_file_dur is not None and
-            (track.duration - 1500) > \
-                (math.ceil(audio_file_dur) * 1000))
+            (track.duration - 1500) > (audio_file_dur * 1000))
 
 
 # borrowed from eyeD3

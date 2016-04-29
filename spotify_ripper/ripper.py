@@ -194,11 +194,9 @@ class Ripper(threading.Thread):
                 return uri
             else:
                 if (uri.startswith("spotify:artist:") and
-                        (args.filter_albums is not None or
-                         args.exclude_appears_on)):
-                    _filter = "album,single,compilation" if \
-                        args.exclude_appears_on else args.filter_albums[0]
-                    album_uris = self.web.get_albums_with_filter(uri, _filter)
+                        (args.artist_album_type is not None or
+                         args.artist_album_market is not None)):
+                    album_uris = self.web.get_albums_with_filter(uri)
                     return itertools.chain(
                         *[self.load_link(album_uri) for
                           album_uri in album_uris])
