@@ -93,7 +93,8 @@ Command Line
                           [--grouping GROUPING] [--id3-v23] [-k KEY] [-u USER]
                           [-p PASSWORD] [-l] [-L LOG] [--pcm] [--mp4]
                           [--normalize] [-na] [-o] [--opus]
-                          [--partial-check {none,weak,strict}] [--playlist-m3u]
+                          [--partial-check {none,weak,strict}]
+                          [--play-token-resume RESUME_AFTER] [--playlist-m3u]
                           [--playlist-wpl] [--playlist-sync] [-q VBR]
                           [-Q {160,320,96}] [--remove-offline-cache]
                           [--resume-after RESUME_AFTER] [-R REPLACE [REPLACE ...]]
@@ -157,6 +158,8 @@ Command Line
       --opus                Rip songs to Opus encoding instead of MP3
       --partial-check {none,weak,strict}
                             Check for and overwrite partially ripped files. "weak" will err on the side of not re-ripping the file if it is unsure, whereas "strict" will re-rip the file [Default=weak]
+      --play-token-resume RESUME_AFTER
+                            If the 'play token' is lost to a different device using the same Spotify account, the script will wait a speficied amount of time before restarting. This argument takes the same values as --resume-after [Default=abort]
       --playlist-m3u        create a m3u file when ripping a playlist
       --playlist-wpl        create a wpl file when ripping a playlist
       --playlist-sync       Sync playlist songs (rename and remove old songs)

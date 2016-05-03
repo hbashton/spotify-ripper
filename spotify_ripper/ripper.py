@@ -69,6 +69,7 @@ class Ripper(threading.Thread):
     finished = threading.Event()
     abort = threading.Event()
     skip = threading.Event()
+    play_token_resume = threading.Event()
 
     def __init__(self, args):
         threading.Thread.__init__(self)
@@ -301,7 +302,9 @@ class Ripper(threading.Thread):
                                                     "ripping track")
 
                     if self.skip.is_set():
-                        print("\n" + Fore.YELLOW +
+                        extra_line = "" if self.play_token_resume.is_set() \
+                                        else "\n"
+                        print(extra_line + Fore.YELLOW +
                             "User skipped track... " + Fore.RESET)
                         self.session.player.play(False)
                         self.post.clean_up_partial()
@@ -361,6 +364,10 @@ class Ripper(threading.Thread):
     def check_stop_time(self):
         args = self.args
 
+        def wait_for_resume(resume_time):
+            while datetime.now() < resume_time and not self.abort.is_set():
+                time.sleep(1)
+
         def stop_time_triggered():
             print(Fore.YELLOW + "Stop time of " +
                   self.stop_time.strftime("%H:%M") +
@@ -370,8 +377,7 @@ class Ripper(threading.Thread):
                 resume_time = parse_time_str(args.resume_after)
                 print(Fore.YELLOW + "Script will resume at " +
                       resume_time.strftime("%H:%M") + Fore.RESET)
-                while datetime.now() < resume_time:
-                    time.sleep(60)
+                wait_for_resume(resume_time)
                 self.stop_time = None
             else:
                 self.abort.set()
@@ -384,6 +390,14 @@ class Ripper(threading.Thread):
 
             if self.stop_time < datetime.now():
                 stop_time_triggered()
+
+        # we also wait if the "play token" was lost
+        elif self.play_token_resume.is_set():
+            resume_time = parse_time_str(args.play_token_resume[0])
+            print(Fore.YELLOW + "Script will resume at " +
+                  resume_time.strftime("%H:%M") + Fore.RESET)
+            wait_for_resume(resume_time)
+            self.play_token_resume.clear()
 
     def load_link(self, uri):
         # ignore if the uri is just blank (e.g. from a file)
@@ -544,8 +558,14 @@ class Ripper(threading.Thread):
             self.logged_in.set()
 
     def play_token_lost(self, session):
-        print("\n" + Fore.RED + "Play token lost, aborting..." + Fore.RESET)
-        self.abort_rip()
+        if self.args.play_token_resume is not None:
+            print("\n" + Fore.RED + "Play token lost, waiting " +
+                self.args.play_token_resume[0] + " to resume..." + Fore.RESET)
+            self.play_token_resume.set()
+            self.skip.set()
+        else:
+            print("\n" + Fore.RED + "Play token lost, aborting..." + Fore.RESET)
+            self.abort_rip()
 
     def on_end_of_track(self, session):
         self.session.player.play(False)
