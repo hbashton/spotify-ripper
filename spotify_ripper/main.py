@@ -533,7 +533,8 @@ def main(prog_args=sys.argv[1:]):
     # check if we were passed a file name or search
     def check_uri_args():
         if len(args.uri) == 1 and path_exists(args.uri[0]):
-            args.uri = [line.strip() for line in open(args.uri[0])]
+            args.uri = [line.strip() for line in open(args.uri[0])
+                if not line.strip().startswith("#") and len(line.strip()) > 0]
         elif len(args.uri) == 1 and not args.uri[0].startswith("spotify:"):
             args.uri = [list(ripper.search_query(args.uri[0]))]
 
