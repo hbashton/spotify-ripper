@@ -120,6 +120,7 @@ def main(prog_args=sys.argv[1:]):
         "quality": "320",
         "comp": "10",
         "vbr": "0",
+        "partial_check": "weak",
     }
     defaults = load_config(defaults)
 
@@ -183,7 +184,7 @@ def main(prog_args=sys.argv[1:]):
     parser.add_argument(
         '-c', '--cbr', action='store_true', help='CBR encoding [Default=VBR]')
     parser.add_argument(
-        '--comp', default="10",
+        '--comp',
         help='compression complexity for FLAC and Opus [Default=Max]')
     parser.add_argument(
         '--comment', nargs=1,
@@ -269,7 +270,7 @@ def main(prog_args=sys.argv[1:]):
         '--opus', action='store_true',
         help='Rip songs to Opus encoding instead of MP3')
     parser.add_argument(
-        '--partial-check', default='weak', choices=['none', 'weak', 'strict'],
+        '--partial-check', choices=['none', 'weak', 'strict'],
         help='Check for and overwrite partially ripped files. "weak" will '
              'err on the side of not re-ripping the file if it is unsure, '
              'whereas "strict" will re-rip the file [Default=weak]')
