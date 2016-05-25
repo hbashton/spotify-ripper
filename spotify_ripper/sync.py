@@ -59,24 +59,13 @@ class Sync(object):
 
     def sync_playlist(self, playlist):
         args = self.args
+        playlist.load()
         lib = self.load_sync_library(playlist)
         new_lib = {}
 
         print("Syncing playlist " + to_ascii(playlist.name))
 
-        # remove any missing files from the lib or playlist
-        uris = set([t.link.uri for t in playlist.tracks])
-        copy_lib = copy.deepcopy(lib)
-        for uri, file_path in lib.items():
-            file_path = enc_str(file_path)
-            if not os.path.exists(file_path):
-                del copy_lib[uri]
-            elif uri not in uris:
-                os.remove(file_path)
-                del copy_lib[uri]
-        lib = copy_lib
-
-        # check if we need to rename any songs already ripped
+        # create new lib
         for idx, track in enumerate(playlist.tracks):
             try:
                 track.load()
@@ -84,17 +73,27 @@ class Sync(object):
                     continue
 
                 audio_file = self.ripper.format_track_path(idx, track)
-
-                # rename the ripped file if needed
-                if track.link.uri in lib:
-                    if lib[track.link.uri] != audio_file:
-                        os.rename(lib[track.link.uri], audio_file)
-
-                # add file to new lib
                 new_lib[track.link.uri] = audio_file
 
             except spotify.Error as e:
                 continue
+
+        # check what items are missing or renamed in the new_lib vs lib
+        for uri, file_path in lib.items():
+            enc_file_path = enc_str(file_path)
+
+            if os.path.exists(enc_file_path):
+                if uri in new_lib:
+                    new_file_path = new_lib[uri]
+                    if file_path != new_file_path:
+                        print(Fore.YELLOW  + "Renaming file:" + Fore.RESET +
+                              "\n  From: " + file_path + "\n  To:   " +
+                              new_file_path)
+                        os.rename(enc_file_path, enc_str(new_file_path))
+                else:
+                    print(Fore.YELLOW + "Removing file: " + Fore.RESET +
+                          "\n " + file_path)
+                    os.remove(enc_file_path)
 
         # save new lib
         self.save_sync_library(playlist, new_lib)
