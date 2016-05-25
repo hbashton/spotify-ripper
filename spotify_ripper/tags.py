@@ -89,8 +89,6 @@ def set_metadata_tags(args, audio_file, idx, track, ripper):
                     if not path_exists(cover_file):
                         with open(cover_file, "wb") as f:
                             f.write(image.data)
-                    if args.cover_embed:
-                        embed_image_func()
 
                 if args.cover_file is not None:
                     write_image(args.cover_file[0])
