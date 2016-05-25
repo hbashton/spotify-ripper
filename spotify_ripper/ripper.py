@@ -226,7 +226,7 @@ class Ripper(threading.Thread):
             # TODO: remove dependency on current_album, ...
             for idx, track in enumerate(tracks):
 
-                #ignore local tracks
+                # ignore local tracks
                 if track.is_local:
                     continue
 
@@ -262,7 +262,7 @@ class Ripper(threading.Thread):
 
                     print('Loading track...')
                     track.load()
-                    if track.availability != 1:
+                    if track.availability != 1 or track.is_local:
                         print(
                             Fore.RED + 'Track is not available, '
                                        'skipping...' + Fore.RESET)

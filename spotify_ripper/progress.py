@@ -67,7 +67,7 @@ class Progress(object):
 
                 track.load()
                 # check if we should skip track
-                if track.availability != 1:
+                if track.availability != 1 or track.is_local:
                     self.skipped_tracks += 1
                     continue
 

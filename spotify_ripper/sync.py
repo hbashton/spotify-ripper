@@ -69,7 +69,7 @@ class Sync(object):
         for idx, track in enumerate(playlist.tracks):
             try:
                 track.load()
-                if track.availability != 1:
+                if track.availability != 1 or track.is_local:
                     continue
 
                 audio_file = self.ripper.format_track_path(idx, track)
