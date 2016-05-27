@@ -38,8 +38,7 @@ def load_config(defaults):
                 "comment", "cover_file", "cover_file_and_embed", "directory",
                 "fail_log", "format", "genres", "grouping", "key", "user",
                 "password", "log", "artist_album_type", "replace", "partial_check",
-                "artist_album_market", "play_token_resume", "stop_after",
-                "resume_after"]
+                "artist_album_market"]
 
             # coerce boolean and none types
             config_items_new = {}
@@ -275,7 +274,7 @@ def main(prog_args=sys.argv[1:]):
              'err on the side of not re-ripping the file if it is unsure, '
              'whereas "strict" will re-rip the file [Default=weak]')
     parser.add_argument(
-        '--play-token-resume', nargs=1, metavar="RESUME_AFTER",
+        '--play-token-resume', metavar="RESUME_AFTER",
         help='If the \'play token\' is lost to a different device using '
              'the same Spotify account, the script will wait a speficied '
              'amount of time before restarting. This argument takes the same '
@@ -300,7 +299,7 @@ def main(prog_args=sys.argv[1:]):
         help='Remove libspotify\'s offline cache directory after the rip'
              'is complete to save disk space')
     parser.add_argument(
-        '--resume-after', nargs=1,
+        '--resume-after',
         help='Resumes script after a certain amount of time has passed '
              'after stopping (e.g. 1h30m). Alternatively, accepts a specific '
              'time in 24hr format to start after (e.g 03:30, 16:15). '
@@ -318,7 +317,7 @@ def main(prog_args=sys.argv[1:]):
         '--stereo-mode', choices=['j', 's', 'f', 'd', 'm', 'l', 'r'],
         help='Advanced stereo settings for Lame MP3 encoder only')
     parser.add_argument(
-        '--stop-after', nargs=1,
+        '--stop-after',
         help='Stops script after a certain amount of time has passed '
              '(e.g. 1h30m). Alternatively, accepts a specific time in 24hr '
              'format to stop after (e.g 03:30, 16:15)')

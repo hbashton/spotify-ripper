@@ -398,7 +398,7 @@ class Ripper(threading.Thread):
 
         # we also wait if the "play token" was lost
         elif self.play_token_resume.is_set():
-            resume_time = parse_time_str(args.play_token_resume[0])
+            resume_time = parse_time_str(args.play_token_resume)
             print(Fore.YELLOW + "Script will resume at " +
                   resume_time.strftime("%H:%M") + Fore.RESET)
             wait_for_resume(resume_time)
@@ -565,7 +565,7 @@ class Ripper(threading.Thread):
     def play_token_lost(self, session):
         if self.args.play_token_resume is not None:
             print("\n" + Fore.RED + "Play token lost, waiting " +
-                self.args.play_token_resume[0] + " to resume..." + Fore.RESET)
+                self.args.play_token_resume + " to resume..." + Fore.RESET)
             self.play_token_resume.set()
             self.skip.set()
         else:
