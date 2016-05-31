@@ -289,7 +289,7 @@ def format_track_string(ripper, format_string, idx, track):
     }
     fill_tags = {"idx", "index", "track_num", "track_idx",
                  "track_index", "disc_num", "disc_idx", "disc_index",
-                 "smart_num"}
+                 "smart_track_num"}
     prefix_tags = {"feat_artists", "featuring_artists"}
     paren_tags = {"track_name", "track"}
     for tag in tags.keys():
