@@ -146,10 +146,10 @@ class PostActions(object):
             "tw": "Taiwan",
             "uy": "Uruguay"
         }
-        return (chart["recurrence"].title() + " " +
-                region_mapping.get(chart["country"], "") + " " +
-                ("Top" if chart["type"] == "regional" else "Viral") + " " +
-                ("200" if chart["type"] == "regional" else "50"))
+        return (chart["time_window"].title() + " " +
+                region_mapping.get(chart["region"], "") + " " +
+                ("Top" if chart["metrics"] == "regional" else "Viral") + " " +
+                ("200" if chart["metrics"] == "regional" else "50"))
 
     def get_playlist_name(self):
         ripper = self.ripper

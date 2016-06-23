@@ -8,6 +8,7 @@ import os
 import time
 import spotify
 import requests
+import csv
 import re
 
 
@@ -25,12 +26,16 @@ class WebAPI(object):
         return self.cache.get(uri)
 
     def request_json(self, url, msg):
+        response = self.request_url(url, msg)
+        return response.json() if response is not None else response
+
+    def request_url(self, url, msg):
         print(Fore.GREEN + "Attempting to retrieve " + msg +
               " from Spotify's Web API" + Fore.RESET)
         print(Fore.CYAN + url + Fore.RESET)
         req = requests.get(url)
         if req.status_code == 200:
-            return req.json()
+            return req
         else:
             print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
                   str(req.status_code) + Fore.RESET)
@@ -40,7 +45,7 @@ class WebAPI(object):
         return 'https://api.spotify.com/v1/' + url_path
 
     def charts_url(self, url_path):
-        return 'https://spotifycharts.com/api/' + url_path
+        return 'https://spotifycharts.com/' + url_path
 
     # excludes 'appears on' albums for artist
     def get_albums_with_filter(self, uri):
@@ -145,13 +150,18 @@ class WebAPI(object):
 
     # doesn't seem to be officially supported by Spotify
     def get_charts(self, uri):
-        def get_tracks_json(metrics, region, time_window, from_date):
-            limit = "50" if metrics == "viral" else "200"
-            url = self.charts_url(
-                    "?limit=" + limit + "&country=" + region +
-                    "&recurrence=" + time_window + "&date=" + from_date +
-                    "&type=" + metrics)
-            return self.request_json(url, region + " " + metrics + " charts")
+        def get_chart_tracks(metrics, region, time_window, from_date):
+            url = self.charts_url(metrics + "/" + region + "/" + time_window +
+                "/" + from_date + "/download")
+
+            response = self.request_url(url, region + " " + metrics + " charts")
+            if response is not None:
+                csv_items = [enc_str(r) for r in response.text.split("\n")]
+                reader = csv.DictReader(csv_items)
+                return ["spotify:track:" + row["URL"].split("/")[-1]
+                            for row in reader]
+            else:
+                return []
 
         # check for cached result
         cached_result = self.get_cached_result(uri)
@@ -204,10 +214,15 @@ class WebAPI(object):
                   "spotify:charts:metric:region:time_window:date")
             return None
 
-        json_obj = get_tracks_json(uri_tokens[2], uri_tokens[3],
-                                   uri_tokens[4], uri_tokens[5])
-        if json_obj is None:
-            return None
+        tracks_obj = get_chart_tracks(uri_tokens[2], uri_tokens[3],
+                                      uri_tokens[4], uri_tokens[5])
+        charts_obj = {
+            "metrics": uri_tokens[2],
+            "region": uri_tokens[3],
+            "time_window": uri_tokens[4],
+            "from_date": uri_tokens[5],
+            "tracks": tracks_obj
+        }
 
-        self.cache_result(uri, json_obj)
-        return json_obj
+        self.cache_result(uri, charts_obj)
+        return charts_obj
