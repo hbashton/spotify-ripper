@@ -26,19 +26,19 @@ class WebAPI(object):
         return self.cache.get(uri)
 
     def request_json(self, url, msg):
-        response = self.request_url(url, msg)
-        return response.json() if response is not None else response
+        res = self.request_url(url, msg)
+        return res.json() if res is not None else res
 
     def request_url(self, url, msg):
         print(Fore.GREEN + "Attempting to retrieve " + msg +
               " from Spotify's Web API" + Fore.RESET)
         print(Fore.CYAN + url + Fore.RESET)
-        req = requests.get(url)
-        if req.status_code == 200:
-            return req
+        res = requests.get(url)
+        if res.status_code == 200:
+            return res
         else:
             print(Fore.YELLOW + "URL returned non-200 HTTP code: " +
-                  str(req.status_code) + Fore.RESET)
+                  str(res.status_code) + Fore.RESET)
         return None
 
     def api_url(self, url_path):
@@ -154,9 +154,9 @@ class WebAPI(object):
             url = self.charts_url(metrics + "/" + region + "/" + time_window +
                 "/" + from_date + "/download")
 
-            response = self.request_url(url, region + " " + metrics + " charts")
-            if response is not None:
-                csv_items = [enc_str(r) for r in response.text.split("\n")]
+            res = self.request_url(url, region + " " + metrics + " charts")
+            if res is not None:
+                csv_items = [enc_str(r) for r in res.text.split("\n")]
                 reader = csv.DictReader(csv_items)
                 return ["spotify:track:" + row["URL"].split("/")[-1]
                             for row in reader]
