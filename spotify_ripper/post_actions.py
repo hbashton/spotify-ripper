@@ -173,12 +173,15 @@ class PostActions(object):
             _base_dir = base_dir()
             playlist_path = to_ascii(
                 os.path.join(_base_dir, name + '.m3u'))
-
+            path,folder_name = os.path.split(_base_dir)
+            playlist_path_fixed = to_ascii(
+		os.path.join(_base_dir, folder_name + '.m3u')) 
             print(Fore.GREEN + "Creating playlist m3u file " +
-                  playlist_path + Fore.RESET)
-
+                  playlist_path_fixed + Fore.RESET)
             encoding = "ascii" if args.ascii else "utf-8"
-            with codecs.open(playlist_path, 'w', encoding) as playlist:
+            print(Fore.GREEN + "Gotta fix playlist name. " +
+                  playlist_path_fixed + Fore.RESET)
+            with codecs.open(playlist_path_fixed, 'w', encoding) as playlist:
                 for idx, track in enumerate(tracks):
                     track.load()
                     if track.is_local:
@@ -187,6 +190,7 @@ class PostActions(object):
                     if path_exists(_file):
                         playlist.write(os.path.relpath(_file, _base_dir) +
                                        "\n")
+			
 
     def create_playlist_wpl(self, tracks):
         args = self.args
