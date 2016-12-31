@@ -42,7 +42,7 @@ Features
 
 -  option to remove tracks from playlist after successful ripping
 
--  globally installs ripper script using pip
+-  globally installs ripper script using setup.py
 
 -  Python 2.7.x and 3.4.x compatible.  Python 3 will occasionally throw a ``NameError: name '_lock' is not defined`` exception at the end of the script due to an `upstream bug <https://github.com/mopidy/pyspotify/issues/133>`__ in ``pyspotify``.
 
@@ -369,7 +369,7 @@ To install spotify-ripper once pyenv is setup:
     $ sudo ln -s /usr/local/opt/libspotify/lib/libspotify.12.1.51.dylib \
         /usr/local/opt/libspotify/lib/libspotify
     $ brew install lame
-    $ pip install spotify-ripper
+    $ git clone https://github.com/hbashton/spotify-ripper.git && cd spotify-ripper && sudo python setup.py install
     $ pyenv rehash
 
 **Note that Spotify may no longer be issuing developer keys.** See `Libspotify’s Deprecation`_
@@ -408,7 +408,7 @@ To install spotify-ripper once pyenv is setup:
     $ tar xvf libspotify-12.1.51-Linux-x86_64-release.tar.gz
     $ cd libspotify-12.1.51-Linux-x86_64-release/
     $ sudo make install prefix=/usr/local
-    $ pip install spotify-ripper
+    $ git clone https://github.com/hbashton/spotify-ripper.git && cd spotify-ripper && sudo python setup.py install
     $ pyenv rehash
 
 **Note that Spotify may no longer be issuing developer keys.** See `Libspotify’s Deprecation`_
@@ -421,7 +421,7 @@ the ``-k | --key`` option).
 Windows
 ~~~~~~~
 
-Unfortunately, pyspotify seems to have an issue building on Windows (if someone can get this to work, please let me know). The best alternative is to run a linux distribution in a virtual machine.  Basic instructions to install Ubuntu on Virtual Box can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Windows>`__.
+Unfortunately, pyspotify seems to have an issue building on Windows (if someone can get this to work, please let me know). The best alternative is to run a linux distribution in a virtual machine.  Basic instructions to install Ubuntu on Virtual Box can be found in the `wiki <https://github.com/hbashton-ripper/wiki/Windows>`__.
 
 
 Optional Encoding Formats
@@ -483,23 +483,24 @@ In addition to MP3 encoding, ``spotify-ripper`` supports encoding to FLAC, AAC, 
 Upgrade
 ~~~~~~~
 
-Use ``pip`` to upgrade to the latest version.
+Use ``git pull`` to upgrade to the latest version.
 
 .. code:: bash
 
-    $ pip install --upgrade spotify-ripper
+    $ cd spotify-ripper
+    $ git pull
 
 
 Common Issues and Problems
 --------------------------
 
-Help for common problems while using spotify-ripper can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Help>`__.
+Help for common problems while using spotify-ripper can be found in the `wiki <https://github.com/hbashton/spotify-ripper/wiki/Help>`__.
 
 
 Release Notes
 -------------
 
-Release notes can be found in the `wiki <https://github.com/jrnewell/spotify-ripper/wiki/Release-Notes>`__.
+Release notes can be found in the `wiki <https://github.com/hbashton/spotify-ripper/wiki/Release-Notes>`__.
 
 
 License
